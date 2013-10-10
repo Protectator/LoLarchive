@@ -1,0 +1,145 @@
+.container {
+	padding-top:30px;
+}
+
+.match {
+	padding: 14px;
+	margin-bottom: 14px;
+	height: 100px;
+}
+
+.imgchampion {
+	width: 80px;
+	height: 80px;
+}
+
+.imgitem32 {
+	width: 32px;
+	height: 32px;
+}
+
+.matchcell {
+	padding: 5px 8px;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.winmatch {
+	background-color: #004d14;
+}
+
+.lossmatch {
+	background-color: #4f0011;
+}
+
+.wintext {
+	font-size: 16px;
+	font-weight: bold;
+	color: #66CC33;
+}
+
+.losstext {
+	font-size: 16px;
+	font-weight: bold;
+	color: #DD7777;
+}
+
+.littleSummonerName {
+	font-size: 75%;
+	height: 16px;
+	width: 120px;
+	padding: 0px 1px;
+}
+
+.littleChampIcon {
+	padding: 0px;
+	width: 18px;
+	height: 18px;
+}
+
+.championcell {
+	width: 80px;
+	height: 80px;
+}
+
+.nodatacell {
+	width: 304px;
+	text-align: center;
+}
+
+.headcell {
+	width: 124px;
+}
+
+.kdacell {
+	width: 128px;
+}
+
+.playerscell {
+	padding-top: 0px;
+	padding-bottom: 0px;
+	padding-left: 16px;
+}
+
+.selfUser {
+	font-weight: bold;
+	text-shadow: 0px 0px 5px #000000;
+}
+
+.playerLine {
+	height: 16px;
+}
+
+.line {
+
+}
+
+.kdaNumber {
+	font-weight: bold;
+	width: 40px;
+	display: inline-block;
+	text-align: right;
+	color: #d6d6d6;
+}
+
+.minion {
+	font-weight: bold;
+	text-align: center;
+	width: 100%;
+	display: inline-block;
+}
+
+.gold {
+	font-weight: bold;
+	text-align: center;
+	width: 100%;
+	display: inline-block;
+}
+
+.singleitemcell {
+	width: 32px;
+	height: 32px;
+}
+
+.ss img {
+	width: 36px;
+	height: 36px;
+}
+
+.icon {
+	padding: 1px 0px;
+	margin: 0px;
+}
+
+.number {
+	font-weight: bold;
+}
+
+select[disabled] {
+   background-color: #171717;
+   color: #333333;
+}
+
+.control-label .checkbox.inline {
+	padding-top: 0px;
+}
