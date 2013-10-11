@@ -65,9 +65,11 @@ if (mysql_num_rows($query) > 0) {
 			$games = array (
 				"gameId" => $match['gameId'],
 				"region" => $region,
+				"mapId" => $match['gameMapId'],
 				"time" => $time,
 				"type" => $match['queueType'],
 				"subType" => $match['subType'],
+				"difficulty" => $match['difficulty'],
 				"duration" => 0, // TODO : Estimate game duration in function of PI won
 				"sender" => 0
 			);
@@ -76,7 +78,6 @@ if (mysql_num_rows($query) > 0) {
 			$data = array (
 				"gameId" => $match['gameId'],
 				"summonerId" => $sId,
-				"mapId" => $match['gameMapId'],
 				"region" => $region,
 				"spell1" => $match['spell1'],
 				"spell2" => $match['spell2'],
