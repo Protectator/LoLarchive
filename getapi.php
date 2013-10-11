@@ -95,7 +95,7 @@ if (mysql_num_rows($query) > 0) {
 			
 			// Parcourir l'array "STATISTICS"
 			foreach ($stat as $match['statistics']['array']) {
-				$data[$stat['statType']] => $stat['value'];
+				$data[$stat['statType']] = $stat['value'];
 			}
 		}
 
