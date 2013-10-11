@@ -88,14 +88,27 @@ if (mysql_num_rows($query) > 0) {
 				"premade" => $match['premadeSize'],
 				"ipEarned" => $match['ipEarned'],
 				"fwotd" => $match['eligibleFirstWinOfDay'],
-				"estimatedDuration" => '0',
+				"estimatedDuration" => '0', // TODO : Estimer la durée d'une game en fonction des IP gagnés
 				"boostIpEarned" => $match['boostIpEarned'],
 				"skinIndex" => $match['skinIndex']
 			);
 			
+			// TOUJOURS dans la table "Data"
 			// Parcourir l'array "STATISTICS"
-			foreach ($stat as $match['statistics']['array']) {
+			foreach ($match['statistics']['array'] as $stat) {
 				$data[$stat['statType']] = $stat['value'];
+			}
+			
+			$players = array();
+			// Table "players"
+			foreach ($match['fellowPlayers']['array'] as $player) {
+				$players[] = array (	
+					"gameId" => $match['gameId'],
+					"summonerId" => $player['summonerId'],
+					"teamId" => $player['teamId'],
+					"championId" => $player['championId'],
+					"dataVersion" => "2"
+				);
 			}
 		}
 
