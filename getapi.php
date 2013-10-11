@@ -86,7 +86,11 @@ if (mysql_num_rows($query) > 0) {
 				"dataVersion" => $match['dataVersion'],
 				"playerLevel" => $match['level'],
 				"premade" => $match['premadeSize'],
-				"ipEarned" => $match['ipEarned']
+				"ipEarned" => $match['ipEarned'],
+				"fwotd" => $match['eligibleFirstWinOfDay'],
+				"estimatedDuration" => '0',
+				"boostIpEarned" => $match['boostIpEarned'],
+				"skinIndex" => $match['skinIndex']
 			);
 			
 			// Parcourir l'array "STATISTICS"
