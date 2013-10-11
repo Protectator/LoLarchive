@@ -61,6 +61,61 @@
 		return $result;
 	}
 	
+	function earnIp($mode, $time, $level = '30') {
+		switch ($mode)
+	}
+	
+	function timeOf($map, $mode, $ip, $win, $difficulty = "", $level = '30') {
+		$dominion = 0.;
+		$modifier = 1.;
+		if ($mode == "NONE") {
+			$modifier = 0.75;
+		}
+		
+		$base = 16. + $win*2.; // Gain classique
+		if ($win) {$ipminute = 2.312;} else {$ipminute = 1.405;} // gain/min classique
+		
+		switch ($map) {
+		
+			case '1': //              SUMMONER'S RIFT id map
+				switch ($mode) {
+				
+					case "NORMAL": //    NORMAL
+						$base = 16. + $win*2.;
+						break;
+					
+					case "BOT":    //    COOP VS IA
+						if ($difficulty == "INTERMEDIATE") {
+							$base = 6. + $win * 1.;
+						} else if ($difficulty == "EASY") {
+							if ($win) {$base = 5.;} else {$base = 2.5;}
+						}
+						break;
+						
+					case "RANKED_SOLO_5x5":
+					case "RANKED_DUO_5x5":
+					case "RANKED_TEAM_5x5":
+						// TODO : Floor le nombre de minutes a 65
+						break;
+				}
+				break;
+			case '10': // TWISTED TREELINE id map
+
+				break;
+			case "aram":
+			
+				break;
+			case "dominion":
+				if ($win) {$ipminute = 2.;} else {$ipminute = 2.;}
+				$dominion = 1.;
+				if ($win) {$base = 20.;} else {$base = 12.5;}
+				break;
+		}
+		
+		return ($ip - $dominion - $base) / ($ipminute * $modifier);
+		
+	}
+	
 
 	// Connexion à la BDD
 	$connect = mysql_connect("localhost", "lolk", "fnu");
