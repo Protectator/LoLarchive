@@ -76,8 +76,23 @@ if (mysql_num_rows($query) > 0) {
 			$data = array (
 				"gameId" => $match['gameId'],
 				"summonerId" => $sId,
-				"mapId" => $match['gameMapId']
+				"mapId" => $match['gameMapId'],
+				"region" => $region,
+				"spell1" => $match['spell1'],
+				"spell2" => $match['spell2'],
+				"ipData" => $_SERVER['REMOTE_ADDR'],
+				"leaver" => $match['afk'],
+				"invalid" => $match['invalid'],
+				"dataVersion" => $match['dataVersion'],
+				"playerLevel" => $match['level'],
+				"premade" => $match['premadeSize'],
+				"ipEarned" => $match['ipEarned']
 			);
+			
+			// Parcourir l'array "STATISTICS"
+			foreach ($stat as $match['statistics']['array']) {
+				$data[$stat['statType']] => $stat['value'];
+			}
 		}
 
 		echo $json;
