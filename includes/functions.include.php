@@ -1,5 +1,7 @@
 <?php
 
+	define('API_KEY', "18d2e10ecf21b6e12fb81182fa4cf9f1718c873c");
+
 	// Secure functions 
 	function secure($string) {
 		// On regarde si le type de string est un nombre entier (int)
@@ -27,7 +29,50 @@
 	
 	// API functions
 		
-		// TODO
+	/**
+	* Gets summoner infos by name
+	*
+	* @param resource $c opened cURL session
+	* @param string $region abbreviated server's name
+	* @param string $name summoner's name to look for
+	* @return string json containing the request
+	*/
+	function getSummonerByName(&$c, $region, $name) {
+		$url = "http://legendaryapi.com/api/v1.0/".$region."/summoner/getSummonerByName/".$name;
+		curl_setopt($c, CURLOPT_URL, $url);
+		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+		return trim(curl_exec($c));
+	}
+	
+	/**
+	* Gets most recent games of a summoner
+	*
+	* @param resource $c opened cURL session
+	* @param string $region abbreviated server's name
+	* @param string $aId account Id to look for
+	* @return string json containing the request
+	*/
+	function getRecentGames(&$c, $region, $aId) {
+		$url = "http://legendaryapi.com/api/v1.0/".$region."/summoner/getRecentGames/".$aId;
+		curl_setopt($c, CURLOPT_URL, $url);
+		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+		return trim(curl_exec($c));
+	}
+	
+	/**
+	* Gets all public data of a summoner
+	*
+	* @param resource $c opened cURL session
+	* @param string $region abbreviated server's name
+	* @param string $aId account Id to look for
+	* @return string json containing the request
+	*/
+	function getPublicData(&$c, $region, $aId) {
+		$url = "http://legendaryapi.com/api/v1.0/".$region."/summoner/getAllPublicSummonerDataByAccount/".$aId;
+		curl_setopt($c, CURLOPT_URL, $url);
+		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+		return trim(curl_exec($c));
+	}
 		
 	// Index functions
 	function item($row, $int) {

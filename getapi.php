@@ -3,9 +3,7 @@
 require_once('includes/functions.include.php');
 
 /*Initialisation de la ressource curl*/
-$c = curl_init();
 
-$key = "18d2e10ecf21b6e12fb81182fa4cf9f1718c873c";
 
 /*
 TEMP
@@ -30,11 +28,8 @@ if (mysql_num_rows($query) > 0) {
 		$region = mb_strtoupper($row['region']);
 		$sId = $row['summonerId'];
 		$aId = $row['accountId'];
-		$url = "http://legendaryapi.com/api/v1.0/".$region."/summoner/getRecentGames/".$aId;
-		curl_setopt($c, CURLOPT_URL,$url);
-		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-		// Exécution de la requête cURL
-		$json = trim(curl_exec($c));
+		$c = curl_init();
+		$json = getRecentGames($c, $region, $aId);
 		curl_close($c);
 		// On transforme le json en un Array
 		$array = json_decode($json, true);
