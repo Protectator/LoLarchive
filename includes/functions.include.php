@@ -1,5 +1,6 @@
 <?php
 
+	// Secure functions 
 	function secure($string) {
 		// On regarde si le type de string est un nombre entier (int)
 		if(ctype_digit($string))
@@ -11,7 +12,24 @@
 		}
 		return $string;
 	}
+	
+	function purify($string) {
+		return htmlspecialchars($string);
+	}
+	
+	function secureArray(&$array) {
+		array_walk_recursive($array, 'secureArrayRec');
+	}
+	
+	function secureArrayRec(&$input, $key) {
+		if (is_string($input)) {$input = secure($input);}
+	}
+	
+	// API functions
 		
+		// TODO
+		
+	// Index functions
 	function item($row, $int) {
 		if ($row['item'.$int] > 0) {
 			return "<a href=\"http://www.lolking.net/items/".$row['item'.$int]."\"><img class= \"img-rounded imgitem32\" src=\"http://lkimg.zamimg.com/shared/riot/images/items/".$row['item'.$int]."_32.png\" alt=\"".$row['item'.$int]."\"></a>";
@@ -61,10 +79,6 @@
 		return $result;
 	}
 	
-	function earnIp($mode, $time, $level = '30') {
-		switch ($mode)
-	}
-	
 	function timeOf($map, $mode, $ip, $win, $difficulty = "", $level = '30') {
 		$dominion = 0.;
 		$modifier = 1.;
@@ -102,7 +116,7 @@
 			case '10': // TWISTED TREELINE id map
 
 				break;
-			case "aram":
+			case "12": // ARAM id map
 			
 				break;
 			case "dominion":
@@ -117,11 +131,11 @@
 	}
 	
 
-	// Connexion à la BDD
+	// Database connection
 	$connect = mysql_connect("localhost", "lolk", "fnu");
 	mysql_select_db("lolking", $connect) or die("erreur select db : " . mysql_error());
 	
-	// Sécurisation des données reçues
+	// If we get parameters, securize them
 	foreach ($_GET as &$thing) {
 		$thing = secure($thing);
 	}

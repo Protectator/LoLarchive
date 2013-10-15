@@ -70,7 +70,7 @@ if (mysql_num_rows($query) > 0) {
 				"type" => $match['queueType'],
 				"subType" => $match['subType'],
 				"difficulty" => $match['difficulty'],
-				"duration" => 0, // TODO : Estimate game duration in function of PI won
+				"duration" => 0, // TODO : Estimate game duration in function of IP won
 				"sender" => 0
 			);
 			
@@ -111,14 +111,57 @@ if (mysql_num_rows($query) > 0) {
 					"dataVersion" => "2"
 				);
 			}
-		}
+			// Adding the player that we're checking (he isn't in the table)
+			$players[] = array (
+				"gameId" => $match['gameId'],
+				"summonerId" => $sId,
+				"teamId" => $match['teamId'],
+				"championId" => $match['championId'],
+				"dataVersion" => "2"
+			);
+			
+			$req = array(); // Will contain requests to do
 
-		echo $json;
+			// Request on the "games" table
+			$keys = implode(', ', array_keys($games));
+			$values = implode('\', \'', array_values($games));
+			$req[0] = "INSERT INTO games (".$keys.") VALUES ('".$values."')
+				ON DUPLICATE KEY
+				UPDATE time='".$time."';";
+				
+			// Request on the "data" table
+			$keys = implode(', ', array_keys($data));
+			$values = implode('\', \'', array_values($data));
+			$req[1] = "INSERT INTO data (".$keys.") VALUES ('".$values."')
+				ON DUPLICATE KEY
+				UPDATE estimatedDuration = '0';";
+			
+			// Request on the "players" table
+			$keys = implode(', ', array_keys($players[0]));
+			$rows = array();
+			$requestString = "INSERT INTO players (".$keys.") VALUES ";
+			foreach ($players as $pl) {
+				$values = implode('\', \'', array_values($pl));
+				$rows[] = "('".$values."')";
+			}
+			$requestString = $requestString.implode(", ", $rows);
+			$requestString = $requestString."
+				ON DUPLICATE KEY
+				UPDATE dataVersion = '2';";
+			$req[2] = $requestString;
+				
+			
+			foreach ($req as $request) {
+				// echo "Request:<br>"$request.;
+				// $query = mysql_query($request, $connect) or die("<br>Requête INSERT échouée : ".mysql_error());
+				// echo "<br>".mysql_affected_rows()." affected rows";
+			}
+			
+		} // END foreach match
 		
-		/*$req = "INSERT INTO games (id, user, region, ip) VALUES ('".$_POST['fnu'][0]['user']."', '".$_POST['fnu'][0]['username']."', '".$_POST['fnu'][0]['region']."', ".$ip.")
-			ON DUPLICATE KEY
-			UPDATE
-			user='".$_POST['fnu'][0]['username']."'";*/
-	}
+	} // END foreach player
+
+	echo $json;
+	
 }
 ?>
