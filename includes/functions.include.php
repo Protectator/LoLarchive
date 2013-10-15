@@ -2,7 +2,14 @@
 
 	define('API_KEY', "18d2e10ecf21b6e12fb81182fa4cf9f1718c873c");
 
-	// Secure functions 
+	// Secure functions
+
+	/**
+	* Secures an user input before treating it.
+	*
+	* Converts a string to an integer if it is one.
+	* If not, escapes apostrophes and other risky stuff.
+	*/	
 	function secure($string) {
 		// On regarde si le type de string est un nombre entier (int)
 		if(ctype_digit($string))
@@ -15,16 +22,24 @@
 		return $string;
 	}
 	
+	/**
+	* "Purifies" text from HTML code beforedisplaying it.
+	*/
 	function purify($string) {
 		return htmlspecialchars($string);
 	}
 	
+	/**
+	* Applies secure() on all values of an array and all subarrays.
+	*/
 	function secureArray(&$array) {
+		/**
+		* Don't use this outside.
+		*/
+		function secureArrayRec(&$input, $key) {
+			if (is_string($input)) {$input = secure($input);}
+		}
 		array_walk_recursive($array, 'secureArrayRec');
-	}
-	
-	function secureArrayRec(&$input, $key) {
-		if (is_string($input)) {$input = secure($input);}
 	}
 	
 	// API functions
@@ -40,6 +55,7 @@
 	function getSummonerByName(&$c, $region, $name) {
 		$url = "http://legendaryapi.com/api/v1.0/".$region."/summoner/getSummonerByName/".$name;
 		curl_setopt($c, CURLOPT_URL, $url);
+		curl_setopt($c, CURLOPT_HTTPHEADER, array('authentication: '.API_KEY));
 		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 		return trim(curl_exec($c));
 	}
@@ -55,6 +71,7 @@
 	function getRecentGames(&$c, $region, $aId) {
 		$url = "http://legendaryapi.com/api/v1.0/".$region."/summoner/getRecentGames/".$aId;
 		curl_setopt($c, CURLOPT_URL, $url);
+		curl_setopt($c, CURLOPT_HTTPHEADER, array('authentication: '.API_KEY));
 		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 		return trim(curl_exec($c));
 	}
@@ -70,6 +87,7 @@
 	function getPublicData(&$c, $region, $aId) {
 		$url = "http://legendaryapi.com/api/v1.0/".$region."/summoner/getAllPublicSummonerDataByAccount/".$aId;
 		curl_setopt($c, CURLOPT_URL, $url);
+		curl_setopt($c, CURLOPT_HTTPHEADER, array('authentication: '.API_KEY));
 		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 		return trim(curl_exec($c));
 	}
