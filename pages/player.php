@@ -79,7 +79,7 @@
 	
 	// Récupération des id des champions
 	$req3 = "SELECT * FROM champions ORDER BY name ASC;";
-	$query3 = mysql_query($req3, $connect) or die("Requête SELECT 3 échouée : ".mysql_error());
+	$query3 = mysql_query($req3, $connect) or die("Requête SELECT 3 (WTF) échouée : ".mysql_error()."<br>".$req3."<br>name: ".$name."<br>region: ".$region."<br>".getcwd());
 	
 	$champsId = array();
 	$champsDisplay = array();

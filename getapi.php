@@ -2,6 +2,7 @@
 
 require_once('includes/functions.include.php');
 
+
 /*Initialisation de la ressource curl*/
 
 
@@ -156,7 +157,12 @@ if (mysql_num_rows($query) > 0) {
 		
 	} // END foreach player
 
-	echo $json;
+	$c = curl_init();
+	echo getSummonerByName($c, "euw", "Lachainone");
+	curl_close($c);
 	
+	if (class_exists('PDO')) {
+		echo ABSPATH;
+	}
 }
 ?>

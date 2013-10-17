@@ -1,5 +1,7 @@
 <?php
 
+	define('PATH', "/lolarchive/");
+
 	define('API_KEY', "18d2e10ecf21b6e12fb81182fa4cf9f1718c873c");
 
 	// Secure functions
@@ -91,7 +93,17 @@
 		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 		return trim(curl_exec($c));
 	}
-		
+	
+	// Database functions
+	
+	function trackNewPlayer(&$c, $region, $name) {
+		$json = getSummonerByName($c, $region, $name);
+		$array = json_decode($json, true);
+		$aId = $array['acctId'];
+		// TODO : connect to database and add the user.
+		$sId = $array['summonerId'];
+	}
+	
 	// Index functions
 	function item($row, $int) {
 		if ($row['item'.$int] > 0) {
