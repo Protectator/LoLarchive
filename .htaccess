@@ -1,5 +1,1 @@
 ErrorDocument 404 index.php?page=404
-
-Options +FollowSymlinks
-RewriteEngine on
-RewriteRule ^/lolarchive/player/(.+)/(.+) /lolarchive/index.php?page=player&region=$1&name=$2 [R,L]

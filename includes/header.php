@@ -5,13 +5,13 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<!-- Bootstrap -->
-		<link href="css/bootstrap.css" rel="stylesheet" media="screen">
-		<link href="css/darkstrap.css" rel="stylesheet" media="screen">
-		<link href="css/style.css" rel="stylesheet" media="screen">
-		<link rel="icon" href="favicon.ico" />
+		<link href="<?echo PATH;?>css/bootstrap.css" rel="stylesheet" media="screen">
+		<link href="<?echo PATH;?>css/darkstrap.css" rel="stylesheet" media="screen">
+		<link href="<?echo PATH;?>css/style.css" rel="stylesheet" media="screen">
+		<link rel="icon" href="<?echo PATH;?>favicon.ico" />
 	</head>
 	<body>
-		<?php include_once("includes/analyticstracking.php") ?>
+		<?php include_once("analyticstracking.php") ?>
 		<div class="container">
 			<div class="row">
 				<div class="span12">

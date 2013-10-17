@@ -8,7 +8,7 @@
 	$rName['tr'] = "Turkey";
 	$rName['ru'] = "Russia";
 	
-	$champsFolder = "img/champions/";
+	$champsFolder = PATH."img/champions/";
 	
 	/* Si On a reçu des arguments valides */
 	if ((isset($_GET['name']) OR isset($_GET['id'])) AND isset($_GET['region'])) {
@@ -95,7 +95,7 @@
 			<?php 
 			if (isset($rName[$region])) {
 				$regionTxt = $rName[$region];} else {$regionTxt = $region; } ?>
-			<h2><? echo htmlentities(utf8_decode($name));?> <a href="http://www.lolking.net/summoner/<? echo $region."/".$id; ?>"><img src="img/lolking.png" alt="lolking"></a></h2>
+			<h2><? echo htmlentities(utf8_decode($name));?> <a href="http://www.lolking.net/summoner/<? echo $region."/".$id; ?>"><img src="<?echo PATH;?>img/lolking.png" alt="lolking"></a></h2>
 			<? echo htmlentities($regionTxt);?>
 			<br><? echo htmlentities($id);?>
 		</div>
@@ -133,7 +133,7 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 							<?
 							foreach ($champsName as $value) {
 								?>
-								<option value="<?echo $value;?>" style="background: url('img/champions/<?echo ucfirst($value);?>.png') no-repeat;" <?echo ($lastChampion == $value)?"selected":"";?>>
+								<option value="<?echo $value;?>" style="background: url('<?echo PATH;?>img/champions/<?echo ucfirst($value);?>.png') no-repeat;" <?echo ($lastChampion == $value)?"selected":"";?>>
 								<? echo $champsDisplay[$value];?>
 								</option>
 								<?
@@ -252,17 +252,17 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 						{
 						?>
 							<div class="matchcell kdacell">
-								<div class="kdaNumber"><?echo $row['kills'];?><img class="icon" src="img/kill.png" alt="kills"></div>
-								<div class="kdaNumber"><?echo $row['deaths'];?><img class="icon" src="img/death.png" alt="deaths"></div>
-								<div class="kdaNumber"><?echo $row['assists'];?><img class="icon" src="img/assist.png" alt="assists"></div>
+								<div class="kdaNumber"><?echo $row['kills'];?><img class="icon" src="<?echo PATH;?>img/kill.png" alt="kills"></div>
+								<div class="kdaNumber"><?echo $row['deaths'];?><img class="icon" src="<?echo PATH;?>img/death.png" alt="deaths"></div>
+								<div class="kdaNumber"><?echo $row['assists'];?><img class="icon" src="<?echo PATH;?>img/assist.png" alt="assists"></div>
 
-								<br><div class="minion"><?echo $row['minions'];?><img class="icon" src="img/minion.png" alt="minions"></div>
-								<br><div class="gold"><?echo $row['gold'];?><img class="icon" src="img/gold.png" alt="gold"></div>
+								<br><div class="minion"><?echo $row['minions'];?><img class="icon" src="<?echo PATH;?>img/minion.png" alt="minions"></div>
+								<br><div class="gold"><?echo $row['gold'];?><img class="icon" src="<?echo PATH;?>img/gold.png" alt="gold"></div>
 							</div>
 							
 							<div class="matchcell sscell">
-								<div class="ss"><img class="icon img-rounded" src="img/ss/<?echo $row['ss1'];?>.png" alt="Summoner Spell n <?echo $row['ss1'];?>"></div>
-								<div class="ss"><img class="icon img-rounded" src="img/ss/<?echo $row['ss2'];?>.png" alt="Summoner Spell n <?echo $row['ss2'];?>"></div>
+								<div class="ss"><img class="icon img-rounded" src="<?echo PATH;?>img/ss/<?echo $row['ss1'];?>.png" alt="Summoner Spell n <?echo $row['ss1'];?>"></div>
+								<div class="ss"><img class="icon img-rounded" src="<?echo PATH;?>img/ss/<?echo $row['ss2'];?>.png" alt="Summoner Spell n <?echo $row['ss2'];?>"></div>
 							</div>
 							
 							<div class="matchcell itemscell">

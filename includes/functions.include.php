@@ -127,7 +127,7 @@
 			$result .= "<tr class=\"playerLine\">";
 			if ($row['a'.$i.'id'] != "0") {
 				$result = $result."<td class=\"littleChampIcon\"><img src=\"".$champsFolder.ucfirst($row['a'.$i.'champ']).".png\" class=\"littleChampIcon\" alt=\"".$row['a'.$i.'champ']."\"></td>";
-				$result = $result.'<td class="littleSummonerName"><a href="index.php?page=player&amp;region='.$region.'&amp;id='.$row['a'.$i.'id']./*"#".$row['id'].*/'">'.$row['a'.$i.'user'].'</a></td>';
+				$result = $result.'<td class="littleSummonerName"><a href="'.PATH.'index.php?page=player&amp;region='.$region.'&amp;id='.$row['a'.$i.'id']./*"#".$row['id'].*/'">'.$row['a'.$i.'user'].'</a></td>';
 			} else {
 				$result .= "<td class=\"littleChampIcon\"></td><td class=\"littleSummonerName\"></td>";
 			}
@@ -135,7 +135,7 @@
 			// user B
 			if ($row['b'.$i.'id'] != "0") {
 			$result = $result."<td class=\"littleChampIcon\"><img src=\"".$champsFolder.ucfirst($row['b'.$i.'champ']).".png\" class=\"littleChampIcon\" alt=\"".$row['b'.$i.'champ']."\"></td>";
-			$result = $result.'<td class="littleSummonerName"><a href="index.php?page=player&amp;region='.$region.'&amp;id='.$row['b'.$i.'id']./*"#".$row['id'].*/'">'.$row['b'.$i.'user'].'</a></td>';
+			$result = $result.'<td class="littleSummonerName"><a href="'.PATH.'index.php?page=player&amp;region='.$region.'&amp;id='.$row['b'.$i.'id']./*"#".$row['id'].*/'">'.$row['b'.$i.'user'].'</a></td>';
 			} else {
 				$result .= "<td class=\"littleChampIcon\"></td><td class=\"littleSummonerName\"></td>";
 			}
