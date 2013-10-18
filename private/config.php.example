@@ -1,0 +1,11 @@
+<?
+
+define('HOST', "localhost");
+
+define('DBNAME', "lolarchive");
+
+define('USERNAME', "yourUserName");
+
+define('PASSWORD', "yourPassword");
+
+?>

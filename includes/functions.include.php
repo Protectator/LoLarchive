@@ -3,6 +3,10 @@
 	define('PATH', "/lolarchive/");
 
 	define('API_KEY', "18d2e10ecf21b6e12fb81182fa4cf9f1718c873c");
+	
+	// Database connect functions
+	
+	
 
 	// Secure functions
 

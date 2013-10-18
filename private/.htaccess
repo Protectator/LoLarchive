@@ -1,0 +1,6 @@
+AuthUserFile /var/www/lolarchive/private/.htpasswd
+AuthGroupFile /dev/null
+AuthName "Protected config folder"
+AuthType Basic
+
+require user protectator
