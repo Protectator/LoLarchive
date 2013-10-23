@@ -2,11 +2,135 @@
 
 	define('PATH', "/lolarchive/");
 
-	define('API_KEY', "18d2e10ecf21b6e12fb81182fa4cf9f1718c873c");
+	require_once(PATH.'private/config.php');
 	
 	// Database connect functions
 	
+	/**
+	* Creates a new connection to the database using PDO
+	*
+	* @return PDO object with opened connection
+	*/
+	function newDBConnection() {
+		try
+		{
+			return new PDO('mysql:host='.HOST.';dbname='.DBNAME, USERNAME, PASSWORD);
+		}
+		catch(Exception $e)
+		{
+			echo 'Failed to connect to database:<br />';
+			echo 'Error : '.$e->getMessage().'<br />';
+			echo 'N° : '.$e->getCode();
+			exit();
+		}
+	}
 	
+	/**
+	* Commits one or multiple queries at once.
+	*
+	* Use this to do INSERT, DELETE or UPDATE queries.
+	* Commits all requests in the order they are read -> The order of $queries array
+	*
+	* @param resource $pdo opened PDO session
+	* @param array|string $queries String or Array of Strings containing the 
+	* SQL queries to perform at once.
+	*/
+	function securedInsert(&$pdo, $queries) {
+		try
+		// TODO : Test
+		{
+			$pdo->beginTransaction();
+			if ($queries is_string($queries)) {
+				$pdo->query($queries);
+			} else {
+				foreach($queries as $currentQuery) {
+					$pdo->query($currentQuery);
+				}
+			}
+			$result = $pdo->commit();
+			return $result;
+		}
+		catch(Exception $e)
+		{
+			$pdo->rollback();
+			echo 'Error while committing queries :<br />';
+			echo 'Error : '.$e->getMessage().'<br />';
+			echo 'N° : '.$e->getCode();
+			exit();
+		}
+	}
+	
+	/**
+	* Performs a raw (untreated and unsecured) SELECT query.
+	*
+	* @param resource $pdo opened PDO session
+	* @param string $query Query to perform
+	* @return Result of the query
+	*/
+	function rawSelect(&$pdo, $query) {
+		try {
+			return $pdo->query($query);
+		}
+		catch (Exception e) {
+			echo 'Error while committing query :<br />';
+			echo 'Error : '.$e->getMessage().'<br />';
+			echo 'N° : '.$e->getCode();
+			exit();
+		}
+	}
+	
+	/**
+	* Prepares a query, securizing it and executing it execution.
+	*
+	* Uses an opened PDO connection to prepare a query using values contained
+	* in an	other array. and then sends it (key => value pairs)
+	* 
+	* @param resource $pdo opened PDO session
+	* @param string $queryToPrepare A request to be prepared following a certain
+	* syntax using named parameters -> Check http://php.net/manual/fr/pdo.prepare.php#example-1021
+	* @param array $values Array of strings containing values to place in the query.
+	* @return The result of the query
+	*/
+	function query(&$pdo, $queryToPrepare, $values) {
+		try {
+			$req = $pdo->prepare($queryToPrepare);
+			$req -> execute($values);
+			return $req;
+		}
+		catch (Exception e) {
+			echo 'Error while preparing/executing query :<br />';
+			echo 'Error : '.$e->getMessage().'<br />';
+			echo 'N° : '.$e->getCode();
+			exit();
+		}
+	}
+	
+	
+	/**
+	* Prepares a chunk of string designed to be added with other parts of a SQL INSERT
+	*
+	* TODO : Doc !
+	*/
+	function buildInsert($columns) {
+		return "(".implode(", ", array_keys($columns)).") VALUES (:".implode(", :", array_keys($columns)).")";
+	}
+	
+	/**
+	* TODO : Doc me !
+	*/
+	function bindParams(&$pdo, $columns) {
+		try {
+			foreach ($columns as $key => $value) {
+				$pdo->bindParam(":".$key, $value);
+			}
+		}
+		catch (Exception e) {
+			echo 'Error while binding params :<br />';
+			echo 'Error : '.$e->getMessage().'<br />';
+			echo 'N° : '.$e->getCode();
+			exit();
+		}
+	}
 
 	// Secure functions
 
@@ -15,6 +139,9 @@
 	*
 	* Converts a string to an integer if it is one.
 	* If not, escapes apostrophes and other risky stuff.
+	*
+	* @param string $string string to secure
+	* @return secured string
 	*/	
 	function secure($string) {
 		// On regarde si le type de string est un nombre entier (int)
@@ -29,7 +156,7 @@
 	}
 	
 	/**
-	* "Purifies" text from HTML code beforedisplaying it.
+	* "Purifies" text from HTML code before displaying it.
 	*/
 	function purify($string) {
 		return htmlspecialchars($string);

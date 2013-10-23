@@ -12,11 +12,11 @@
 	</head>
 	<body>
 		<?php include_once("analyticstracking.php") ?>
-		<div class="container">
+		<div class="container well">
 			<div class="row">
 				<div class="span12">
 					<div class="hero-unit">
-						<h1 id="title"><a href="http://protectator.ch/lolarchive" style="color:inherit;">LoLarchive</a></h1>
+						<h1 id="title"><a href="<?echo PATH;?>" style="color:inherit;">LoLarchive</a></h1>
 						<h3>League of Legends games archive</h3>
 					</div>
 				</div>

@@ -8,4 +8,6 @@ define('USERNAME', "yourUserName");
 
 define('PASSWORD', "yourPassword");
 
+define('API_KEY', "ApiKeyOfYourApiProvider");
+
 ?>

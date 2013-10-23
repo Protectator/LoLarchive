@@ -17,6 +17,8 @@ mysql_select_db("lolarchive", $connect) or die("erreur select db : " . mysql_err
 END TEMP
 */
 
+	$pdo = newDBConnection();
+
 // On récupère les utilisateurs à actualiser
 $req = "SELECT * FROM usersToTrack";
 $query = mysql_query($req, $connect) or die("Requête SELECT 1 échouée : ".mysql_error());
