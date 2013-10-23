@@ -1,8 +1,9 @@
 <?php
 
 	define('PATH', "/lolarchive/");
+	define('LOCAL', "/var/www");
 
-	require_once(PATH.'private/config.php');
+	require_once(LOCAL.PATH.'private/config.php');
 	
 	// Database connect functions
 	
@@ -40,7 +41,7 @@
 		// TODO : Test
 		{
 			$pdo->beginTransaction();
-			if ($queries is_string($queries)) {
+			if (is_string($queries)) {
 				$pdo->query($queries);
 			} else {
 				foreach($queries as $currentQuery) {
@@ -71,7 +72,7 @@
 		try {
 			return $pdo->query($query);
 		}
-		catch (Exception e) {
+		catch (Exception $e) {
 			echo 'Error while committing query :<br />';
 			echo 'Error : '.$e->getMessage().'<br />';
 			echo 'N° : '.$e->getCode();
@@ -97,7 +98,7 @@
 			$req -> execute($values);
 			return $req;
 		}
-		catch (Exception e) {
+		catch (Exception $e) {
 			echo 'Error while preparing/executing query :<br />';
 			echo 'Error : '.$e->getMessage().'<br />';
 			echo 'N° : '.$e->getCode();
@@ -124,7 +125,7 @@
 				$pdo->bindParam(":".$key, $value);
 			}
 		}
-		catch (Exception e) {
+		catch (Exception $e) {
 			echo 'Error while binding params :<br />';
 			echo 'Error : '.$e->getMessage().'<br />';
 			echo 'N° : '.$e->getCode();
