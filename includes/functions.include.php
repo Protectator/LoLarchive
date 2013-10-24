@@ -38,7 +38,9 @@
 	function newDBConnection() {
 		try
 		{
-			return new PDO('mysql:host='.HOST.';dbname='.DBNAME, USERNAME, PASSWORD);
+			$return = new PDO('mysql:host='.HOST.';dbname='.DBNAME, USERNAME, PASSWORD);
+			$return->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			return $return;
 		}
 		catch(Exception $e)
 		{
@@ -68,8 +70,8 @@
 	function buildMultInsert($arrayOfColumns) {
 		$result = "(".implode(", ", array_keys($arrayOfColumns[0])).") VALUES ";
 		$columns = array();
-		foreach($arrayOfColumns as $columns) {
-			$columns[] = "('".implode("', '", array_values($columns))."')";
+		foreach($arrayOfColumns as $column) {
+			$columns[] = "('".implode("', '", array_values($column))."')";
 		}
 		$result .= implode(", ", $columns);
 		return $result;
@@ -103,7 +105,14 @@
 		catch(Exception $e)
 		{
 			$pdo->rollback();
-			echo 'Error while committing queries :<br />';
+			echo 'Error while committing queries (securedInsert) :<br />Query:';
+			if (is_string($queries)) {
+				echo $queries;
+			} else {
+				foreach($queries as $currentQuery) {
+					echo $currentQuery."<br>";
+				}
+			}
 			echo 'Error : '.$e->getMessage().'<br />';
 			echo 'N° : '.$e->getCode();
 			exit();
@@ -117,9 +126,9 @@
 	* @param string $query Query to perform
 	* @return Result of the query
 	*/
-	function rawSelect(&$pdo, $query) {
+	function rawSelect(&$pdo, $req) {
 		try {
-			return $pdo->query($query);
+			return $pdo->query($req);
 		}
 		catch (Exception $e) {
 			echo 'Error while committing query :<br />';
@@ -142,7 +151,7 @@
 	* @param string $string string to secure
 	* @return secured string
 	*/	
-	function secure($string) {
+	function secure(&$pdo, $string) {
 		// On regarde si le type de string est un nombre entier (int)
 		if(ctype_digit($string))
 		{
@@ -164,12 +173,12 @@
 	/**
 	* Applies secure() on all values of an array and all subarrays.
 	*/
-	function secureArray(&$array) {
+	function secureArray(&$pdo, &$array) {
 		/**
 		* Don't use this outside.
 		*/
 		function secureArrayRec(&$input, $key) {
-			if (is_string($input)) {$input = secure($input);}
+			if (is_string($input)) {$input = secure($pdo, $input);}
 		}
 		array_walk_recursive($array, 'secureArrayRec');
 	}
@@ -336,6 +345,9 @@
 						break;
 				}
 				break;
+			case '8': // DOMINION id map
+
+				break;
 			case '10': // TWISTED TREELINE id map
 
 				break;
@@ -411,7 +423,9 @@
 	*/
 	
 	// If we get parameters, securize them
+	/*
 	foreach ($_GET as &$thing) {
 		$thing = secure($thing);
 	}
+	*/
 ?>

@@ -163,14 +163,17 @@ if (mysql_num_rows($query) > 0) {
 			
 		} // END foreach match
 		
+		echo $json;
+		
 	} // END foreach player
 
 	$c = curl_init();
-	echo getSummonerByName($c, "euw", "Lachainone");
+	//echo getSummonerByName($c, "euw", "Lachainone");
 	curl_close($c);
 	
 	if (class_exists('PDO')) {
-		echo ABSPATH;
+		//echo ABSPATH;
 	}
+	
 }
 ?>

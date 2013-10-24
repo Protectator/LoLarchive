@@ -2,19 +2,20 @@
 
 require_once('includes/functions.include.php');
 
-/*Initialisation de la ressource curl*/
-
-	$pdo = newDBConnection();
-	$req = "SELECT * FROM usersToTrack";
-	$query = rawSelect($pdo, $req);
+// Initialize connexion to database
+$pdo = newDBConnection();
+foreach ($_GET as &$thing) {
+	$thing = secure($pdo, $thing);
+}
+// Get users to track
+$query = rawSelect($pdo, "SELECT * FROM usersToTrack");
 
 // On récupère les utilisateurs à actualiser
-//$query = mysql_query($req, $connect) or die("Requête SELECT 1 échouée : ".mysql_error());
 
 // Si la requête retourne des résultats
 if (count($query) > 0) {
-	while ($row = $query->fetch()) { // Pour chaque joueur
-	
+	// Pour chaque joueur
+	while ($row = $query->fetch()) {
 		// Préparation de la requête cURL
 		$region = mb_strtoupper($row['region']);
 		$sId = $row['summonerId'];
@@ -28,9 +29,17 @@ if (count($query) > 0) {
 
 		foreach ($matches as $match) {
 		
-			// Parsing de la date
+			// Just messing with the date formatting...
 			$date = preg_match('/(\w+) (\d+), (\d+) (\d+):(\d+):(\d+) (\w+)/', $match['createDate'], $save);
 			$time = $save[3]."-".$months[$save[1]]."-".$save[2]." ".date("H:i", strtotime($save[4].":".$save[5].":".$save[6]." ".$save[7]));
+		
+			/*
+			First we need to match every stat in the json file to a line in the database.
+			We'll put things in 3 different tables :
+			- games   
+			- data    
+			- players 
+			*/
 			
 			// Table "games"
 			$games = array (
@@ -64,15 +73,14 @@ if (count($query) > 0) {
 				"boostIpEarned" => $match['boostIpEarned'],
 				"skinIndex" => $match['skinIndex']
 			);
-			
-			// TOUJOURS dans la table "Data"
-			// Parcourir l'array "STATISTICS"
+			// For each other stat (the ones in caps) we put them directly with their name
+			// in the table
 			foreach ($match['statistics']['array'] as $stat) {
 				$data[$stat['statType']] = $stat['value'];
 			}
 			
-			$players = array();
 			// Table "players"
+			$players = array();
 			foreach ($match['fellowPlayers']['array'] as $player) {
 				$players[] = array (	
 					"gameId" => $match['gameId'],
@@ -81,8 +89,7 @@ if (count($query) > 0) {
 					"championId" => $player['championId'],
 					"dataVersion" => "2"
 				);
-			}
-			// Adding the player that we're checking (he isn't in the table)
+			} // Now we nees to add the player that we're checking (he isn't in the json array)
 			$players[] = array (
 				"gameId" => $match['gameId'],
 				"summonerId" => $sId,
@@ -108,35 +115,21 @@ if (count($query) > 0) {
 				ON DUPLICATE KEY
 				UPDATE dataVersion = '2';";
 			
-			foreach ($req as $request) {
-				//echo "Request:<br>".$request;
-				$queries = securedInsert($pdo, $req);
-				//echo $queries."<br><br>";
-			}
+			// Execute all three requests in a secured way
+			echo securedInsert($pdo, $req);
+		
 			
 		} // END foreach match
 		
 	} // END foreach player
 
+	
 	$c = curl_init();
-	echo getSummonerByName($c, "euw", "Protectator")."<br><br>";
 	
 	$region = "euw";
-	$name = "Protectator";
+	$name = "Lachainone";
 	
-	$json = getSummonerByName($c, $region, $name);
-	$jsonArray = json_decode($json, true);
-	$aId = $jsonArray['acctId'];
-	$sId = $jsonArray['summonerId'];
-	$infos = array (
-		"region" => $region,
-		"summonerId" => $sId,
-		"accountId" => $aId,
-		"name" => $name
-	);
-	$request = "INSERT INTO usersToTrack ".buildInsert($infos)." ON DUPLICATE KEY UPDATE name = '".$name."';";
-	echo $request;
-	echo securedInsert($pdo, $request); // Returns the number of affected rows
+	echo trackNewPlayer($pdo, $c, $region, $name);
 	
 	curl_close($c);
 }
