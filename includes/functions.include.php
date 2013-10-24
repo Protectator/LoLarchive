@@ -5,12 +5,35 @@
 
 	require_once(LOCAL.PATH.'private/config.php');
 	
-	// Database connect functions
+	// Useful variables
+	
+	// Number to name of month and reverse
+	$months = array (
+			"Jan" => '01',
+			"Feb" => '02',
+			"Mar" => '03',
+			"Apr" => '04',
+			"May" => '05',
+			"Jun" => '06',
+			"Jul" => '07',
+			"Aug" => '08',
+			"Sep" => '09',
+			"Oct" => '10',
+			"Nov" => '11',
+			"Dec" => '12'
+	);
+	foreach($months as $key => $value) {
+		$months[intval($value)] = $key;
+	}
+	
+	/*
+	DATABASE CONNECTION FUNCTIONS
+	*/
 	
 	/**
 	* Creates a new connection to the database using PDO
 	*
-	* @return PDO object with opened connection
+	* @return resource PDO object with opened connection
 	*/
 	function newDBConnection() {
 		try
@@ -27,6 +50,32 @@
 	}
 	
 	/**
+	* Prepares a chunk of string designed to be added with other parts of a SQL INSERT
+	*
+	* @param $columns Array containing keys and values to add to the SQL INSERT
+	* @return string keys and values to be inserted
+	*/
+	function buildInsert($columns) {
+		return "(".implode(", ", array_keys($columns)).") VALUES ('".implode("', '", array_values($columns))."')";
+	}
+	
+	/**
+	* Prepares a chunk of string designed to be added with other parts of a SQL INSERT
+	* 
+	* @param $columns Array containing arrays of keys and values to add to the SQL INSERT
+	* @return string keys and values to be inserted
+	*/
+	function buildMultInsert($arrayOfColumns) {
+		$result = "(".implode(", ", array_keys($arrayOfColumns[0])).") VALUES ";
+		$columns = array();
+		foreach($arrayOfColumns as $columns) {
+			$columns[] = "('".implode("', '", array_values($columns))."')";
+		}
+		$result .= implode(", ", $columns);
+		return $result;
+	}
+	
+	/**
 	* Commits one or multiple queries at once.
 	*
 	* Use this to do INSERT, DELETE or UPDATE queries.
@@ -35,10 +84,10 @@
 	* @param resource $pdo opened PDO session
 	* @param array|string $queries String or Array of Strings containing the 
 	* SQL queries to perform at once.
+	* @return integer Number of affected rows
 	*/
 	function securedInsert(&$pdo, $queries) {
 		try
-		// TODO : Test
 		{
 			$pdo->beginTransaction();
 			if (is_string($queries)) {
@@ -79,61 +128,10 @@
 			exit();
 		}
 	}
-	
-	/**
-	* Prepares a query, securizing it and executing it execution.
-	*
-	* Uses an opened PDO connection to prepare a query using values contained
-	* in an	other array. and then sends it (key => value pairs)
-	* 
-	* @param resource $pdo opened PDO session
-	* @param string $queryToPrepare A request to be prepared following a certain
-	* syntax using named parameters -> Check http://php.net/manual/fr/pdo.prepare.php#example-1021
-	* @param array $values Array of strings containing values to place in the query.
-	* @return The result of the query
-	*/
-	function query(&$pdo, $queryToPrepare, $values) {
-		try {
-			$req = $pdo->prepare($queryToPrepare);
-			$req -> execute($values);
-			return $req;
-		}
-		catch (Exception $e) {
-			echo 'Error while preparing/executing query :<br />';
-			echo 'Error : '.$e->getMessage().'<br />';
-			echo 'N° : '.$e->getCode();
-			exit();
-		}
-	}
-	
-	
-	/**
-	* Prepares a chunk of string designed to be added with other parts of a SQL INSERT
-	*
-	* TODO : Doc !
-	*/
-	function buildInsert($columns) {
-		return "(".implode(", ", array_keys($columns)).") VALUES (:".implode(", :", array_keys($columns)).")";
-	}
-	
-	/**
-	* TODO : Doc me !
-	*/
-	function bindParams(&$pdo, $columns) {
-		try {
-			foreach ($columns as $key => $value) {
-				$pdo->bindParam(":".$key, $value);
-			}
-		}
-		catch (Exception $e) {
-			echo 'Error while binding params :<br />';
-			echo 'Error : '.$e->getMessage().'<br />';
-			echo 'N° : '.$e->getCode();
-			exit();
-		}
-	}
 
-	// Secure functions
+	/*
+	SECURITY FUNCTIONS
+	*/
 
 	/**
 	* Secures an user input before treating it.
@@ -150,7 +148,7 @@
 		{
 			$string = intval($string);
 		} else { // Pour tous les autres types
-			$string = mysql_real_escape_string($string);
+			$string = $pdo->quote($string);
 			$string = addcslashes($string, '%_');
 		}
 		return $string;
@@ -176,7 +174,9 @@
 		array_walk_recursive($array, 'secureArrayRec');
 	}
 	
-	// API functions
+	/*
+	API FUNCTIONS
+	*/
 		
 	/**
 	* Gets summoner infos by name
@@ -226,15 +226,31 @@
 		return trim(curl_exec($c));
 	}
 	
-	// Database functions
+	/*
+	HIGH LEVEL FUNCTIONS
+	*/
 	
-	function trackNewPlayer(&$c, $region, $name) {
+	/**
+	* To be tested
+	*/
+	function trackNewPlayer(&$pdo, &$c, $region, $name) {
 		$json = getSummonerByName($c, $region, $name);
-		$array = json_decode($json, true);
-		$aId = $array['acctId'];
-		// TODO : connect to database and add the user.
-		$sId = $array['summonerId'];
+		$jsonArray = json_decode($json, true);
+		$aId = $jsonArray['acctId'];
+		$sId = $jsonArray['summonerId'];
+		$infos = array (
+			"region" => $region,
+			"summonerId" => $sId,
+			"accountId" => $aId,
+			"name" => $name
+		);
+		$request = "INSERT INTO usersToTrack ".buildInsert($infos)." ON DUPLICATE KEY UPDATE name = '".$name."';";
+		return securedInsert($pdo, $request); // Returns the number of affected rows
 	}
+	
+	/*
+	LOW LEVEL FUNCTIONS
+	*/
 	
 	// Index functions
 	function item($row, $int) {
@@ -337,10 +353,62 @@
 		
 	}
 	
+	/*
+	DEPRECATED FUNCTIONS
+	*/
+	
+	/**
+	* Prepares a query, securizing it and executing it.
+	*
+	* Uses an opened PDO connection to prepare a query using values contained
+	* in an	other array. and then sends it (key => value pairs)
+	* 
+	* @param resource $pdo opened PDO session
+	* @param string $queryToPrepare A request to be prepared following a certain
+	* syntax using named parameters -> Check http://php.net/manual/fr/pdo.prepare.php#example-1021
+	* @param array $values Array of strings containing values to place in the query.
+	* @return The result of the query
+	*
+	* @deprecated
+	*/
+	function query(&$pdo, $queryToPrepare, $values) {
+		try {
+			$req = $pdo->prepare($queryToPrepare);
+			return $req->execute($values);
+		}
+		catch (Exception $e) {
+			echo 'Error while preparing/executing query :<br />';
+			echo 'Error : '.$e->getMessage().'<br />';
+			echo 'N° : '.$e->getCode();
+			exit();
+		}
+	}
 
-	// Database connection
-	$connect = mysql_connect("localhost", "lolk", "fnu");
-	mysql_select_db("lolking", $connect) or die("erreur select db : " . mysql_error());
+	/**
+	* Binds parameters of a prepared query to values of an array by its keys
+	*
+	* @param resource $pdo opened PDO session
+	* @param columns Array containing the values to bind to keys (keys without ":")
+	*
+	* @deprecated
+	*/
+	function bindParams(&$pdo, $columns) {
+		try {
+			foreach ($columns as $key => $value) {
+				$pdo->bindParam(":".$key, $value);
+			}
+		}
+		catch (Exception $e) {
+			echo 'Error while binding params :<br />';
+			echo 'Error : '.$e->getMessage().'<br />';
+			echo 'N° : '.$e->getCode();
+			exit();
+		}
+	}
+	
+	/*
+	UTILITY
+	*/
 	
 	// If we get parameters, securize them
 	foreach ($_GET as &$thing) {

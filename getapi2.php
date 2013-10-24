@@ -2,38 +2,20 @@
 
 require_once('includes/functions.include.php');
 
-
 /*Initialisation de la ressource curl*/
 
-
-/*
-TEMP
-*/
-
-$connect = mysql_connect("localhost", "updateScript", "8pGJNjMN9QP4Rwbq");
-mysql_select_db("lolarchive", $connect) or die("erreur select db : " . mysql_error());
-
-/*
-END TEMP
-*/
-
 	$pdo = newDBConnection();
-	
 	$req = "SELECT * FROM usersToTrack";
-	
-	$users = rawSelect($pdo, $req);
-	
-	
-	
+	$query = rawSelect($pdo, $req);
 
-// On récupère les utilisateurs à actualiser
-$query = mysql_query($req, $connect) or die("Requête SELECT 1 échouée : ".mysql_error());
+// On rÃ©cupÃ¨re les utilisateurs Ã  actualiser
+//$query = mysql_query($req, $connect) or die("RequÃªte SELECT 1 Ã©chouÃ©e : ".mysql_error());
 
-// Si la requête retourne des résultats
-if (mysql_num_rows($query) > 0) {
-	while ($row = mysql_fetch_array($query)) { // Pour chaque joueur
+// Si la requÃªte retourne des rÃ©sultats
+if (count($query) > 0) {
+	while ($row = $query->fetch()) { // Pour chaque joueur
 	
-		// Préparation de la requête cURL
+		// PrÃ©paration de la requÃªte cURL
 		$region = mb_strtoupper($row['region']);
 		$sId = $row['summonerId'];
 		$aId = $row['accountId'];
@@ -43,21 +25,6 @@ if (mysql_num_rows($query) > 0) {
 		// On transforme le json en un Array
 		$array = json_decode($json, true);
 		$matches = $array['gameStatistics']['array'];
-		
-		$months = array (
-			"Jan" => '01',
-			"Feb" => '02',
-			"Mar" => '03',
-			"Apr" => '04',
-			"May" => '05',
-			"Jun" => '06',
-			"Jul" => '07',
-			"Aug" => '08',
-			"Sep" => '09',
-			"Oct" => '10',
-			"Nov" => '11',
-			"Dec" => '12'
-		);
 
 		foreach ($matches as $match) {
 		
@@ -93,7 +60,7 @@ if (mysql_num_rows($query) > 0) {
 				"premade" => $match['premadeSize'],
 				"ipEarned" => $match['ipEarned'],
 				"fwotd" => $match['eligibleFirstWinOfDay'],
-				"estimatedDuration" => '0', // TODO : Estimer la durée d'une game en fonction des IP gagnés
+				"estimatedDuration" => '0', // TODO : Estimer la durÃ©e d'une game en fonction des IP gagnÃ©s
 				"boostIpEarned" => $match['boostIpEarned'],
 				"skinIndex" => $match['skinIndex']
 			);
@@ -124,41 +91,27 @@ if (mysql_num_rows($query) > 0) {
 				"dataVersion" => "2"
 			);
 			
-			$req = array(); // Will contain requests to do
+			$req = array(); // Will contain requests to do			
 
 			// Request on the "games" table
-			$keys = implode(', ', array_keys($games));
-			$values = implode('\', \'', array_values($games));
-			$req[0] = "INSERT INTO games (".$keys.") VALUES ('".$values."')
+			$req[0] = "INSERT INTO games ".buildInsert($games)."
 				ON DUPLICATE KEY
 				UPDATE time='".$time."';";
 				
 			// Request on the "data" table
-			$keys = implode(', ', array_keys($data));
-			$values = implode('\', \'', array_values($data));
-			$req[1] = "INSERT INTO data (".$keys.") VALUES ('".$values."')
+			$req[1] = "INSERT INTO data ".buildInsert($data)."
 				ON DUPLICATE KEY
 				UPDATE estimatedDuration = '0';";
 			
 			// Request on the "players" table
-			$keys = implode(', ', array_keys($players[0]));
-			$rows = array();
-			$requestString = "INSERT INTO players (".$keys.") VALUES ";
-			foreach ($players as $pl) {
-				$values = implode('\', \'', array_values($pl));
-				$rows[] = "('".$values."')";
-			}
-			$requestString = $requestString.implode(", ", $rows);
-			$requestString = $requestString."
+			$req[2] = "INSERT INTO players ".buildMultInsert($players)."
 				ON DUPLICATE KEY
 				UPDATE dataVersion = '2';";
-			$req[2] = $requestString;
-				
 			
 			foreach ($req as $request) {
-				// echo "Request:<br>"$request.;
-				// $query = mysql_query($request, $connect) or die("<br>Requête INSERT échouée : ".mysql_error());
-				// echo "<br>".mysql_affected_rows()." affected rows";
+				//echo "Request:<br>".$request;
+				$queries = securedInsert($pdo, $req);
+				//echo $queries."<br><br>";
 			}
 			
 		} // END foreach match
@@ -166,11 +119,25 @@ if (mysql_num_rows($query) > 0) {
 	} // END foreach player
 
 	$c = curl_init();
-	echo getSummonerByName($c, "euw", "Lachainone");
-	curl_close($c);
+	echo getSummonerByName($c, "euw", "Protectator")."<br><br>";
 	
-	if (class_exists('PDO')) {
-		echo ABSPATH;
-	}
+	$region = "euw";
+	$name = "Protectator";
+	
+	$json = getSummonerByName($c, $region, $name);
+	$jsonArray = json_decode($json, true);
+	$aId = $jsonArray['acctId'];
+	$sId = $jsonArray['summonerId'];
+	$infos = array (
+		"region" => $region,
+		"summonerId" => $sId,
+		"accountId" => $aId,
+		"name" => $name
+	);
+	$request = "INSERT INTO usersToTrack ".buildInsert($infos)." ON DUPLICATE KEY UPDATE name = '".$name."';";
+	echo $request;
+	echo securedInsert($pdo, $request); // Returns the number of affected rows
+	
+	curl_close($c);
 }
 ?>
