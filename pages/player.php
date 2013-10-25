@@ -1,5 +1,8 @@
 <?php
 	
+	// Database connection
+	$pdo = newDBConnection();
+	
 	$rName = array();
 	$rName['euw'] = "Europe West";
 	$rName['na'] = "North America";
