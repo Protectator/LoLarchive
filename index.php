@@ -1,8 +1,18 @@
 <?
 require_once('includes/functions.include.php');
 
+// Database connection
+$pdo = newDBConnection();
+
+// Securize inputs
+foreach ($_GET as &$thing) {
+	$thing = secure($pdo, $thing);
+}
+
+// Loads the header
 require_once('includes/header.php');
 
+// Load the content of the page requested
 if (isset($_GET['page'])) {
 	$page = "pages/".secure($_GET['page']).".php";
 	try {
@@ -18,4 +28,9 @@ if (isset($_GET['page'])) {
 	include('pages/search.php');
 }
 
-include('includes/footer.php');?>
+// Load the footer
+include('includes/footer.php');
+
+// Close the database connection
+$pdo = null;
+?>

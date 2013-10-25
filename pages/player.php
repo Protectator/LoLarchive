@@ -1,8 +1,5 @@
 <?php
 	
-	// Database connection
-	$pdo = newDBConnection();
-	
 	$rName = array();
 	$rName['euw'] = "Europe West";
 	$rName['na'] = "North America";
@@ -10,12 +7,11 @@
 	$rName['br'] = "Brazil";
 	$rName['tr'] = "Turkey";
 	$rName['ru'] = "Russia";
+	$rName['lan'] = "Latin America North";
+	$rName['las'] = "Latin America South";
+	$rName['oce'] = "Oceania";
 	
 	$champsFolder = PATH."img/champions/";
-	
-	// Database connection
-	$connect = mysql_connect("localhost", "lolk", "fnu");
-	mysql_select_db("lolking", $connect) or die("erreur select db : " . mysql_error());
 	
 	/* Si On a reçu des arguments valides */
 	if ((isset($_GET['name']) OR isset($_GET['id'])) AND isset($_GET['region'])) {

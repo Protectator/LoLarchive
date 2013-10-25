@@ -14,6 +14,9 @@
 								<option>BR</option>
 								<option>TR</option>
 								<option>RU</option>
+								<option>LAN</option>
+								<option>LAS</option>
+								<option>OCE</option>
 							</select>
 						</div>
 					</div>
