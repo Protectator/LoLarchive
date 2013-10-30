@@ -8,24 +8,34 @@ foreach ($_GET as &$thing) {
 	$thing = secure($pdo, $thing);
 }
 // Get users to track
-$query = rawSelect($pdo, "SELECT * FROM usersToTrack");
+$query = rawSelect($pdo, "SELECT * FROM usersToTrack ORDER BY region, summonerId");
 
-// On récupère les utilisateurs à actualiser
+// If REMOTE_ADDR ain't set, it's that we're doing this request locally
+$ip = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : "local";
+
+date_default_timezone_set('Europe/Berlin');
+echo "> ".date('d/m/Y H:i:s', time())." - Request by ".$ip;
 
 // Si la requête retourne des résultats
 if (count($query) > 0) {
-	// Pour chaque joueur
+	// Only used to log informations
+	$countNewMatches = 0;
+	$countTotalMatches = 0;
+	
+	// For each player
 	while ($row = $query->fetch()) {
-		// Préparation de la requête cURL
+		// Preparing cURL
 		$region = mb_strtoupper($row['region']);
 		$sId = $row['summonerId'];
 		$aId = $row['accountId'];
 		$c = curl_init();
 		$json = getRecentGames($c, $region, $aId);
 		curl_close($c);
-		// On transforme le json en un Array
+		// Transform json in an Array
 		$array = json_decode($json, true);
 		$matches = $array['gameStatistics']['array'];
+		
+		echo "\n[".$region."] Summoner ".$sId." \"".$row['name']."\" : ";
 
 		foreach ($matches as $match) {
 		
@@ -49,10 +59,12 @@ if (count($query) > 0) {
 				"time" => $time,
 				"type" => $match['queueType'],
 				"subType" => $match['subType'],
-				"difficulty" => $match['difficulty'],
 				"duration" => 0, // TODO : Estimate game duration in function of IP won
 				"sender" => 0
 			);
+			
+			// If there is a difficulty, then it's a bot game. Else, it is to 0.
+			$games["difficulty"] = (isset($match['difficulty'])) ? $match['difficulty'] : "0";
 			
 			// Table "data"
 			$data = array (
@@ -61,7 +73,7 @@ if (count($query) > 0) {
 				"region" => $region,
 				"spell1" => $match['spell1'],
 				"spell2" => $match['spell2'],
-				"ipData" => $_SERVER['REMOTE_ADDR'],
+				"ipData" => $ip,
 				"leaver" => $match['afk'],
 				"invalid" => $match['invalid'],
 				"dataVersion" => $match['dataVersion'],
@@ -101,36 +113,30 @@ if (count($query) > 0) {
 			$req = array(); // Will contain requests to do			
 
 			// Request on the "games" table
-			$req[0] = "INSERT INTO games ".buildInsert($games)."
-				ON DUPLICATE KEY
-				UPDATE time='".$time."';";
+			$req[0] = "INSERT IGNORE INTO games ".buildInsert($games);
 				
 			// Request on the "data" table
-			$req[1] = "INSERT INTO data ".buildInsert($data)."
-				ON DUPLICATE KEY
-				UPDATE estimatedDuration = '0';";
+			$req[1] = "INSERT IGNORE INTO data ".buildInsert($data);
 			
 			// Request on the "players" table
-			$req[2] = "INSERT INTO players ".buildMultInsert($players)."
-				ON DUPLICATE KEY
-				UPDATE dataVersion = '2';";
+			$req[2] = "INSERT IGNORE INTO players ".buildMultInsert($players);
 			
 			// Execute all three requests in a secured way
-			echo securedInsert($pdo, $req);
-		
+			$result = securedInsert($pdo, $req);
+			if ($result[0]) {
+				if ($result[1] >= 1) {
+					$countNewMatches++;
+					$countTotalMatches++;
+				}
+			}
 			
 		} // END foreach match
 		
+		echo $countNewMatches." added games";
+		
 	} // END foreach player
 
-	
-	$c = curl_init();
-	
-	$region = "euw";
-	$name = "Lachainone";
-	
-	echo trackNewPlayer($pdo, $c, $region, $name);
-	
-	curl_close($c);
 }
+
+echo "\n";
 ?>

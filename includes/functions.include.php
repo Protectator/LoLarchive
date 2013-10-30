@@ -86,21 +86,25 @@
 	* @param resource $pdo opened PDO session
 	* @param array|string $queries String or Array of Strings containing the 
 	* SQL queries to perform at once.
-	* @return integer Number of affected rows
+	* @return array Array of two integers :
+	* 	- "1" if the request succeed, else "0"
+	*	- Number of affected rows
 	*/
 	function securedInsert(&$pdo, $queries) {
 		try
 		{
-			$pdo->beginTransaction();
+			$count = 0;
+			$result = $pdo->beginTransaction();
 			if (is_string($queries)) {
-				$pdo->query($queries);
+				$cQuery = $pdo->query($queries);
+				$count += $cQuery->rowCount();
 			} else {
 				foreach($queries as $currentQuery) {
-					$pdo->query($currentQuery);
+					$cQuery = $pdo->query($currentQuery);
+					$count += $cQuery->rowCount();
 				}
 			}
-			$result = $pdo->commit();
-			return $result;
+			return array($pdo->commit(), $count);
 		}
 		catch(Exception $e)
 		{
