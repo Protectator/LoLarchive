@@ -16,14 +16,16 @@ $ip = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : "local";
 date_default_timezone_set('Europe/Berlin');
 echo "> ".date('d/m/Y H:i:s', time())." - Request by ".$ip;
 
+$countTotalMatches = 0;
 // Si la requête retourne des résultats
 if (count($query) > 0) {
-	// Only used to log informations
-	$countNewMatches = 0;
-	$countTotalMatches = 0;
-	
+	$countPlayers = 0;
 	// For each player
 	while ($row = $query->fetch()) {
+		// Only used to log informations
+		$countPlayers += 1;
+		$countNewMatches = 0;
+	
 		// Preparing cURL
 		$region = mb_strtoupper($row['region']);
 		$sId = $row['summonerId'];
@@ -35,8 +37,6 @@ if (count($query) > 0) {
 		$array = json_decode($json, true);
 		$matches = $array['gameStatistics']['array'];
 		
-		echo "\n[".$region."] Summoner ".$sId." \"".$row['name']."\" : ";
-
 		foreach ($matches as $match) {
 		
 			// Just messing with the date formatting...
@@ -132,11 +132,11 @@ if (count($query) > 0) {
 			
 		} // END foreach match
 		
-		echo $countNewMatches." added games";
+		echo ($countNewMatches > 0) ? "\n[".$region."] Summoner ".$sId." \"".$row['name']."\" : ".$countNewMatches." added games" : "";
 		
 	} // END foreach player
 
 }
 
-echo "\n";
+echo "\nTotal : ".$countTotalMatches." added games / ".$countPlayers." tracked summoners\n";
 ?>

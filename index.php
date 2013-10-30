@@ -4,6 +4,12 @@ require_once('includes/functions.include.php');
 // Database connection
 $pdo = newDBConnection();
 
+// Pages available
+$pages = array(
+	"'player'" => "pages/player.php",
+	"'search'" => "pages/search.php"
+);
+
 // Securize inputs
 foreach ($_GET as &$thing) {
 	$thing = secure($pdo, $thing);
@@ -14,18 +20,13 @@ require_once('includes/header.php');
 
 // Load the content of the page requested
 if (isset($_GET['page'])) {
-	$page = "pages/".secure($_GET['page']).".php";
 	try {
-		if (!file_exists($page)) {
-			throw new Exception ($page.' does not exist');
-		} else {
-		require_once($page);
-		}
+		require_once($pages[$_GET['page']]);
 	} catch (Exception $e) {
 		echo "Seems like you're lost. There's no page here.";
 	}
 } else {
-	include('pages/search.php');
+	require_once($pages["'search'"]);
 }
 
 // Load the footer
