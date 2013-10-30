@@ -2,38 +2,21 @@
 
 require_once('includes/functions.include.php');
 
+// Initialize connexion to database
+$pdo = newDBConnection();
+foreach ($_GET as &$thing) {
+	$thing = secure($pdo, $thing);
+}
+// Get users to track
+$query = rawSelect($pdo, "SELECT * FROM usersToTrack");
 
-/*Initialisation de la ressource curl*/
+// On rÃ©cupÃ¨re les utilisateurs Ã  actualiser
 
-
-/*
-TEMP
-*/
-
-$connect = mysql_connect("localhost", "updateScript", "8pGJNjMN9QP4Rwbq");
-mysql_select_db("lolarchive", $connect) or die("erreur select db : " . mysql_error());
-
-/*
-END TEMP
-*/
-
-	$pdo = newDBConnection();
-	
-	$req = "SELECT * FROM usersToTrack";
-	
-	$users = rawSelect($pdo, $req);
-	
-	
-	
-
-// On récupère les utilisateurs à actualiser
-$query = mysql_query($req, $connect) or die("Requête SELECT 1 échouée : ".mysql_error());
-
-// Si la requête retourne des résultats
-if (mysql_num_rows($query) > 0) {
-	while ($row = mysql_fetch_array($query)) { // Pour chaque joueur
-	
-		// Préparation de la requête cURL
+// Si la requÃªte retourne des rÃ©sultats
+if (count($query) > 0) {
+	// Pour chaque joueur
+	while ($row = $query->fetch()) {
+		// PrÃ©paration de la requÃªte cURL
 		$region = mb_strtoupper($row['region']);
 		$sId = $row['summonerId'];
 		$aId = $row['accountId'];
@@ -43,27 +26,20 @@ if (mysql_num_rows($query) > 0) {
 		// On transforme le json en un Array
 		$array = json_decode($json, true);
 		$matches = $array['gameStatistics']['array'];
-		
-		$months = array (
-			"Jan" => '01',
-			"Feb" => '02',
-			"Mar" => '03',
-			"Apr" => '04',
-			"May" => '05',
-			"Jun" => '06',
-			"Jul" => '07',
-			"Aug" => '08',
-			"Sep" => '09',
-			"Oct" => '10',
-			"Nov" => '11',
-			"Dec" => '12'
-		);
 
 		foreach ($matches as $match) {
 		
-			// Parsing de la date
+			// Just messing with the date formatting...
 			$date = preg_match('/(\w+) (\d+), (\d+) (\d+):(\d+):(\d+) (\w+)/', $match['createDate'], $save);
 			$time = $save[3]."-".$months[$save[1]]."-".$save[2]." ".date("H:i", strtotime($save[4].":".$save[5].":".$save[6]." ".$save[7]));
+		
+			/*
+			First we need to match every stat in the json file to a line in the database.
+			We'll put things in 3 different tables :
+			- games   
+			- data    
+			- players 
+			*/
 			
 			// Table "games"
 			$games = array (
@@ -93,19 +69,18 @@ if (mysql_num_rows($query) > 0) {
 				"premade" => $match['premadeSize'],
 				"ipEarned" => $match['ipEarned'],
 				"fwotd" => $match['eligibleFirstWinOfDay'],
-				"estimatedDuration" => '0', // TODO : Estimer la durée d'une game en fonction des IP gagnés
+				"estimatedDuration" => '0', // TODO : Estimer la durÃ©e d'une game en fonction des IP gagnÃ©s
 				"boostIpEarned" => $match['boostIpEarned'],
 				"skinIndex" => $match['skinIndex']
 			);
-			
-			// TOUJOURS dans la table "Data"
-			// Parcourir l'array "STATISTICS"
+			// For each other stat (the ones in caps) we put them directly with their name
+			// in the table
 			foreach ($match['statistics']['array'] as $stat) {
 				$data[$stat['statType']] = $stat['value'];
 			}
 			
-			$players = array();
 			// Table "players"
+			$players = array();
 			foreach ($match['fellowPlayers']['array'] as $player) {
 				$players[] = array (	
 					"gameId" => $match['gameId'],
@@ -114,8 +89,7 @@ if (mysql_num_rows($query) > 0) {
 					"championId" => $player['championId'],
 					"dataVersion" => "2"
 				);
-			}
-			// Adding the player that we're checking (he isn't in the table)
+			} // Now we nees to add the player that we're checking (he isn't in the json array)
 			$players[] = array (
 				"gameId" => $match['gameId'],
 				"summonerId" => $sId,
@@ -124,56 +98,39 @@ if (mysql_num_rows($query) > 0) {
 				"dataVersion" => "2"
 			);
 			
-			$req = array(); // Will contain requests to do
+			$req = array(); // Will contain requests to do			
 
 			// Request on the "games" table
-			$keys = implode(', ', array_keys($games));
-			$values = implode('\', \'', array_values($games));
-			$req[0] = "INSERT INTO games (".$keys.") VALUES ('".$values."')
+			$req[0] = "INSERT INTO games ".buildInsert($games)."
 				ON DUPLICATE KEY
 				UPDATE time='".$time."';";
 				
 			// Request on the "data" table
-			$keys = implode(', ', array_keys($data));
-			$values = implode('\', \'', array_values($data));
-			$req[1] = "INSERT INTO data (".$keys.") VALUES ('".$values."')
+			$req[1] = "INSERT INTO data ".buildInsert($data)."
 				ON DUPLICATE KEY
 				UPDATE estimatedDuration = '0';";
 			
 			// Request on the "players" table
-			$keys = implode(', ', array_keys($players[0]));
-			$rows = array();
-			$requestString = "INSERT INTO players (".$keys.") VALUES ";
-			foreach ($players as $pl) {
-				$values = implode('\', \'', array_values($pl));
-				$rows[] = "('".$values."')";
-			}
-			$requestString = $requestString.implode(", ", $rows);
-			$requestString = $requestString."
+			$req[2] = "INSERT INTO players ".buildMultInsert($players)."
 				ON DUPLICATE KEY
 				UPDATE dataVersion = '2';";
-			$req[2] = $requestString;
-				
 			
-			foreach ($req as $request) {
-				// echo "Request:<br>"$request.;
-				// $query = mysql_query($request, $connect) or die("<br>Requête INSERT échouée : ".mysql_error());
-				// echo "<br>".mysql_affected_rows()." affected rows";
-			}
+			// Execute all three requests in a secured way
+			echo securedInsert($pdo, $req);
+		
 			
 		} // END foreach match
 		
-		echo $json;
-		
 	} // END foreach player
 
+	
 	$c = curl_init();
-	//echo getSummonerByName($c, "euw", "Lachainone");
+	
+	$region = "euw";
+	$name = "Lachainone";
+	
+	echo trackNewPlayer($pdo, $c, $region, $name);
+	
 	curl_close($c);
-	
-	if (class_exists('PDO')) {
-		//echo ABSPATH;
-	}
-	
 }
 ?>
