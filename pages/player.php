@@ -13,32 +13,58 @@
 	
 	$champsFolder = PATH."img/champions/";
 	
-	/* Si On a reçu des arguments valides */
+	/* If we have recieved valid arguments */
 	if ((isset($_GET['name']) OR isset($_GET['id'])) AND isset($_GET['region'])) {
-		$region = strtolower($_GET['region']);
+		$region = strtolower($_GET['region']); // region is always lowercase.
+		$requestString = array(); // array of all String of requests we'll make.
+		$result = array(); // array of all results of requests we'll malke.
 		
+		// First request is to select the right user
+		$requestString[0] = "SELECT id, user FROM users WHERE ";
+		$conditions = array ("region" => $region);
+		
+		// If the id is provided, go for it
 		if (isset($_GET['id'])) {
-			$idGet = $_GET['id'];
-			
-			// SQL : Récupération ID joueur
-			$req = "SELECT id, user FROM users WHERE id='".$idGet."' AND region='".$region."';";
-			$query = mysql_query($req, $connect) or die("Requête SELECT 1 échouée : ".mysql_error());
+			$conditions["idGet"] = $_GET['id'];
+			$requestString[0] .= conditions($conditions); 
+			$request = $pdo->prepare($requestString[0]);
+			$request->bindParam(":idGet", $idGet);
+		// Else, look for the username
 		} else {
-			$name = $_GET['name'];
-
-			// SQL : Récupération ID joueur
-			$req = "SELECT id, user FROM users WHERE user='".$name."' AND region='".$region."';";
-			$query = mysql_query($req, $connect) or die("Requête SELECT 1 échouée : ".mysql_error());
+			$conditions["user"] = $_GET['name'];
+			$requestString[0] .= conditions($conditions);
+			$request = $pdo->prepare($requestString[0]);
+			$request->bindParam(":user", $name);
 		}
+		$request->bindParam(":region", $region);
 		
-		/* Si un joueur a été trouvé */
-		if (mysql_num_rows($query) > 0) {
-			$array = mysql_fetch_array($query);
-			$id = $array[0]; // On récupère l'ID de ce joueur
-			$name = $array[1];
+		//   START Debug
+		if (isset($_GET['debug'])) {
+			echo "REQUEST: ".$requestString[0];
+		} // END Debug
+	
+		$request->execute();        // Execute the request
+		$result[0] = $request->fetch(); // Get the array
+		
+		// If there is an user
+		if (count($result[0]) > 0) {
+			//   START Debug
+			if (isset($_GET['debug'])) {
+				echo "<br>ARRAY:<pre>";
+				print_r($array);
+				echo "</pre>";
+			} // END Debug
+			$id = $array["id"];
+			$name = $array["name"];
 			
-			// FILTRES si il y en a
+			$requestString[1] = "
+			SELECT *
+			FROM games 
+			LEFT JOIN data ON games.gameId = data.gameId
+			LEFT JOIN players ON games.gameId = players.gameId";
 			
+			/* PARTIE SUR LES FILTRES
+			TODO : REFACTOR THIS SHIT :)
 			// Filtre champion
 			$players = Array('a1', 'a2', 'a3', 'a4', 'a5', 'b1', 'b2', 'b3', 'b4', 'b5');
 			
@@ -50,7 +76,7 @@
 				$champFilter = 1;
 				$filterString = " AND (";
 				foreach ($players as $value) {
-					$filterString = $filterString."(matches.".$value."id = '".$id."' AND matches.".$value."champ = '".$_GET['champFilterChoice']."')";
+					$filterString = $filterString."(games.".$value."id = '".$id."' AND matches.".$value."champ = '".$_GET['champFilterChoice']."')";
 					if ($value != 'b5') {
 						$filterString .= " OR ";
 					}
@@ -63,30 +89,38 @@
 				$modeFilter = 1;
 				$filterModeString = " AND matches.type = '".$_GET['modeFilterChoice']."'";
 			}
+			
 		
 			// SQL : Récupération des matches du joueur
 			$req2 = "SELECT * FROM matches LEFT JOIN data ON data.host = matches.host AND data.time = matches.time AND data.region = matches.region AND data.user = '".$id."' WHERE '".$id."' IN(matches.a1id, matches.a2id, matches.a3id, matches.a4id, matches.a5id, matches.b1id, matches.b2id, matches.b3id, matches.b4id, matches.b5id)";
+			
 			if ($champFilter) {
 				$req2 = $req2.$filterString;
 			}
 			if ($modeFilter) {
 				$req2 = $req2.$filterModeString;
 			}
-			$req2 = $req2." ORDER BY matches.time DESC;";
+			*/
+			$requestString[1] .= " ORDER BY games.time DESC;";
 			if (isset($_GET['debug'])) {
-				echo $req2;
+				echo $requestString[1];
 			}
-			$query2 = mysql_query($req2, $connect) or die("Requête SELECT 2 échouée : ".mysql_error()."<br>".$req2);
+			// New request : All games of this user
+			$request = $pdo->prepare($requestString[1]);
+			$request->execute();        // Execute the request
+			$result[1] = $request->fetch(); // Get the array
 		}
 	}
 	
-	// Récupération des id des champions
-	$req3 = "SELECT * FROM champions ORDER BY name ASC;";
-	$query3 = mysql_query($req3, $connect) or die("Requête SELECT 3 (WTF) échouée : ".mysql_error()."<br>".$req3."<br>name: ".$name."<br>region: ".$region."<br>".getcwd());
+	// We want infos about all champions. This request will never change
+	$requestString[2] = "SELECT * FROM champions ORDER BY name ASC;";
+	$request = $pdo->prepare($requestString[2]);
+	$request->execute(); // Execute the request
+	$result[2] = $request->fetch();   // Get the array
 	
 	$champsId = array();
 	$champsDisplay = array();
-	while ($row = mysql_fetch_assoc($query3)) {
+	while ($row = $array) { // TODO : NOT SURE LOL
 		$champsId[$row['name']] = $row['id'];
 		$champsDisplay[$row['name']] = $row['display'];
 		$champsName[$row['name']] = $row['name'];
@@ -180,7 +214,8 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 		/*
 			POUR CHAQUE MATCH !!!
 		*/
-		while ($row = mysql_fetch_array($query2)) {
+		// TODO : Continuer là
+		while ($row = $result[1]) {
 			
 			/* Détermine si l'user a gagné le match */
 			$awin = ord($row['awins']);
@@ -201,7 +236,6 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 				$classtext = " losstext";
 				$text = "Loss";
 			}
-			
 			
 			$players = array('a1id', 'a2id', 'a3id', 'a4id', 'a5id', 'b1id', 'b2id', 'b3id', 'b4id', 'b5id');
 			

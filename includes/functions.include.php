@@ -422,6 +422,14 @@
 		}
 	}
 	
+	function conditions($columns) {
+		$conditions = array();
+		foreach ($columns as $key => $value) {
+			$conditions[] = $key."= :".$key;
+		}
+		return implode(" AND ", $conditions);
+	}
+	
 	/*
 	UTILITY
 	*/
