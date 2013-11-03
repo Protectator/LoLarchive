@@ -24,44 +24,45 @@
 		$conditions = array ("region" => $region);
 		
 		// If the id is provided, go for it
-		if (isset($_GET['id'])) {
+		if (isset($_GET/*27*/['id'])) {
 			$conditions["idGet"] = $_GET['id'];
 			$requestString[0] .= conditions($conditions); 
-			$request = $pdo->prepare($requestString[0]);
-			$request->bindParam(":idGet", $idGet);
+			$findSummoner = $pdo->prepare($requestString[0]);
+			$findSummoner->bindParam(":idGet", $_GET['id']);
 		// Else, look for the username
 		} else {
 			$conditions["user"] = $_GET['name'];
 			$requestString[0] .= conditions($conditions);
-			$request = $pdo->prepare($requestString[0]);
-			$request->bindParam(":user", $name);
+			$findSummoner = $pdo->prepare($requestString[0]);
+			$findSummoner->bindParam(":user", $_GET['name']);
 		}
-		$request->bindParam(":region", $region);
+		$findSummoner->bindParam(":region", $region);
 		
 		//   START Debug
 		if (isset($_GET['debug'])) {
 			echo "REQUEST: ".$requestString[0];
 		} // END Debug
 	
-		$request->execute();        // Execute the request
-		$result[0] = $request->fetch(); // Get the array
+		$findSummoner->execute();        // Execute the request
+		$foundSummoner = $findSummoner->fetch(); // Get the array
 		
 		// If there is an user
-		if (count($result[0]) > 0) {
+		if (count($foundSummoner) > 0) {
 			//   START Debug
 			if (isset($_GET['debug'])) {
 				echo "<br>ARRAY:<pre>";
-				print_r($array);
+				print_r($foundSummoner);
 				echo "</pre>";
 			} // END Debug
-			$id = $array["id"];
-			$name = $array["name"];
+			$id = $foundSummoner['id'];
+			$name = $foundSummoner['user'];
 			
 			$requestString[1] = "
 			SELECT *
 			FROM games 
-			LEFT JOIN data ON games.gameId = data.gameId
-			LEFT JOIN players ON games.gameId = players.gameId";
+			LEFT JOIN players ON games.gameId = players.gameId
+			LEFT JOIN data ON games.gameId = data.gameId AND players.gameId = data.gameId
+			WHERE players.summonerId = :sId AND data.summonerId = :sId";
 			
 			/* PARTIE SUR LES FILTRES
 			TODO : REFACTOR THIS SHIT :)
@@ -106,21 +107,21 @@
 				echo $requestString[1];
 			}
 			// New request : All games of this user
-			$request = $pdo->prepare($requestString[1]);
-			$request->execute();        // Execute the request
-			$result[1] = $request->fetch(); // Get the array
+			$summonerGames = $pdo->prepare($requestString[1]);
+			$summonerGames->bindParam(":sId", $id);
+			$summonerGames->execute();        // Execute the request
+			//$summonerGames->fetch(); // Get the array
 		}
 	}
 	
 	// We want infos about all champions. This request will never change
 	$requestString[2] = "SELECT * FROM champions ORDER BY name ASC;";
-	$request = $pdo->prepare($requestString[2]);
-	$request->execute(); // Execute the request
-	$result[2] = $request->fetch();   // Get the array
+	$championsRequest = $pdo->prepare($requestString[2]);
+	$championsRequest->execute(); // Execute the request
 	
 	$champsId = array();
 	$champsDisplay = array();
-	while ($row = $array) { // TODO : NOT SURE LOL
+	while ($champ = $championsRequest->fetch()) {
 		$champsId[$row['name']] = $row['id'];
 		$champsDisplay[$row['name']] = $row['display'];
 		$champsName[$row['name']] = $row['name'];
@@ -212,22 +213,21 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 		
 		<?php
 		/*
-			POUR CHAQUE MATCH !!!
+			FOR EACH GAME
 		*/
-		// TODO : Continuer là
-		while ($row = $result[1]) {
+		while ($row = $summonerGames->fetch()) {
+		
+			//   START Debug
+			if (isset($_GET['debug'])) {
+				echo "<br>ARRAY:<pre>";
+				print_r($row);
+				echo "</pre>";
+			} // END Debug
 			
-			/* Détermine si l'user a gagné le match */
-			$awin = ord($row['awins']);
-			if ($awin) {
-				if (in_array($id, array($row['a1id'], $row['a2id'], $row['a3id'], $row['a4id'], $row['a5id'])))
-				{$win = 1;} else {$win = 0;}
-			} else {
-				if (in_array($id, array($row['b1id'], $row['b2id'], $row['b3id'], $row['b4id'], $row['b5id'])))
-				{$win = 1;} else {$win = 0;}
-			}
-
-			if ($win) {
+			// Checks if win
+			$win = ord($row['WIN']);
+			
+			if ($win == 1) {
 				$class = " winmatch";
 				$classtext = " wintext";
 				$text = "Win";
@@ -237,6 +237,7 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 				$text = "Loss";
 			}
 			
+			/*
 			$players = array('a1id', 'a2id', 'a3id', 'a4id', 'a5id', 'b1id', 'b2id', 'b3id', 'b4id', 'b5id');
 			
 			foreach ($players as $key => $value) {
@@ -251,6 +252,7 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 			} else {
 				$duration = $row['duration']." mins";
 			}
+			*/
 			
 			/*
 				INDEX COLONNES CLES PRIMAIRES
@@ -274,14 +276,14 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 			<div class="row">
 				<div class="span12">
 					<div class="well<?echo $class;?> match" id="<?echo $row['id'];?>">
-						<div class="matchcell championcell"><img class="img-rounded imgchampion" alt="<?echo $champsDisplay[$champPlayed];?>" src="<?echo $champsFolder.ucfirst($champPlayed);?>.png">
+						<div class="matchcell championcell"><img class="img-rounded imgchampion" alt="<?//echo $champsDisplay[$champPlayed];?>" src="<?//echo $champsFolder.ucfirst($champPlayed);?>.png">
 						</div>
 						
 						<div class="matchcell headcell">
 							<?echo $row['type'];?>
 							<br><span class="<?echo $classtext;?>"><?echo $text;?></span>
-							<br> <?echo $duration;?>
-							<br> <?echo $time;?>
+							<br> <?//echo $duration;?>
+							<br> <?//echo $time;?>
 						</div>
 						
 						<?
