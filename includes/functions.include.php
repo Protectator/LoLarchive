@@ -25,6 +25,18 @@
 	foreach($months as $key => $value) {
 		$months[intval($value)] = $key;
 	}
+	// Display text of game modes
+	$modes = array (
+			"NONE" => "Custom",
+			"NORMAL" => "Normal 5v5",
+			"RANKED_SOLO_5x5" => "Ranked Solo 5v5",
+			"RANKED_TEAM_5x5" => "Ranked Team 5v5",
+			"RANKED_TEAM_3x3" => "Ranked Team 3v3",
+			"BOT" => "Co-op vs AI 5v5",
+			"BOT_3x3" => "Co-op vs AI 3v3",
+			"ARAM_UNRANKED_5x5" => "ARAM",
+			"ODIN_UNRANKED" => "Dominion"
+	);
 	
 	/*
 	DATABASE CONNECTION FUNCTIONS
@@ -267,38 +279,50 @@
 	
 	// Index functions
 	function item($row, $int) {
-		if ($row['item'.$int] > 0) {
-			return "<a href=\"http://www.lolking.net/items/".$row['item'.$int]."\"><img class= \"img-rounded imgitem32\" src=\"http://lkimg.zamimg.com/shared/riot/images/items/".$row['item'.$int]."_32.png\" alt=\"".$row['item'.$int]."\"></a>";
+		if ($row['ITEM'.$int] > 0) {
+			return "<a href=\"http://www.lolking.net/items/".$row['ITEM'.$int]."\"><img class= \"img-rounded imgitem32\" src=\"http://lkimg.zamimg.com/shared/riot/images/items/".$row['ITEM'.$int]."_32.png\" alt=\"".$row['ITEM'.$int]."\"></a>";
 		}
 	}
 	
-	function players($row, $region, $champsFolder, $champsId, $id) {
+	function champImg($champId, $champsName) {
+		return PATH."img/champions/".ucfirst($champsName[$champId]).".png";
+	}
+	
+	/**
+	* Creates HTML text showing players in a game.
+	*/
+	function players($teamL, $teamR, $region, $id, $champsName) {
 		$result = "";
-		
-		for ($i = 1; $i <= 5 ; $i++) {
-		
-			// check si user affiché = user de la page
-			if ($row['a'.$i.'id'] == $id) {
-				$row['a'.$i.'user'] = "<span class=\"selfUser\">".$row['a'.$i.'user']."</span>";
-			} else if ($row['b'.$i.'id'] == $id) {
-				$row['b'.$i.'user'] = "<span class=\"selfUser\">".$row['b'.$i.'user']."</span>";
-			}
-			
-			// user A
+		// Line per line
+		for ($i = 0; $i <= 4 ; $i++) {
 			$result .= "<tr class=\"playerLine\">";
-			if ($row['a'.$i.'id'] != "0") {
-				$result = $result."<td class=\"littleChampIcon\"><img src=\"".$champsFolder.ucfirst($row['a'.$i.'champ']).".png\" class=\"littleChampIcon\" alt=\"".$row['a'.$i.'champ']."\"></td>";
-				$result = $result.'<td class="littleSummonerName"><a href="'.PATH.'index.php?page=player&amp;region='.$region.'&amp;id='.$row['a'.$i.'id']./*"#".$row['id'].*/'">'.$row['a'.$i.'user'].'</a></td>';
+			// Left team member
+			if (isset($teamL[$i])) {
+				if ($teamL[$i]['user'] != "") {
+					$displayText = $teamL[$i]['user'];
+					$displayClass = "littleSummonerLinkName";
+				} else {
+					$displayText = $teamL[$i]['summonerId'];
+					$displayClass = "littleSummonerLinkId";
+				}
+				$result .= "<td class=\"littleChampIcon\"><img src=\"".champImg(intval($teamL[$i]['championId']), $champsName)."\" class=\"littleChampIcon\" alt=\"".$teamL[$i]['championId']."\"></td>";
+				$result .= '<td class="'.$displayClass.'"><a href="'.PATH.'index.php?page=player&amp;region='.$region.'&amp;id='.$teamL[$i]['summonerId'].'">'.$displayText.'</a></td>';
 			} else {
-				$result .= "<td class=\"littleChampIcon\"></td><td class=\"littleSummonerName\"></td>";
+				$result .= "<td class=\"littleChampIcon\"></td><td class=\"littleSummonerLinkName\"></td>";
 			}
-			
-			// user B
-			if ($row['b'.$i.'id'] != "0") {
-			$result = $result."<td class=\"littleChampIcon\"><img src=\"".$champsFolder.ucfirst($row['b'.$i.'champ']).".png\" class=\"littleChampIcon\" alt=\"".$row['b'.$i.'champ']."\"></td>";
-			$result = $result.'<td class="littleSummonerName"><a href="'.PATH.'index.php?page=player&amp;region='.$region.'&amp;id='.$row['b'.$i.'id']./*"#".$row['id'].*/'">'.$row['b'.$i.'user'].'</a></td>';
+			// Right team member
+			if (isset($teamR[$i])) {
+				if ($teamR[$i]['user'] != "") {
+					$displayText = $teamR[$i]['user'];
+					$displayClass = "littleSummonerLinkName";
+				} else {
+					$displayText = $teamR[$i]['summonerId'];
+					$displayClass = "littleSummonerLinkId";
+				}
+				$result .= "<td class=\"littleChampIcon\"><img src=\"".champImg(intval($teamR[$i]['championId']), $champsName)."\" class=\"littleChampIcon\" alt=\"".$teamR[$i]['championId']."\"></td>";
+				$result .= '<td class="'.$displayClass.'"><a href="'.PATH.'index.php?page=player&amp;region='.$region.'&amp;id='.$teamR[$i]['summonerId'].'">'.$displayText.'</a></td>';
 			} else {
-				$result .= "<td class=\"littleChampIcon\"></td><td class=\"littleSummonerName\"></td>";
+				$result .= "<td class=\"littleChampIcon\"></td><td class=\"littleSummonerLinkName\"></td>";
 			}
 			$result .= "</tr>";
 		}
@@ -307,10 +331,10 @@
 	
 	function items($row) {
 		$result = "";
-		for ($i = 1; $i <= 6; $i++) {
-			if (($i-1) % 3 == 0) { $result.="<tr>"; }
+		for ($i = 0; $i <= 5; $i++) {
+			if (($i) % 3 == 0) { $result.="<tr>"; }
 			$result = $result."<td class=\"singleitemcell\">".item($row, $i)."<td>";
-			if (($i) % 3 == 0) { $result.="</tr>"; }
+			if (($i+1) % 3 == 0) { $result.="</tr>"; }
 		}
 		return $result;
 	}

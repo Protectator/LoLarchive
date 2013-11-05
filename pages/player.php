@@ -25,10 +25,10 @@
 		
 		// If the id is provided, go for it
 		if (isset($_GET/*27*/['id'])) {
-			$conditions["idGet"] = $_GET['id'];
+			$conditions["id"] = $_GET['id'];
 			$requestString[0] .= conditions($conditions); 
 			$findSummoner = $pdo->prepare($requestString[0]);
-			$findSummoner->bindParam(":idGet", $_GET['id']);
+			$findSummoner->bindParam(":id", $_GET['id']);
 		// Else, look for the username
 		} else {
 			$conditions["user"] = $_GET['name'];
@@ -122,9 +122,9 @@
 	$champsId = array();
 	$champsDisplay = array();
 	while ($champ = $championsRequest->fetch()) {
-		$champsId[$row['name']] = $row['id'];
-		$champsDisplay[$row['name']] = $row['display'];
-		$champsName[$row['name']] = $row['name'];
+		$champsId[$champ['id']] = $champ['id'];
+		$champsDisplay[$champ['id']] = $champ['display'];
+		$champsName[$champ['id']] = $champ['name'];
 	}
 ?>
 <div class="row">
@@ -164,15 +164,15 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 				<input type="hidden" name="name" value="<?echo $_GET['name']?>"/> 
 				<div class="control-group">
 					<label class="control-label">
-						<label class="checkbox inline"><input type="checkbox" id="champFilterBox" name="champFilterBox" <?echo ($lastChampion)?'checked="yes"':''?>> Champion</label>
+						<label class="checkbox inline"><input type="checkbox" id="champFilterBox" name="champFilterBox" <?echo (isset($lastChampion) && $lastChampion)?'checked="yes"':''?>> Champion</label>
 					</label>
 					<div class="controls">
 						<select id="champFilterChoice" name="champFilterChoice" class="input-medium">
 							<?
 							foreach ($champsName as $value) {
 								?>
-								<option value="<?echo $value;?>" style="background: url('<?echo PATH;?>img/champions/<?echo ucfirst($value);?>.png') no-repeat;" <?echo ($lastChampion == $value)?"selected":"";?>>
-								<? echo $champsDisplay[$value];?>
+								<option value="<?echo $value;?>" style="background: url('<?echo PATH;?>img/champions/<?echo ucfirst($value);?>.png') no-repeat;" <?echo (isset($lastChampion) && $lastChampion == $value)?"selected":"";?>>
+								<? echo $value;?>
 								</option>
 								<?
 							}
@@ -187,10 +187,9 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 					<div class="controls">
 						<select id="modeFilterChoice" name="modeFilterChoice" class="input-medium">
 							<?
-							$modes = Array("Normal 5v5", "Ranked Solo 5v5", "Ranked Team 5v5", "Normal 3v3", "Ranked Team 3v3", "Howling Abyss", "Dominion", "Co-Op Vs AI", "Custom");
-							foreach ($modes as $value) {
+							foreach ($modes as $key => $value) {
 								?>
-								<option value="<?echo $value;?>" <?echo ($lastMode == $value)?"selected":"";?>>
+								<option value="<?echo $key;?>" <?echo ($lastMode == $key)?"selected":"";?>>
 								<? echo $value;?>
 								</option>
 								<?
@@ -224,8 +223,15 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 				echo "</pre>";
 			} // END Debug
 			
-			// Checks if win
+			
+			
+			// Handles all bit(1) data
 			$win = ord($row['WIN']);
+			$lose = ord($row['LOSE']);
+			$fwotd = ord($row['fwotd']);
+			$leaver = ord($row['leaver']);
+			$afk = ord($row['afk']);
+			$invalid = ord($row['invalid']);
 			
 			if ($win == 1) {
 				$class = " winmatch";
@@ -237,13 +243,24 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 				$text = "Loss";
 			}
 			
-			/*
-			$players = array('a1id', 'a2id', 'a3id', 'a4id', 'a5id', 'b1id', 'b2id', 'b3id', 'b4id', 'b5id');
+			/* Request to find all summoners in a game */
+			$requestString[3] = "
+			SELECT * FROM players
+			LEFT JOIN users ON users.id = players.summonerId
+			WHERE players.gameId = :gId";
+			$playersRequest = $pdo->prepare($requestString[3]);
+			$playersRequest->bindParam(":gId", $row['gameId']);
+			$playersRequest->execute(); // Execute the request
 			
-			foreach ($players as $key => $value) {
-				if ($id == $row[$value]) {
-					$c = substr($value, 0, 2)."champ";
-					$champPlayed = $row[$c];
+			// Put each player on the right team
+			$summonersTeam = $row['teamId'];
+			$teamL = array();
+			$teamR = array();
+			while ($player = $playersRequest->fetch()) {
+				if ($player['teamId'] == $summonersTeam) {
+					$teamL[] = $player;
+				} else {
+					$teamR[] = $player;
 				}
 			}
 			
@@ -252,56 +269,44 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 			} else {
 				$duration = $row['duration']." mins";
 			}
-			*/
 			
-			/*
-				INDEX COLONNES CLES PRIMAIRES
-			*/
-			$timeColumnNumber = 2;
-			$regionColumnNumber = 1;
-			$hostColumnNumber = 0;
-			/*
-			
-			*/
-			
-			$timeColumn = $row[$timeColumnNumber];
-			
-			$year = substr($timeColumn, 0, 4);
-			$month = substr($timeColumn, 5, 2);
-			$day = substr($timeColumn, 8, 2);
-			$hour = substr($timeColumn, 11, 2);
-			$min = substr($timeColumn, 14, 2);
+			$year = substr($row['time'], 0, 4);
+			$month = substr($row['time'], 5, 2);
+			$day = substr($row['time'], 8, 2);
+			$hour = substr($row['time'], 11, 2);
+			$min = substr($row['time'], 14, 2);
 			$time = $day.".".$month.".".$year." ".$hour.":".$min;
+
 		?>
 			<div class="row">
 				<div class="span12">
-					<div class="well<?echo $class;?> match" id="<?echo $row['id'];?>">
-						<div class="matchcell championcell"><img class="img-rounded imgchampion" alt="<?//echo $champsDisplay[$champPlayed];?>" src="<?//echo $champsFolder.ucfirst($champPlayed);?>.png">
+					<div class="well<?echo $class;?> match" id="<?echo $row['gameId'];?>">
+						<div class="matchcell championcell"><img class="img-rounded imgchampion" alt="<?echo $champsDisplay[$row['championId']];?>" src="<?echo $champsFolder.ucfirst($champsName[$row['championId']]);?>.png">
 						</div>
 						
 						<div class="matchcell headcell">
-							<?echo $row['type'];?>
+							<?echo $modes[$row['type']];?>
 							<br><span class="<?echo $classtext;?>"><?echo $text;?></span>
-							<br> <?//echo $duration;?>
-							<br> <?//echo $time;?>
+							<br> <?echo $duration;?>
+							<br> <?echo $time;?>
 						</div>
 						
 						<?
-						if (isset($row['ss1']))
+						if (isset($row['spell1']))
 						{
 						?>
 							<div class="matchcell kdacell">
-								<div class="kdaNumber"><?echo $row['kills'];?><img class="icon" src="<?echo PATH;?>img/kill.png" alt="kills"></div>
-								<div class="kdaNumber"><?echo $row['deaths'];?><img class="icon" src="<?echo PATH;?>img/death.png" alt="deaths"></div>
-								<div class="kdaNumber"><?echo $row['assists'];?><img class="icon" src="<?echo PATH;?>img/assist.png" alt="assists"></div>
+								<div class="kdaNumber"><?echo $row['CHAMPIONS_KILLED'];?><img class="icon" src="<?echo PATH;?>img/kill.png" alt="kills"></div>
+								<div class="kdaNumber"><?echo $row['NUM_DEATHS'];?><img class="icon" src="<?echo PATH;?>img/death.png" alt="deaths"></div>
+								<div class="kdaNumber"><?echo $row['ASSISTS'];?><img class="icon" src="<?echo PATH;?>img/assist.png" alt="assists"></div>
 
-								<br><div class="minion"><?echo $row['minions'];?><img class="icon" src="<?echo PATH;?>img/minion.png" alt="minions"></div>
-								<br><div class="gold"><?echo $row['gold'];?><img class="icon" src="<?echo PATH;?>img/gold.png" alt="gold"></div>
+								<br><div class="minion"><?echo $row['MINIONS_KILLED'];?><img class="icon" src="<?echo PATH;?>img/minion.png" alt="minions"></div>
+								<br><div class="gold"><?echo $row['GOLD_EARNED'];?><img class="icon" src="<?echo PATH;?>img/gold.png" alt="gold"></div>
 							</div>
 							
 							<div class="matchcell sscell">
-								<div class="ss"><img class="icon img-rounded" src="<?echo PATH;?>img/ss/<?echo $row['ss1'];?>.png" alt="Summoner Spell n <?echo $row['ss1'];?>"></div>
-								<div class="ss"><img class="icon img-rounded" src="<?echo PATH;?>img/ss/<?echo $row['ss2'];?>.png" alt="Summoner Spell n <?echo $row['ss2'];?>"></div>
+								<div class="ss"><img class="icon img-rounded" src="<?echo PATH;?>img/ss/<?echo $row['spell1'];?>.png" alt="Summoner Spell n <?echo $row['spell1'];?>"></div>
+								<div class="ss"><img class="icon img-rounded" src="<?echo PATH;?>img/ss/<?echo $row['spell2'];?>.png" alt="Summoner Spell n <?echo $row['spell2'];?>"></div>
 							</div>
 							
 							<div class="matchcell itemscell">
@@ -320,7 +325,9 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 						?>
 						<div class="matchcell playerscell">
 							<table class="players">
-								<? echo players($row, $row[$regionColumnNumber], $champsFolder, $champsId, $id); ?>
+								<? 
+								
+								echo players($teamL, $teamR, $row['region'], $id, $champsName); ?>
 							</table>
 						</div>
 					</div>
