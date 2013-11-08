@@ -1,4 +1,9 @@
 ﻿<?php
+/*
+This page is now deprecated. It was used with the first versions of LoLarchive, when an API wasn't required.
+Feel free too look through this code. However, it's quite a mess and nothing's documented.
+So, everything is at your own right. I also normally won't provide support on how to use this.
+*/
 	header('Access-Control-Allow-Origin: *');
 	$connect = mysql_connect("localhost", "lolk", "fnu");
 	mysql_select_db("lolking", $connect) or die("erreur select db : " . mysql_error());

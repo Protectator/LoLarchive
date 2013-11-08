@@ -1,8 +1,9 @@
 <?php
 
-	define('PATH', "/lolarchive/");
-	define('LOCAL', "/var/www");
+	define('PATH', "/lolarchive/"); // root of the LoLarchive directory
+	define('LOCAL', "/var/www");    // local directory of the LoLarchive directory
 
+	// Start by loading variables that shouldn't be public
 	require_once(LOCAL.PATH.'private/config.php');
 	
 	// Useful variables
@@ -22,9 +23,10 @@
 			"Nov" => '11',
 			"Dec" => '12'
 	);
-	foreach($months as $key => $value) {
+	foreach($months as $key => $value) { // "Reverse" the array so it can be accessed by numbers of months too
 		$months[intval($value)] = $key;
 	}
+	
 	// Display text of game modes
 	$modes = array (
 			"NONE" => "Custom",
@@ -64,38 +66,12 @@
 	}
 	
 	/**
-	* Prepares a chunk of string designed to be added with other parts of a SQL INSERT
-	*
-	* @param $columns Array containing keys and values to add to the SQL INSERT
-	* @return string keys and values to be inserted
-	*/
-	function buildInsert($columns) {
-		return "(".implode(", ", array_keys($columns)).") VALUES ('".implode("', '", array_values($columns))."')";
-	}
-	
-	/**
-	* Prepares a chunk of string designed to be added with other parts of a SQL INSERT
-	* 
-	* @param $columns Array containing arrays of keys and values to add to the SQL INSERT
-	* @return string keys and values to be inserted
-	*/
-	function buildMultInsert($arrayOfColumns) {
-		$result = "(".implode(", ", array_keys($arrayOfColumns[0])).") VALUES ";
-		$columns = array();
-		foreach($arrayOfColumns as $column) {
-			$columns[] = "('".implode("', '", array_values($column))."')";
-		}
-		$result .= implode(", ", $columns);
-		return $result;
-	}
-	
-	/**
 	* Commits one or multiple queries at once.
 	*
 	* Use this to do INSERT, DELETE or UPDATE queries.
 	* Commits all requests in the order they are read -> The order of $queries array
 	*
-	* @param resource $pdo opened PDO session
+	* @param resource $pdo opened PDO connection
 	* @param array|string $queries String or Array of Strings containing the 
 	* SQL queries to perform at once.
 	* @return array Array of two integers :
@@ -138,7 +114,7 @@
 	/**
 	* Performs a raw (untreated and unsecured) SELECT query.
 	*
-	* @param resource $pdo opened PDO session
+	* @param resource $pdo opened PDO connection
 	* @param string $query Query to perform
 	* @return Result of the query
 	*/
@@ -153,6 +129,53 @@
 			exit();
 		}
 	}
+	
+	// BUILDING QUERIES FUNCTIONS
+	
+	/**
+	* Creates a string made of passed conditions
+	*
+	* Only keys of the array are used to make the result. It has been made to
+	* be later used as a parameter to PDO bindParam. Resutrns something of the
+	* form :
+	* "key1 = :key1 AND key2 = :key2 AND key3 = :key3"
+	*
+	* @param array of conditions and values
+	*/
+	function conditions($columns) {
+		$conditions = array();
+		foreach ($columns as $key => $value) {
+			$conditions[] = $key." = :".$key;
+		}
+		return implode(" AND ", $conditions);
+	}
+	
+		
+	/**
+	* Prepares a chunk of string designed to be added with other parts of a SQL INSERT
+	*
+	* @param $columns Array containing keys and values to add to the SQL INSERT
+	* @return string keys and values to be inserted
+	*/
+	function buildInsert($columns) {
+		return "(".implode(", ", array_keys($columns)).") VALUES ('".implode("', '", array_values($columns))."')";
+	}
+	
+	/**
+	* Prepares a chunk of string designed to be added with other parts of a SQL INSERT
+	* 
+	* @param $columns Array containing arrays of keys and values to add to the SQL INSERT
+	* @return string keys and values to be inserted
+	*/
+	function buildMultInsert($arrayOfColumns) {
+		$result = "(".implode(", ", array_keys($arrayOfColumns[0])).") VALUES ";
+		$columns = array();
+		foreach($arrayOfColumns as $column) {
+			$columns[] = "('".implode("', '", array_values($column))."')";
+		}
+		$result .= implode(", ", $columns);
+		return $result;
+	}
 
 	/*
 	SECURITY FUNCTIONS
@@ -164,6 +187,7 @@
 	* Converts a string to an integer if it is one.
 	* If not, escapes apostrophes and other risky stuff.
 	*
+	* @param resource $pdo Opened PDO connection
 	* @param string $string string to secure
 	* @return secured string
 	*/	
@@ -181,6 +205,9 @@
 	
 	/**
 	* "Purifies" text from HTML code before displaying it.
+	* 
+	* @param string $string String to be displayed
+	* @return string String without impact on html etc
 	*/
 	function purify($string) {
 		return htmlspecialchars($string);
@@ -188,6 +215,9 @@
 	
 	/**
 	* Applies secure() on all values of an array and all subarrays.
+	*
+	* @param resource $pdo Opened PDO connection
+	* @param resource
 	*/
 	function secureArray(&$pdo, &$array) {
 		/**
@@ -252,11 +282,18 @@
 	}
 	
 	/*
-	HIGH LEVEL FUNCTIONS
+	HIGHER LEVEL FUNCTIONS
 	*/
 	
 	/**
-	* To be tested
+	* Adds a summoner to track games
+	*
+	* @param resource $pdo Opened PDO connection
+	* @param resource $c Opened cURL conneciton
+	* @param string $region Region of the summoner account
+	* @param string $name Summoner name
+	* @return int Should return "1" if the request was executed correctly.
+	* Does not guarantee the summoner has effectively been tracked, though.
 	*/
 	function trackNewPlayer(&$pdo, &$c, $region, $name) {
 		$json = getSummonerByName($c, $region, $name);
@@ -274,21 +311,27 @@
 	}
 	
 	/*
-	LOW LEVEL FUNCTIONS
+	LOWER LEVEL FUNCTIONS
+	undocumented part
 	*/
 	
-	// Index functions
+	/*
+	* Returns the HTML showing an item
+	*/
 	function item($row, $int) {
 		if ($row['ITEM'.$int] > 0) {
 			return "<a href=\"http://www.lolking.net/items/".$row['ITEM'.$int]."\"><img class= \"img-rounded imgitem32\" src=\"http://lkimg.zamimg.com/shared/riot/images/items/".$row['ITEM'.$int]."_32.png\" alt=\"".$row['ITEM'.$int]."\"></a>";
 		}
 	}
 	
+	/*
+	* Returns the image link of a champion
+	*/
 	function champImg($champId, $champsName) {
 		return PATH."img/champions/".ucfirst($champsName[$champId]).".png";
 	}
 	
-	/**
+	/*
 	* Creates HTML text showing players in a game.
 	*/
 	function players($teamL, $teamR, $region, $id, $champsName) {
@@ -342,67 +385,21 @@
 	/**
 	* Estimates the duration of a game
 	*
+	* I insist on the word ESTIMATION.
+	* Made from the rules listed on http://leagueoflegends.wikia.com/wiki/Influence_Points
+	*
 	* @param int $map ID of the map played on
 	* @param string $mode Mode played
 	* @param int $ip amount of won ip
 	* @param int $win 1 if game was won, 0 otherwise
 	* @param string $difficulty Level of difficulty if played against bots
 	* @param int $level Summoner's level that played the game
+	* @return int Estimated duration of the game
 	*/
 	function timeOf($map, $mode, $ip, $win, $difficulty = "", $level = 30) {
 		$dominion = 0.;
 		$modifier = 1.;
-		/*
-		if ($mode == "NONE") {
-			$modifier = 0.75;
-		}
-		
-		$base = 16. + $win*2.; // Gain classique
-		if ($win) {$ipminute = 2.312;} else {$ipminute = 1.405;} // gain/min classique
-		
-		switch ($map) {
-		
-		
-		
-			case '1': // SUMMONER'S RIFT id map
-				switch ($mode) {
-				
-					case "NORMAL": //    NORMAL
-						$base = 16. + $win*2.;
-						break;
-					
-					case "BOT":    //    COOP VS IA
-						if ($difficulty == "INTERMEDIATE") {
-							$base = 6. + $win * 1.;
-						} else if ($difficulty == "EASY") {
-							if ($win) {$base = 5.;} else {$base = 2.5;}
-						}
-						break;
-						
-					case "RANKED_SOLO_5x5":
-					case "RANKED_DUO_5x5":
-					case "RANKED_TEAM_5x5":
-						// TODO : Floor le nombre de minutes a 65
-						break;
-				}
-				break;
-			case '8': // DOMINION id map
-
-				break;
-			case '10': // TWISTED TREELINE id map
-
-				break;
-			case "12": // ARAM id map
-			
-				break;
-			case "dominion":
-				if ($win) {$ipminute = 2.;} else {$ipminute = 2.;}
-				$dominion = 1.;
-				if ($win) {$base = 20.;} else {$base = 12.5;}
-				break;
-		}
-		*/
-		switch ($map) {
+		switch ($map) { // IP/minute gains depends mainly on the map played on
 			case '1': // Summoner's rift
 				if ($win) {$ipminute = 2.312;} else {$ipminute = 1.405;}
 				break;
@@ -416,12 +413,12 @@
 			case "12": // ARAM
 				if ($win) {$ipminute = 2.312;} else {$ipminute = 1.405;}
 				break;
-			case default:
+			case default: // If something goes wrong
 				$ipminute = 0,;
 				break;
 		}
 		
-		switch ($mode) {
+		switch ($mode) { // Base IP gain depends on the mode played
 			case 'ODIN_UNRANKED': // Dominion
 				if ($win) {$base = 20.;} else {$base = 12.5;}
 				break;
@@ -438,12 +435,12 @@
 			case 'BOT_3x3':
 			case 'BOT': // Coop vs AI 5v5
 				switch ($difficulty) {
-					case 'EASY':
+					case 'EASY': // Beginner
 						if ($win) {$base = 7.;} else {$base = 6.;}
 						if ($level == 30) {$ipminute *= 0.55;}
 						else if (20 <= $level) {$ipminute *= 0.7;}
 						else if (10 <= $level) {$ipminute *= 0.85;}
-					case 'MEDIUM':
+					case 'MEDIUM': // Intermediate
 						if ($win) {$base = 5.;} else {$base = 2.5;}
 						if ($level == 30) {$ipminute *= 0.8;}
 						else if (20 <= $level) {$ipminute *= 0.9;}
@@ -455,10 +452,7 @@
 			case default:
 				if ($win) {$base = 18.;} else {$base = 16;}
 		}
-		
-		
 		return ($ip - $dominion - $base) / ($ipminute * $modifier);
-		
 	}
 	
 	/*
@@ -471,7 +465,7 @@
 	* Uses an opened PDO connection to prepare a query using values contained
 	* in an	other array. and then sends it (key => value pairs)
 	* 
-	* @param resource $pdo opened PDO session
+	* @param resource $pdo opened PDO connection
 	* @param string $queryToPrepare A request to be prepared following a certain
 	* syntax using named parameters -> Check http://php.net/manual/fr/pdo.prepare.php#example-1021
 	* @param array $values Array of strings containing values to place in the query.
@@ -495,7 +489,7 @@
 	/**
 	* Binds parameters of a prepared query to values of an array by its keys
 	*
-	* @param resource $pdo opened PDO session
+	* @param resource $pdo opened PDO connection
 	* @param columns Array containing the values to bind to keys (keys without ":")
 	*
 	* @deprecated
@@ -514,14 +508,6 @@
 		}
 	}
 	
-	function conditions($columns) {
-		$conditions = array();
-		foreach ($columns as $key => $value) {
-			$conditions[] = $key." = :".$key;
-		}
-		return implode(" AND ", $conditions);
-	}
-	
 	/*
 	UTILITY
 	*/
@@ -533,11 +519,4 @@
 		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 		return trim(curl_exec($c));
 	}
-	
-	// If we get parameters, securize them
-	/*
-	foreach ($_GET as &$thing) {
-		$thing = secure($thing);
-	}
-	*/
 ?>

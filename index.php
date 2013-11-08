@@ -1,4 +1,6 @@
 <?
+// This page loads every other page asked
+// It's the one an end-user always asks for.
 require_once('includes/functions.include.php');
 
 // Database connection
