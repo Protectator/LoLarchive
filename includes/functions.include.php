@@ -339,9 +339,20 @@
 		return $result;
 	}
 	
-	function timeOf($map, $mode, $ip, $win, $difficulty = "", $level = '30') {
+	/**
+	* Estimates the duration of a game
+	*
+	* @param int $map ID of the map played on
+	* @param string $mode Mode played
+	* @param int $ip amount of won ip
+	* @param int $win 1 if game was won, 0 otherwise
+	* @param string $difficulty Level of difficulty if played against bots
+	* @param int $level Summoner's level that played the game
+	*/
+	function timeOf($map, $mode, $ip, $win, $difficulty = "", $level = 30) {
 		$dominion = 0.;
 		$modifier = 1.;
+		/*
 		if ($mode == "NONE") {
 			$modifier = 0.75;
 		}
@@ -351,7 +362,9 @@
 		
 		switch ($map) {
 		
-			case '1': //              SUMMONER'S RIFT id map
+		
+		
+			case '1': // SUMMONER'S RIFT id map
 				switch ($mode) {
 				
 					case "NORMAL": //    NORMAL
@@ -388,6 +401,61 @@
 				if ($win) {$base = 20.;} else {$base = 12.5;}
 				break;
 		}
+		*/
+		switch ($map) {
+			case '1': // Summoner's rift
+				if ($win) {$ipminute = 2.312;} else {$ipminute = 1.405;}
+				break;
+			case '8': // Dominion
+				if ($win) {$ipminute = 2.312;} else {$ipminute = 1.405;}
+				$dominion = 1.;
+				break;
+			case '10': // Twisted Treeline
+				if ($win) {$ipminute = 2.;} else {$ipminute = 1.;}
+				break;
+			case "12": // ARAM
+				if ($win) {$ipminute = 0.;} else {$ipminute = 0.;} // UNKNOWN
+				break;
+			case default:
+				$ipminute = 0,;
+				break;
+		}
+		
+		switch ($mode) {
+			case 'ODIN_UNRANKED': // Dominion
+				if ($win) {$base = 20.;} else {$base = 12.5;}
+				break;
+			case 'NONE': // Custom game
+				if ($win) {$base = 18.;} else {$base = 16;}
+				$modifier = 0.75;
+			case 'RANKED_TEAM_3x3': // TODO : Lots of things to do here
+			case 'NORMAL_3x3';
+			case 'RANKED_SOLO_5x5':
+			case 'RANKED_TEAM_5x5':
+			case 'NORMAL': // Normal
+				if ($win) {$base = 18.;} else {$base = 16;}
+				break;
+			case 'BOT_3x3':
+			case 'BOT': // Coop vs AI 5v5
+				switch ($difficulty) {
+					case 'EASY':
+						if ($win) {$base = 7.;} else {$base = 6.;}
+						if ($level == 30) {$ipminute *= 0.55;}
+						else if (20 <= $level) {$ipminute *= 0.7;}
+						else if (10 <= $level) {$ipminute *= 0.85;}
+					case 'MEDIUM':
+						if ($win) {$base = 5.;} else {$base = 2.5;}
+						if ($level == 30) {$ipminute *= 0.8;}
+						else if (20 <= $level) {$ipminute *= 0.9;}
+				}
+				break;
+			case 'ODIN_UNRANKED':
+				if ($win) {$base = 0.;} else {$base = 0.;}
+				break;
+			case default:
+				if ($win) {$base = 18.;} else {$base = 16;}
+		}
+		
 		
 		return ($ip - $dominion - $base) / ($ipminute * $modifier);
 		
@@ -457,6 +525,14 @@
 	/*
 	UTILITY
 	*/
+	
+	// Test tooltip function
+	function getToolTipOfItem(&$c, $itemId) {
+		curl_setopt($c, CURLOPT_URL, "http://gameinfo.euw.leagueoflegends.com/en/game-info/items/");
+		curl_setopt($c, CURLOPT_CONNECTTIMEOUT, 5);
+		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+		return trim(curl_exec($c));
+	}
 	
 	// If we get parameters, securize them
 	/*
