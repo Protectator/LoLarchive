@@ -414,7 +414,7 @@
 				if ($win) {$ipminute = 2.;} else {$ipminute = 1.;}
 				break;
 			case "12": // ARAM
-				if ($win) {$ipminute = 0.;} else {$ipminute = 0.;} // UNKNOWN
+				if ($win) {$ipminute = 2.312;} else {$ipminute = 1.405;}
 				break;
 			case default:
 				$ipminute = 0,;
@@ -449,8 +449,8 @@
 						else if (20 <= $level) {$ipminute *= 0.9;}
 				}
 				break;
-			case 'ODIN_UNRANKED':
-				if ($win) {$base = 0.;} else {$base = 0.;}
+			case 'ARAM_UNRANKED_5x5':
+				if ($win) {$base = 15.;} else {$base = 14.;}
 				break;
 			case default:
 				if ($win) {$base = 18.;} else {$base = 16;}
