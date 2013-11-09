@@ -413,9 +413,6 @@
 			case "12": // ARAM
 				if ($win) {$ipminute = 2.312;} else {$ipminute = 1.405;}
 				break;
-			case default: // If something goes wrong
-				$ipminute = 0,;
-				break;
 		}
 		
 		switch ($mode) { // Base IP gain depends on the mode played
@@ -449,8 +446,6 @@
 			case 'ARAM_UNRANKED_5x5':
 				if ($win) {$base = 15.;} else {$base = 14.;}
 				break;
-			case default:
-				if ($win) {$base = 18.;} else {$base = 16;}
 		}
 		return ($ip - $dominion - $base) / ($ipminute * $modifier);
 	}
