@@ -169,7 +169,7 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 					<div class="controls">
 						<select id="champFilterChoice" name="champFilterChoice" class="input-medium">
 							<?
-							foreach ($champsName as $value) {
+							foreach ($champsDisplay as $value) {
 								?>
 								<option value="<?echo $value;?>" style="background: url('<?echo PATH;?>img/champions/<?echo ucfirst($value);?>.png') no-repeat;" <?echo (isset($lastChampion) && $lastChampion == $value)?"selected":"";?>>
 								<? echo $value;?>
