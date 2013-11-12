@@ -59,12 +59,12 @@
 			
 			$filtersStr = array();
 			
-			if (isset($_GET['champFilterChoice']) AND $_GET['champFilterChoice'] != '') {
+			if (isset($_GET['fChampion']) AND $_GET['fChampion'] != '') {
 				$championFilterStr = " AND players.championId = :championId";
 				$filtersStr[] = $championFilterStr;
 			}
 			
-			if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != '') {
+			if (isset($_GET['fMode']) AND $_GET['fMode'] != '') {
 				$modeFilterStr = " AND games.type = :typeStr";
 				$filtersStr[] = $modeFilterStr;
 			}
@@ -75,45 +75,7 @@
 			LEFT JOIN players ON games.gameId = players.gameId
 			LEFT JOIN data ON games.gameId = data.gameId AND players.gameId = data.gameId
 			WHERE players.summonerId = :sId AND data.summonerId = :sId".implode($filtersStr);
-			
-			/* PARTIE SUR LES FILTRES
-			TODO : REFACTOR THIS SHIT :)
-			// Filtre champion
-			$players = Array('a1', 'a2', 'a3', 'a4', 'a5', 'b1', 'b2', 'b3', 'b4', 'b5');
-			
-			$req2 = "";
-			$champFilter = 0;
-			$modeFilter = 0;
-			
-			if (isset($_GET['champFilterBox']) AND isset($_GET['champFilterChoice']) AND $_GET['champFilterBox'] == 'on') {
-				$champFilter = 1;
-				$filterString = " AND (";
-				foreach ($players as $value) {
-					$filterString = $filterString."(games.".$value."id = '".$id."' AND matches.".$value."champ = '".$_GET['champFilterChoice']."')";
-					if ($value != 'b5') {
-						$filterString .= " OR ";
-					}
-				}
-				$filterString .= ")";
-			}
-			
-			// Filtre mode
-			if (isset($_GET['modeFilterBox']) AND isset($_GET['modeFilterChoice']) AND $_GET['modeFilterBox'] == 'on') {
-				$modeFilter = 1;
-				$filterModeString = " AND matches.type = '".$_GET['modeFilterChoice']."'";
-			}
-			
-		
-			// SQL : Récupération des matches du joueur
-			$req2 = "SELECT * FROM matches LEFT JOIN data ON data.host = matches.host AND data.time = matches.time AND data.region = matches.region AND data.user = '".$id."' WHERE '".$id."' IN(matches.a1id, matches.a2id, matches.a3id, matches.a4id, matches.a5id, matches.b1id, matches.b2id, matches.b3id, matches.b4id, matches.b5id)";
-			
-			if ($champFilter) {
-				$req2 = $req2.$filterString;
-			}
-			if ($modeFilter) {
-				$req2 = $req2.$filterModeString;
-			}
-			*/
+
 			$requestString[1] .= " ORDER BY games.time DESC;";
 			if (isset($_GET['debug'])) {
 				echo $requestString[1];
@@ -121,8 +83,8 @@
 			// New request : All games of this user
 			$summonerGames = $pdo->prepare($requestString[1]);
 			$summonerGames->bindParam(":sId", $id);
-			if (isset($_GET['champFilterChoice']) AND $_GET['champFilterChoice'] != '') {
-				$summonerGames->bindParam(":championId", intval($_GET['champFilterChoice']));
+			if (isset($_GET['fChampion']) AND $_GET['fChampion'] != '') {
+				$summonerGames->bindParam(":championId", intval($_GET['fChampion']));
 			}
 			$summonerGames->execute();        // Execute the request
 			//$summonerGames->fetch(); // Get the array
@@ -157,15 +119,15 @@
 
 <?php
 /*
-	FILTRES !!!
+	FILTERS !!!
 */
 
-if (isset($_GET['champFilterChoice']) AND $_GET['champFilterChoice'] != "") {
-	$lastChampion = $_GET['champFilterChoice'];
+if (isset($_GET['fChampion']) AND $_GET['fChampion'] != "") {
+	$lastChampion = $_GET['fChampion'];
 }
 
-if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
-	$lastMode = $_GET['modeFilterChoice'];
+if (isset($_GET['fMode']) AND $_GET['fMode'] != "") {
+	$lastMode = $_GET['fMode'];
 }
 ?>
 
@@ -179,10 +141,10 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 				<input type="hidden" name="name" value="<?echo $_GET['name']?>"/> 
 				<div class="control-group">
 					<label class="control-label">
-						<label class="checkbox inline"><input type="checkbox" id="champFilterBox" name="champFilterBox" <?echo (isset($lastChampion) && $lastChampion)?'checked="yes"':''?>> Champion</label>
+						<label class="checkbox inline"><input type="checkbox" id="champFilterBox" <?echo (isset($lastChampion) && $lastChampion)?'checked="yes"':''?>> Champion</label>
 					</label>
 					<div class="controls">
-						<select id="champFilterChoice" name="champFilterChoice" class="input-medium">
+						<select id="champFilterChoice" name="fChampion" class="input-medium">
 							<?
 							foreach ($champsId as $value) {
 								?>
@@ -197,7 +159,7 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 				</div>
 				<div class="control-group">
 					<label class="control-label">
-						<label class="checkbox inline"><input type="checkbox" id="modeFilterBox" name="modeFilterBox" <?echo ($lastMode)?'checked="yes"':''?>> Game mode</label>
+						<label class="checkbox inline"><input type="checkbox" id="modeFilterBox" <?echo ($lastMode)?'checked="yes"':''?>> Game mode</label>
 					</label>
 					<div class="controls">
 						<select id="modeFilterChoice" name="modeFilterChoice" class="input-medium">
@@ -222,8 +184,6 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 		</form>
 	</div>
 </div>
-
-		
 		
 		<?php
 		/*
@@ -237,8 +197,6 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 				print_r($row);
 				echo "</pre>";
 			} // END Debug
-			
-			
 			
 			// Handles all bit(1) data
 			$win = ord($row['WIN']);
