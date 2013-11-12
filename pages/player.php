@@ -57,14 +57,25 @@
 			$id = $foundSummoner['id'];
 			$name = $foundSummoner['user'];
 			
-			$filtersStr = array();
+			$filtersStr = array(); // String of all filters conditions
 			
+			// START FILTERS
+			
+			$filters = array( // Array of activated filters
+						'fChampion' => false,
+						'fMode' => false
+			);
+			
+			// filter games by Champion
 			if (isset($_GET['fChampion']) AND $_GET['fChampion'] != '') {
+				$filters['fChampion'] = $_GET['fChampion'];
 				$championFilterStr = " AND players.championId = :championId";
 				$filtersStr[] = $championFilterStr;
 			}
 			
+			// filter games by Game Mode
 			if (isset($_GET['fMode']) AND $_GET['fMode'] != '') {
+				$filters['fMode'] = $_GET['fMode'];
 				$modeFilterStr = " AND games.type = :typeStr";
 				$filtersStr[] = $modeFilterStr;
 			}
@@ -83,9 +94,18 @@
 			// New request : All games of this user
 			$summonerGames = $pdo->prepare($requestString[1]);
 			$summonerGames->bindParam(":sId", $id);
-			if (isset($_GET['fChampion']) AND $_GET['fChampion'] != '') {
-				$summonerGames->bindParam(":championId", intval($_GET['fChampion']));
+			
+			// Check if each filter is activated
+			
+			// filter games by Champion
+			if ($filters['fChampion']) {
+				$summonerGames->bindParam(":championId", intval($filters['fChampion']));
 			}
+			// filter games by Mode
+			if ($filters['fMode']) {
+				$summonerGames->bindParam(":championId", intval($filters['fMode']));
+			}
+			
 			$summonerGames->execute();        // Execute the request
 			//$summonerGames->fetch(); // Get the array
 		}
@@ -117,20 +137,6 @@
 	</div>
 </div>
 
-<?php
-/*
-	FILTERS !!!
-*/
-
-if (isset($_GET['fChampion']) AND $_GET['fChampion'] != "") {
-	$lastChampion = $_GET['fChampion'];
-}
-
-if (isset($_GET['fMode']) AND $_GET['fMode'] != "") {
-	$lastMode = $_GET['fMode'];
-}
-?>
-
 <div class="row">
 	<div class="span12">
 		<form class="form-horizontal well" action="http://protectator.ch/lolarchive/index.php" method="get">
@@ -141,14 +147,14 @@ if (isset($_GET['fMode']) AND $_GET['fMode'] != "") {
 				<input type="hidden" name="name" value="<?echo $_GET['name']?>"/> 
 				<div class="control-group">
 					<label class="control-label">
-						<label class="checkbox inline"><input type="checkbox" id="champFilterBox" <?echo (isset($lastChampion) && $lastChampion)?'checked="yes"':''?>> Champion</label>
+						<label class="checkbox inline"><input type="checkbox" id="champFilterBox" <?echo (isset($filters['fChampion']) && $filters['fChampion'])?'checked="yes"':''?>> Champion</label>
 					</label>
 					<div class="controls">
 						<select id="champFilterChoice" name="fChampion" class="input-medium">
 							<?
 							foreach ($champsId as $value) {
 								?>
-								<option value="<?echo $value;?>" style="background: url('<?echo PATH;?>img/champions/<?echo ucfirst($champsDisplay[$value]);?>.png') no-repeat;" <?echo (isset($lastChampion) && $lastChampion == $value)?"selected":"";?>>
+								<option value="<?echo $value;?>" style="background: url('<?echo PATH;?>img/champions/<?echo ucfirst($champsDisplay[$value]);?>.png') no-repeat;" <?echo (isset($filters['fChampion']) && $filters['fChampion'] == $value)?"selected":"";?>>
 								<? echo $champsDisplay[$value];?>
 								</option>
 								<?
@@ -159,14 +165,14 @@ if (isset($_GET['fMode']) AND $_GET['fMode'] != "") {
 				</div>
 				<div class="control-group">
 					<label class="control-label">
-						<label class="checkbox inline"><input type="checkbox" id="modeFilterBox" <?echo ($lastMode)?'checked="yes"':''?>> Game mode</label>
+						<label class="checkbox inline"><input type="checkbox" id="modeFilterBox" <?echo ($filters['fMode'])?'checked="yes"':''?>> Game mode</label>
 					</label>
 					<div class="controls">
 						<select id="modeFilterChoice" name="modeFilterChoice" class="input-medium">
 							<?
 							foreach ($modes as $key => $value) {
 								?>
-								<option value="<?echo $key;?>" <?echo ($lastMode == $key)?"selected":"";?>>
+								<option value="<?echo $key;?>" <?echo ($filters['fMode'] == $key)?"selected":"";?>>
 								<? echo $value;?>
 								</option>
 								<?
