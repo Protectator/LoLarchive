@@ -57,12 +57,24 @@
 			$id = $foundSummoner['id'];
 			$name = $foundSummoner['user'];
 			
+			$filtersStr = array();
+			
+			if (isset($_GET['champFilterChoice']) AND $_GET['champFilterChoice'] != '') {
+				$championFilterStr = " AND players.championId = :championId";
+				$filtersStr[] = $championFilterStr;
+			}
+			
+			if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != '') {
+				$modeFilterStr = " AND games.type = :typeStr";
+				$filtersStr[] = $modeFilterStr;
+			}
+			
 			$requestString[1] = "
 			SELECT *
 			FROM games 
 			LEFT JOIN players ON games.gameId = players.gameId
 			LEFT JOIN data ON games.gameId = data.gameId AND players.gameId = data.gameId
-			WHERE players.summonerId = :sId AND data.summonerId = :sId";
+			WHERE players.summonerId = :sId AND data.summonerId = :sId".implode($filtersStr);
 			
 			/* PARTIE SUR LES FILTRES
 			TODO : REFACTOR THIS SHIT :)
@@ -109,6 +121,9 @@
 			// New request : All games of this user
 			$summonerGames = $pdo->prepare($requestString[1]);
 			$summonerGames->bindParam(":sId", $id);
+			if (isset($_GET['champFilterChoice']) AND $_GET['champFilterChoice'] != '') {
+				$summonerGames->bindParam(":championId", intval($_GET['champFilterChoice']));
+			}
 			$summonerGames->execute();        // Execute the request
 			//$summonerGames->fetch(); // Get the array
 		}
@@ -169,10 +184,10 @@ if (isset($_GET['modeFilterChoice']) AND $_GET['modeFilterChoice'] != "") {
 					<div class="controls">
 						<select id="champFilterChoice" name="champFilterChoice" class="input-medium">
 							<?
-							foreach ($champsDisplay as $value) {
+							foreach ($champsId as $value) {
 								?>
-								<option value="<?echo $value;?>" style="background: url('<?echo PATH;?>img/champions/<?echo ucfirst($value);?>.png') no-repeat;" <?echo (isset($lastChampion) && $lastChampion == $value)?"selected":"";?>>
-								<? echo $value;?>
+								<option value="<?echo $value;?>" style="background: url('<?echo PATH;?>img/champions/<?echo ucfirst($champsDisplay[$value]);?>.png') no-repeat;" <?echo (isset($lastChampion) && $lastChampion == $value)?"selected":"";?>>
+								<? echo $champsDisplay[$value];?>
 								</option>
 								<?
 							}
