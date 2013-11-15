@@ -26,12 +26,14 @@
 		// If the id is provided, go for it
 		if (isset($_GET/*27*/['id'])) {
 			$conditions["id"] = $_GET['id'];
+			$id = $_GET['id'];
 			$requestString[0] .= conditions($conditions); 
 			$findSummoner = $pdo->prepare($requestString[0]);
 			$findSummoner->bindParam(":id", $_GET['id']);
 		// Else, look for the username
 		} else {
 			$conditions["user"] = $_GET['name'];
+			$name = $_GET['name'];
 			$requestString[0] .= conditions($conditions);
 			$findSummoner = $pdo->prepare($requestString[0]);
 			$findSummoner->bindParam(":user", $_GET['name']);
