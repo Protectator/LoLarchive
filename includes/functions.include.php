@@ -31,6 +31,7 @@
 	$modes = array (
 			"NONE" => "Custom",
 			"NORMAL" => "Normal 5v5",
+			"NORMAL_3x3" => "Normal 3v3",
 			"RANKED_SOLO_5x5" => "Ranked Solo 5v5",
 			"RANKED_TEAM_5x5" => "Ranked Team 5v5",
 			"RANKED_TEAM_3x3" => "Ranked Team 3v3",
