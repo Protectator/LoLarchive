@@ -452,6 +452,82 @@
 	}
 	
 	/*
+	PRINT FUNCTIONS
+	*/
+	
+	/**
+	* Generates the HTML code to display the name of a summoner and its champion's icon.
+	*
+	* @param string region The server in which the game has taken place.
+	* @param int championId id of the champion played
+	* @param string summonerName Display name of the summoner
+	* @param int summonerId id of the summoner
+	* @return string HTML code
+	*/
+	function HTMLparticipant($region, $championId, $summonerName, $summonerId) {
+		// TODO
+	}
+	
+	/**
+	* Generates the HTML code to display the image of a champion
+	*
+	* @param int championId id of the champion
+	* @return string HTML code
+	*/
+	function HTMLchampionImg($championId, $size) {
+		// TODO
+	}
+	
+	/**
+	* Generates the HTML code to display participants in a game
+	*
+	* @param array team1 List of players in team 1 
+	* @param array team2 List of players in team 12
+	* @return string HTML code
+	*/
+	function HTMLparticipants($team1, $team2) {
+		// TODO
+	}
+	
+	/**
+	* Generates the HTML code to display the image of an item
+	*
+	* @param int itemId id of the item
+	* @return string HTML code
+	*/
+	function HTMLitem($itemId) {
+		// TODO
+	}
+	
+	/**
+	* TODO
+	*/
+	function HTMLplayerStuff($itemsId) {
+		// TODO
+	}
+	
+	/**
+	* TODO
+	*/
+	function HTMLsummonerSpells($spell1Id, $spell2Id) {
+		// TODO
+	}
+	
+	/**
+	* TODO
+	*/
+	function HTMLkda($k, $d, $a, $minions, $gold) {
+		// TODO
+	}
+	
+	/**
+	* TODO
+	*/
+	function HTMLgeneralStats($type, $win, $duraiton, $date) {
+		// TODO
+	}
+	
+	/*
 	DEPRECATED FUNCTIONS
 	*/
 	
