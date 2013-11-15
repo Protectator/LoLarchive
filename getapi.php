@@ -59,7 +59,7 @@ if (count($query) > 0) {
 				"time" => $time,
 				"type" => $match['queueType'],
 				"subType" => $match['subType'],
-				"duration" => 0, // TODO : Estimate game duration in function of IP won
+				"duration" => timeOf($match['gameMapId'], $match['type'], $match['ipEarned'], $match['win'], $match['difficulty'], $match['level']),
 				"sender" => 0
 			);
 			
