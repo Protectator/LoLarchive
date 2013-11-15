@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<!-- Bootstrap -->
-		<link href="<?echo PATH;?>css/bootstrap.css" rel="stylesheet" media="screen">
+		<link href="<?echo PATH;?>/libs/bootstrap/docs/assets/css/bootstrap.css" rel="stylesheet" media="screen">
 		<link href="<?echo PATH;?>css/darkstrap.css" rel="stylesheet" media="screen">
 		<link href="<?echo PATH;?>css/style.css" rel="stylesheet" media="screen">
 		<link rel="icon" href="<?echo PATH;?>favicon.ico" />
