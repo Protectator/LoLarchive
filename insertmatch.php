@@ -11,6 +11,7 @@ So, everything is at your own right. I also normally won't provide support on ho
 	
 		echo "<u>LoLarchiver</u>";
 		
+                
 		function secure($string)
 		{
 			// On regarde si le type de string est un nombre entier (int)

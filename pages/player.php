@@ -132,9 +132,9 @@
 			<?php 
 			if (isset($rName[$region])) {
 				$regionTxt = $rName[$region];} else {$regionTxt = $region; } ?>
-			<h2><? echo htmlentities(utf8_decode($name));?> <a href="http://www.lolking.net/summoner/<? echo $region."/".$id; ?>"><img src="<?echo PATH;?>img/lolking.png" alt="lolking"></a></h2>
-			<? echo htmlentities($regionTxt);?>
-			<br><? echo htmlentities($id);?>
+			<h2><?php echo htmlentities(utf8_decode($name));?> <a href="http://www.lolking.net/summoner/<? echo $region."/".$id; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a></h2>
+			<?php echo htmlentities($regionTxt);?>
+			<br><?php echo htmlentities($id);?>
 		</div>
 	</div>
 </div>
@@ -145,19 +145,19 @@
 			<fieldset>
 				<legend>Filter games</legend>
 				<input type="hidden" name="page" value="player"/>
-				<input type="hidden" name="region" value="<?echo $_GET['region']?>"/>
-				<input type="hidden" name="name" value="<?echo $_GET['name']?>"/> 
+				<input type="hidden" name="region" value="<?php echo $_GET['region']?>"/>
+				<input type="hidden" name="name" value="<?php echo $_GET['name']?>"/> 
 				<div class="control-group">
 					<label class="control-label">
-						<label class="checkbox inline"><input type="checkbox" id="champFilterBox" <?echo (isset($filters['fChampion']) && $filters['fChampion'])?'checked="yes"':''?>> Champion</label>
+						<label class="checkbox inline"><input type="checkbox" id="champFilterBox" <?php echo (isset($filters['fChampion']) && $filters['fChampion'])?'checked="yes"':''?>> Champion</label>
 					</label>
 					<div class="controls">
 						<select id="champFilterChoice" name="fChampion" class="input-medium">
-							<?
+							<?php
 							foreach ($champsId as $value) {
 								?>
-								<option value="<?echo $value;?>" style="background: url('<?echo PATH;?>img/champions/<?echo ucfirst($champsDisplay[$value]);?>.png') no-repeat;" <?echo (isset($filters['fChampion']) && $filters['fChampion'] == $value)?"selected":"";?>>
-								<? echo $champsDisplay[$value];?>
+								<option value="<?php echo $value;?>" style="background: url('<?php echo PATH;?>img/champions/<?php echo ucfirst($champsDisplay[$value]);?>.png') no-repeat;" <?php echo (isset($filters['fChampion']) && $filters['fChampion'] == $value)?"selected":"";?>>
+								<?php echo $champsDisplay[$value];?>
 								</option>
 								<?
 							}
@@ -167,14 +167,14 @@
 				</div>
 				<div class="control-group">
 					<label class="control-label">
-						<label class="checkbox inline"><input type="checkbox" id="modeFilterBox" <?echo ($filters['fMode'])?'checked="yes"':''?>> Game mode</label>
+						<label class="checkbox inline"><input type="checkbox" id="modeFilterBox" <?php echo ($filters['fMode'])?'checked="yes"':''?>> Game mode</label>
 					</label>
 					<div class="controls">
 						<select id="modeFilterChoice" name="modeFilterChoice" class="input-medium">
 							<?
 							foreach ($modes as $key => $value) {
 								?>
-								<option value="<?echo $key;?>" <?echo ($filters['fMode'] == $key)?"selected":"";?>>
+								<option value="<?php echo $key;?>" <?php echo ($filters['fMode'] == $key)?"selected":"";?>>
 								<? echo $value;?>
 								</option>
 								<?
@@ -261,52 +261,53 @@
 		?>
 			<div class="row">
 				<div class="span12">
-					<div class="well<?echo $class;?> match" id="<?echo $row['gameId'];?>">
-						<div class="matchcell championcell"><img class="img-rounded imgchampion" alt="<?echo $champsDisplay[$row['championId']];?>" src="<?echo $champsFolder.ucfirst($champsName[$row['championId']]);?>.png">
+                                    
+					<div class="well<?php echo $class;?> match" id="<?php echo $row['gameId'];?>">
+						<div class="matchcell championcell"><img class="img-rounded imgchampion" alt="<?php echo $champsDisplay[$row['championId']];?>" src="<?php echo $champsFolder.ucfirst($champsName[$row['championId']]);?>.png">
 						</div>
 						
 						<div class="matchcell headcell">
-							<?echo $modes[$row['type']];?>
-							<br><span class="<?echo $classtext;?>"><?echo $text;?></span>
-							<br> <?echo $duration;?>
-							<br> <?echo $time;?>
+							<?php echo $modes[$row['type']];?>
+							<br><span class="<?php echo $classtext;?>"><?php echo $text;?></span>
+							<br> <?php echo $duration;?>
+							<br> <?php echo $time;?>
 						</div>
 						
-						<?
+						<?php
 						if (isset($row['spell1']))
 						{
 						?>
 							<div class="matchcell kdacell">
-								<div class="kdaNumber"><?echo $row['CHAMPIONS_KILLED'];?><img class="icon" src="<?echo PATH;?>img/kill.png" alt="kills"></div>
-								<div class="kdaNumber"><?echo $row['NUM_DEATHS'];?><img class="icon" src="<?echo PATH;?>img/death.png" alt="deaths"></div>
-								<div class="kdaNumber"><?echo $row['ASSISTS'];?><img class="icon" src="<?echo PATH;?>img/assist.png" alt="assists"></div>
+								<div class="kdaNumber"><?php echo $row['CHAMPIONS_KILLED'];?><img class="icon" src="<?php echo PATH;?>img/kill.png" alt="kills"></div>
+								<div class="kdaNumber"><?php echo $row['NUM_DEATHS'];?><img class="icon" src="<?php echo PATH;?>img/death.png" alt="deaths"></div>
+								<div class="kdaNumber"><?php echo $row['ASSISTS'];?><img class="icon" src="<?php echo PATH;?>img/assist.png" alt="assists"></div>
 
-								<br><div class="minion"><?echo $row['MINIONS_KILLED'];?><img class="icon" src="<?echo PATH;?>img/minion.png" alt="minions"></div>
-								<br><div class="gold"><?echo $row['GOLD_EARNED'];?><img class="icon" src="<?echo PATH;?>img/gold.png" alt="gold"></div>
+								<br><div class="minion"><?php echo $row['MINIONS_KILLED'];?><img class="icon" src="<?php echo PATH;?>img/minion.png" alt="minions"></div>
+								<br><div class="gold"><?php echo $row['GOLD_EARNED'];?><img class="icon" src="<?php echo PATH;?>img/gold.png" alt="gold"></div>
 							</div>
 							
 							<div class="matchcell sscell">
-								<div class="ss"><img class="icon img-rounded" src="<?echo PATH;?>img/ss/<?echo $row['spell1'];?>.png" alt="Summoner Spell n <?echo $row['spell1'];?>"></div>
-								<div class="ss"><img class="icon img-rounded" src="<?echo PATH;?>img/ss/<?echo $row['spell2'];?>.png" alt="Summoner Spell n <?echo $row['spell2'];?>"></div>
+								<div class="ss"><img class="icon img-rounded" src="<?php echo PATH;?>img/ss/<?php echo $row['spell1'];?>.png" alt="Summoner Spell n <?php echo $row['spell1'];?>"></div>
+								<div class="ss"><img class="icon img-rounded" src="<?php echo PATH;?>img/ss/<?php echo $row['spell2'];?>.png" alt="Summoner Spell n <?php echo $row['spell2'];?>"></div>
 							</div>
 							
 							<div class="matchcell itemscell">
 								<table>
-									<? echo items($row); ?>
+									<?php echo items($row); ?>
 								</table>
 							</div>
-						<?
+						<?php
 						} else {
 						?>
 							<div class="matchcell nodatacell">
 								No data.
 							</div>
-						<?
+						<?php
 						}
 						?>
 						<div class="matchcell playerscell">
 							<table class="players">
-								<? 
+								<?php 
 								
 								echo players($teamL, $teamR, $row['region'], $id, $champsName); ?>
 							</table>
@@ -314,4 +315,4 @@
 					</div>
 				</div>
 			</div>
-		<?}?>
+		<?php } ?>

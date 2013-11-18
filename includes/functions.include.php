@@ -61,7 +61,7 @@
 		{
 			echo 'Failed to connect to database:<br />';
 			echo 'Error : '.$e->getMessage().'<br />';
-			echo 'N° : '.$e->getCode();
+			echo 'Nï¿½ : '.$e->getCode();
 			exit();
 		}
 	}
@@ -107,7 +107,7 @@
 				}
 			}
 			echo 'Error : '.$e->getMessage().'<br />';
-			echo 'N° : '.$e->getCode();
+			echo 'Nï¿½ : '.$e->getCode();
 			exit();
 		}
 	}
@@ -126,7 +126,7 @@
 		catch (Exception $e) {
 			echo 'Error while committing query :<br />';
 			echo 'Error : '.$e->getMessage().'<br />';
-			echo 'N° : '.$e->getCode();
+			echo 'Nï¿½ : '.$e->getCode();
 			exit();
 		}
 	}
@@ -142,6 +142,7 @@
 	* "key1 = :key1 AND key2 = :key2 AND key3 = :key3"
 	*
 	* @param array of conditions and values
+        * @return string Conditions for SQL request 
 	*/
 	function conditions($columns) {
 		$conditions = array();
@@ -327,6 +328,7 @@
 	
 	/*
 	* Returns the image link of a champion
+        * @return string Link to the image 
 	*/
 	function champImg($champId, $champsName) {
 		return PATH."img/champions/".ucfirst($champsName[$champId]).".png";
@@ -334,6 +336,7 @@
 	
 	/*
 	* Creates HTML text showing players in a game.
+        * @return string  
 	*/
 	function players($teamL, $teamR, $region, $id, $champsName) {
 		$result = "";
@@ -500,28 +503,48 @@
 	}
 	
 	/**
-	* TODO
+	* Generates the HTML code to display all the items of a player
+	*
+	* @param array<int> itemsId List of item's id
+	* @return string HTML code
 	*/
 	function HTMLplayerStuff($itemsId) {
 		// TODO
 	}
 	
 	/**
-	* TODO
+	* Generates the HTML code to display the two used summoner spells
+	*
+	* @param int spell1Id id of first summoner spell
+    * @param int spell2Id id of second summoner spell
+	* @return string HTML code
 	*/
 	function HTMLsummonerSpells($spell1Id, $spell2Id) {
 		// TODO
 	}
 	
 	/**
-	* TODO
+	* Generates the HTML code to display a few basic stats about a summoner's game
+	*
+	* @param int k Number of kills
+    * @param int d Number of deaths
+    * @param int a Number of assists
+    * @param int minions Number of minions slained
+    * @param int gold Amount of total gold
+	* @return string HTML code
 	*/
 	function HTMLkda($k, $d, $a, $minions, $gold) {
 		// TODO
 	}
 	
 	/**
-	* TODO
+	* Generates the HTML code to display a few stats about a summoner's game
+	*
+	* @param string type Type of the game
+    * @param int win If the game was won
+    * @param int duration Duration of the game
+    * @param string date Date at start of the game
+	* @return string HTML code
 	*/
 	function HTMLgeneralStats($type, $win, $duraiton, $date) {
 		// TODO
@@ -553,7 +576,7 @@
 		catch (Exception $e) {
 			echo 'Error while preparing/executing query :<br />';
 			echo 'Error : '.$e->getMessage().'<br />';
-			echo 'N° : '.$e->getCode();
+			echo 'Nï¿½ : '.$e->getCode();
 			exit();
 		}
 	}
@@ -575,7 +598,7 @@
 		catch (Exception $e) {
 			echo 'Error while binding params :<br />';
 			echo 'Error : '.$e->getMessage().'<br />';
-			echo 'N° : '.$e->getCode();
+			echo 'Nï¿½ : '.$e->getCode();
 			exit();
 		}
 	}
