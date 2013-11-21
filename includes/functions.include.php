@@ -378,10 +378,14 @@
 	
 	function items($row) {
 		$result = "";
-		for ($i = 0; $i <= 5; $i++) {
-			if (($i) % 3 == 0) { $result.="<tr>"; }
-			$result = $result."<td class=\"singleitemcell\">".item($row, $i)."<td>";
-			if (($i+1) % 3 == 0) { $result.="</tr>"; }
+		for ($i = 0; $i <= 6; $i++) {
+			$result = "<tr><td class=\"singleitemcell\">".item($row, 0)."<td>";
+			$result.= "<td class=\"singleitemcell\">".item($row, 1)."<td>";
+			$result.= "<td class=\"singleitemcell\">".item($row, 2)."<td>";
+			$result.= "<td class=\"singleitemcell\" rowspan=\"2\">".item($row, 6)."<td></tr>";
+			$result.= "<tr><td class=\"singleitemcell\">".item($row, 3)."<td>";
+			$result.= "<td class=\"singleitemcell\">".item($row, 4)."<td>";
+			$result.= "<td class=\"singleitemcell\">".item($row, 5)."<td></tr>";
 		}
 		return $result;
 	}

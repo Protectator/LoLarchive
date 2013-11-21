@@ -35,6 +35,9 @@ if (count($query) > 0) {
 		curl_close($c);
 		// Transform json in an Array
 		$array = json_decode($json, true);
+		echo "<pre>";
+		print_r($array);
+		echo "</pre>";
 		$matches = $array['gameStatistics']['array'];
 		
 		foreach ($matches as $match) {
