@@ -105,7 +105,7 @@
 			}
 			// filter games by Mode
 			if ($filters['fMode']) {
-				$summonerGames->bindParam(":championId", intval($filters['fMode']));
+				$summonerGames->bindParam(":typeStr", $filters['fMode']);
 			}
 			
 			$summonerGames->execute();        // Execute the request
@@ -170,7 +170,7 @@
 						<label class="checkbox inline"><input type="checkbox" id="modeFilterBox" <?php echo ($filters['fMode'])?'checked="yes"':''?>> Game mode</label>
 					</label>
 					<div class="controls">
-						<select id="modeFilterChoice" name="modeFilterChoice" class="input-medium">
+						<select id="modeFilterChoice" name="fMode" class="input-medium">
 							<?
 							foreach ($modes as $key => $value) {
 								?>

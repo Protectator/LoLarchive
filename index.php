@@ -25,7 +25,10 @@ if (isset($_GET['page'])) {
 	try {
 		require_once($pages[$_GET['page']]);
 	} catch (Exception $e) {
-		echo "Seems like you're lost. There's no page here.";
+		echo "An error occured during the generation of this page. <br>Seems like you're lost. There's nothing here.";
+		if (isset($_GET['debug'])) {
+			echo "<br>".$e->getMessage();
+		}
 	}
 } else {
 	require_once($pages["search"]);
