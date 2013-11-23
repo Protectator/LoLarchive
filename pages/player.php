@@ -263,8 +263,8 @@
 				<div class="span12">
                                     
 					<div class="well<?php echo $class;?> match" id="<?php echo $row['gameId'];?>">
-						<div class="matchcell championcell"><img class="img-rounded imgchampion" alt="<?php echo $champsDisplay[$row['championId']];?>" src="<?php echo $champsFolder.ucfirst($champsName[$row['championId']]);?>.png">
-						</div>
+				
+						<div class="matchcell championcell"><?php echo HTMLchampionImg($row['championId'], "big", $champsName); ?></div>
 						
 						<div class="matchcell headcell">
 							<?php echo $modes[$row['type']];?>

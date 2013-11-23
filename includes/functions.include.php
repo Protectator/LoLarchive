@@ -483,12 +483,12 @@
 	* @param int championId id of the champion
 	* @return string HTML code
 	*/
-	function HTMLchampionImg($championId, $size = "small") {
+	function HTMLchampionImg($championId, $size = "small", $champsName) {
 	
 		if ($size == "small") {
-			return "<img src=\"".champImg(intval($teamL[$i]['championId']), $champsName)."\" class=\"littleChampIcon\" alt=\"".$teamL[$i]['championId']."\">";
-		} else {
-			return "<img src=\"".champImg(intval($teamL[$i]['championId']), $champsName)."\" class=\"img-rounded imgChampion\" alt=\"".$teamL[$i]['championId']."\">";
+			return "<img src=\"".champImg(intval($championId), $champsName)."\" class=\"littleChampIcon\" alt=\"".$championId."\">";
+		} else if ($size == "big") {
+			return "<img src=\"".champImg(intval($championId), $champsName)."\" class=\"img-rounded imgChampion\" alt=\"".$championId."\">";
 		}
 	}
 	
