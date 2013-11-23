@@ -23,6 +23,7 @@
 			"Nov" => '11',
 			"Dec" => '12'
 	);
+	
 	foreach($months as $key => $value) { // "Reverse" the array so it can be accessed by numbers of months too
 		$months[intval($value)] = $key;
 	}
@@ -38,7 +39,8 @@
 			"BOT" => "Co-op vs AI 5v5",
 			"BOT_3x3" => "Co-op vs AI 3v3",
 			"ARAM_UNRANKED_5x5" => "ARAM",
-			"ODIN_UNRANKED" => "Dominion"
+			"ODIN_UNRANKED" => "Dominion",
+			"ONEFORALL_5x5" => "One for all"
 	);
 	
 	/*
@@ -61,7 +63,7 @@
 		{
 			echo 'Failed to connect to database:<br />';
 			echo 'Error : '.$e->getMessage().'<br />';
-			echo 'N� : '.$e->getCode();
+			echo 'N° : '.$e->getCode();
 			exit();
 		}
 	}
@@ -107,7 +109,7 @@
 				}
 			}
 			echo 'Error : '.$e->getMessage().'<br />';
-			echo 'N� : '.$e->getCode();
+			echo 'N° : '.$e->getCode();
 			exit();
 		}
 	}
@@ -126,7 +128,7 @@
 		catch (Exception $e) {
 			echo 'Error while committing query :<br />';
 			echo 'Error : '.$e->getMessage().'<br />';
-			echo 'N� : '.$e->getCode();
+			echo 'N° : '.$e->getCode();
 			exit();
 		}
 	}
@@ -472,7 +474,7 @@
 	* @return string HTML code
 	*/
 	function HTMLparticipant($region, $championId, $summonerName, $summonerId) {
-		// TODO
+		
 	}
 	
 	/**
@@ -481,15 +483,20 @@
 	* @param int championId id of the champion
 	* @return string HTML code
 	*/
-	function HTMLchampionImg($championId, $size) {
-		// TODO
+	function HTMLchampionImg($championId, $size = "small") {
+	
+		if ($size == "small") {
+			return "<img src=\"".champImg(intval($teamL[$i]['championId']), $champsName)."\" class=\"littleChampIcon\" alt=\"".$teamL[$i]['championId']."\">";
+		} else {
+			return "<img src=\"".champImg(intval($teamL[$i]['championId']), $champsName)."\" class=\"img-rounded imgChampion\" alt=\"".$teamL[$i]['championId']."\">";
+		}
 	}
 	
 	/**
 	* Generates the HTML code to display participants in a game
 	*
 	* @param array team1 List of players in team 1 
-	* @param array team2 List of players in team 12
+	* @param array team2 List of players in team 2
 	* @return string HTML code
 	*/
 	function HTMLparticipants($team1, $team2) {
@@ -580,7 +587,7 @@
 		catch (Exception $e) {
 			echo 'Error while preparing/executing query :<br />';
 			echo 'Error : '.$e->getMessage().'<br />';
-			echo 'N� : '.$e->getCode();
+			echo 'N° : '.$e->getCode();
 			exit();
 		}
 	}
@@ -602,7 +609,7 @@
 		catch (Exception $e) {
 			echo 'Error while binding params :<br />';
 			echo 'Error : '.$e->getMessage().'<br />';
-			echo 'N� : '.$e->getCode();
+			echo 'N° : '.$e->getCode();
 			exit();
 		}
 	}
