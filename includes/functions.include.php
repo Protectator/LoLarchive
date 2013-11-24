@@ -440,6 +440,9 @@
 			case 'ARAM_UNRANKED_5x5':
 				if ($win) {$base = 15.;} else {$base = 14.;}
 				break;
+			case 'ONEFORALL_5x5':
+				if ($win) {$base = 15.;} else {$base = 14.;}
+				break;
 		}
 		return ($ip - $dominion - $base) / ($ipminute * $modifier);
 	}
