@@ -347,29 +347,13 @@
 			$result .= "<tr class=\"playerLine\">";
 			// Left team member
 			if (isset($teamL[$i])) {
-				if ($teamL[$i]['user'] != "") {
-					$displayText = $teamL[$i]['user'];
-					$displayClass = "littleSummonerLinkName";
+				$result .= HTMLparticipant($region, $teamL[$i]['championId'], $teamL[$i]['user'], $teamL[$i]['summonerId'], $champsName);
 				} else {
-					$displayText = $teamL[$i]['summonerId'];
-					$displayClass = "littleSummonerLinkId";
-				}
-				$result .= "<td class=\"littleChampIcon\"><img src=\"".champImg(intval($teamL[$i]['championId']), $champsName)."\" class=\"littleChampIcon\" alt=\"".$teamL[$i]['championId']."\"></td>";
-				$result .= '<td class="'.$displayClass.'"><a href="'.PATH.'index.php?page=player&amp;region='.$region.'&amp;id='.$teamL[$i]['summonerId'].'">'.$displayText.'</a></td>';
-			} else {
 				$result .= "<td class=\"littleChampIcon\"></td><td class=\"littleSummonerLinkName\"></td>";
 			}
 			// Right team member
 			if (isset($teamR[$i])) {
-				if ($teamR[$i]['user'] != "") {
-					$displayText = $teamR[$i]['user'];
-					$displayClass = "littleSummonerLinkName";
-				} else {
-					$displayText = $teamR[$i]['summonerId'];
-					$displayClass = "littleSummonerLinkId";
-				}
-				$result .= "<td class=\"littleChampIcon\"><img src=\"".champImg(intval($teamR[$i]['championId']), $champsName)."\" class=\"littleChampIcon\" alt=\"".$teamR[$i]['championId']."\"></td>";
-				$result .= '<td class="'.$displayClass.'"><a href="'.PATH.'index.php?page=player&amp;region='.$region.'&amp;id='.$teamR[$i]['summonerId'].'">'.$displayText.'</a></td>';
+				$result .= HTMLparticipant($region, $teamR[$i]['championId'], $teamR[$i]['user'], $teamR[$i]['summonerId'], $champsName);
 			} else {
 				$result .= "<td class=\"littleChampIcon\"></td><td class=\"littleSummonerLinkName\"></td>";
 			}
@@ -473,8 +457,17 @@
 	* @param int summonerId id of the summoner
 	* @return string HTML code
 	*/
-	function HTMLparticipant($region, $championId, $summonerName, $summonerId) {
-		
+	function HTMLparticipant($region, $championId, $summonerName, $summonerId, $champsName) {
+		if ($summonerName != "") {
+			$displayText = $summonerName;
+			$displayClass = "littleSummonerLinkName";
+		} else {
+			$displayText = $summonerId;
+			$displayClass = "littleSummonerLinkId";
+		}
+		$result = "<td class=\"littleChampIcon\">".HTMLchampionImg($championId, "small", $champsName)."</td>";
+		$result .= '<td class="'.$displayClass.'"><a href="'.PATH.'index.php?page=player&amp;region='.$region.'&amp;id='.$summonerId.'">'.$displayText.'</a></td>';
+		return $result;
 	}
 	
 	/**
@@ -484,7 +477,6 @@
 	* @return string HTML code
 	*/
 	function HTMLchampionImg($championId, $size = "small", $champsName) {
-	
 		if ($size == "small") {
 			return "<img src=\"".champImg(intval($championId), $champsName)."\" class=\"littleChampIcon\" alt=\"".$championId."\">";
 		} else if ($size == "big") {
