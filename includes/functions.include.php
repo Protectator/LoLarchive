@@ -336,32 +336,6 @@
 		return PATH."img/champions/".ucfirst($champsName[$champId]).".png";
 	}
 	
-	/*
-	* Creates HTML text showing players in a game.
-        * @return string  
-	*/
-	function players($teamL, $teamR, $region, $id, $champsName) {
-		$result = "";
-		// Line per line
-		for ($i = 0; $i <= 4 ; $i++) {
-			$result .= "<tr class=\"playerLine\">";
-			// Left team member
-			if (isset($teamL[$i])) {
-				$result .= HTMLparticipant($region, $teamL[$i]['championId'], $teamL[$i]['user'], $teamL[$i]['summonerId'], $champsName);
-				} else {
-				$result .= "<td class=\"littleChampIcon\"></td><td class=\"littleSummonerLinkName\"></td>";
-			}
-			// Right team member
-			if (isset($teamR[$i])) {
-				$result .= HTMLparticipant($region, $teamR[$i]['championId'], $teamR[$i]['user'], $teamR[$i]['summonerId'], $champsName);
-			} else {
-				$result .= "<td class=\"littleChampIcon\"></td><td class=\"littleSummonerLinkName\"></td>";
-			}
-			$result .= "</tr>";
-		}
-		return $result;
-	}
-	
 	function items($row) {
 		$result = "";
 		for ($i = 0; $i <= 6; $i++) {
@@ -494,8 +468,26 @@
 	* @param array team2 List of players in team 2
 	* @return string HTML code
 	*/
-	function HTMLparticipants($team1, $team2) {
-		// TODO
+	function HTMLparticipants($region, $team1, $team2, $champsName) {
+		$result = "<table class=\"players\">";
+		// Line per line
+		for ($i = 0; $i <= 4 ; $i++) {
+			$result .= "<tr class=\"playerLine\">";
+			// Left team member
+			if (isset($team1[$i])) {
+				$result .= HTMLparticipant($region, $team1[$i]['championId'], $team1[$i]['user'], $team1[$i]['summonerId'], $champsName);
+				} else {
+				$result .= "<td class=\"littleChampIcon\"></td><td class=\"littleSummonerLinkName\"></td>";
+			}
+			// Right team member
+			if (isset($team2[$i])) {
+				$result .= HTMLparticipant($region, $team2[$i]['championId'], $team2[$i]['user'], $team2[$i]['summonerId'], $champsName);
+			} else {
+				$result .= "<td class=\"littleChampIcon\"></td><td class=\"littleSummonerLinkName\"></td>";
+			}
+			$result .= "</tr>";
+		}
+		return $result."</table>";
 	}
 	
 	/**

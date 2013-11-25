@@ -306,11 +306,7 @@
 						}
 						?>
 						<div class="matchcell playerscell">
-							<table class="players">
-								<?php 
-								
-								echo players($teamL, $teamR, $row['region'], $id, $champsName); ?>
-							</table>
+							<?php echo HTMLparticipants($row['region'], $teamL, $teamR, $champsName); ?>
 						</div>
 					</div>
 				</div>
