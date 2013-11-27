@@ -497,17 +497,27 @@
 	* @return string HTML code
 	*/
 	function HTMLitem($itemId) {
-		// TODO
+		return ($itemId != "") ? "<a href=\"http://www.lolking.net/items/".$itemId."\"><img class= \"img-rounded imgitem32\" src=\"http://lkimg.zamimg.com/shared/riot/images/items/".$itemId."_32.png\" alt=\"".$itemId."\"></a>" : "";
 	}
 	
 	/**
 	* Generates the HTML code to display all the items of a player
 	*
+	* Takes 2 lines in a table of 4 columns
+	*
 	* @param array<int> itemsId List of item's id
 	* @return string HTML code
 	*/
 	function HTMLplayerStuff($itemsId) {
-		// TODO
+		array_pad($itemsId, 7, ""); // Completes array with empty Strings
+		$result.= "<tr><td class=\"singleitemcell\">".HTMLitem($itemsId[0])."<td>";
+		$result.= "<td class=\"singleitemcell\">".HTMLitem($itemsId[1])."<td>";
+		$result.= "<td class=\"singleitemcell\">".HTMLitem($itemsId[2])."<td>";
+		$result.= "<td class=\"singleitemcell\" rowspan=\"2\">".HTMLitem($itemsId[6])."<td></tr>";
+		$result.= "<tr><td class=\"singleitemcell\">".HTMLitem($itemsId[3])."<td>";
+		$result.= "<td class=\"singleitemcell\">".HTMLitem($itemsId[4])."<td>";
+		$result.= "<td class=\"singleitemcell\">".HTMLitem($itemsId[5])."<td></tr>";
+		return $result;
 	}
 	
 	/**
