@@ -521,6 +521,16 @@
 	}
 	
 	/**
+	* Generates the HTML code to display a summoner spell
+	*
+	* @param int spellId id of the summoner spell
+	* @return string HTML code
+	*/
+	function HTMLsummonerSpell($spellId) {
+		return "<div class=\"ss\"><img class=\"icon img-rounded\" src=\"".PATH."img/ss/".$spellId.".png\" alt=\"Summoner Spell n ".$spellId."\"></div>";
+	}
+	
+	/**
 	* Generates the HTML code to display the two used summoner spells
 	*
 	* @param int spell1Id id of first summoner spell
@@ -528,7 +538,7 @@
 	* @return string HTML code
 	*/
 	function HTMLsummonerSpells($spell1Id, $spell2Id) {
-		// TODO
+		return HTMLsummonerSpell($spell1Id)."\n".HTMLsummonerSpell($spell2Id);
 	}
 	
 	/**
