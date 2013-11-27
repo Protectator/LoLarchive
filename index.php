@@ -1,4 +1,9 @@
 <?
+// Counting the time required to create the page
+$mtime = microtime();
+$mtime = explode(" ", $mtime);
+$mtime = $mtime[1] + $mtime[0];
+$startTime = $mtime;
 // This page loads every other page asked
 // It's the one an end-user always asks for.
 require_once('includes/functions.include.php');
@@ -36,6 +41,14 @@ if (isset($_GET['page'])) {
 
 // Load the footer
 include('includes/footer.php');
+
+// Stop counting the time required and display it in comments
+$mtime = microtime();
+$mtime = explode(" ", $mtime);
+$mtime = $mtime[1] + $mtime[0];
+$endTime = $mtime;
+$totalTime = ($endTime - $startTime);
+echo "<!-- This page was created in ".$totalTime." seconds. -->";
 
 // Close the database connection
 $pdo = null;
