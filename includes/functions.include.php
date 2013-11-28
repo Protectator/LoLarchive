@@ -333,20 +333,18 @@
         * @return string Link to the image 
 	*/
 	function champImg($champId, $champsName) {
-		return PATH."img/champions/".ucfirst($champsName[$champId]).".png";
+		return PATH."img/champions/".$champsName[$champId].".png";
 	}
 	
 	function items($row) {
 		$result = "";
-		for ($i = 0; $i <= 6; $i++) {
-			$result = "<tr><td class=\"singleitemcell\">".item($row, 0)."<td>";
-			$result.= "<td class=\"singleitemcell\">".item($row, 1)."<td>";
-			$result.= "<td class=\"singleitemcell\">".item($row, 2)."<td>";
-			$result.= "<td class=\"singleitemcell\" rowspan=\"2\">".item($row, 6)."<td></tr>";
-			$result.= "<tr><td class=\"singleitemcell\">".item($row, 3)."<td>";
-			$result.= "<td class=\"singleitemcell\">".item($row, 4)."<td>";
-			$result.= "<td class=\"singleitemcell\">".item($row, 5)."<td></tr>";
-		}
+		$result = "<tr><td class=\"singleitemcell\">".item($row, 0)."<td>";
+		$result.= "<td class=\"singleitemcell\">".item($row, 1)."<td>";
+		$result.= "<td class=\"singleitemcell\">".item($row, 2)."<td>";
+		$result.= "<td class=\"singleitemcell\" rowspan=\"2\">".item($row, 6)."<td></tr>";
+		$result.= "<tr><td class=\"singleitemcell\">".item($row, 3)."<td>";
+		$result.= "<td class=\"singleitemcell\">".item($row, 4)."<td>";
+		$result.= "<td class=\"singleitemcell\">".item($row, 5)."<td></tr>";
 		return $result;
 	}
 	

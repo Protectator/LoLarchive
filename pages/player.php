@@ -156,7 +156,7 @@
 							<?php
 							foreach ($champsId as $value) {
 								?>
-								<option value="<?php echo $value;?>" style="background: url('<?php echo PATH;?>img/champions/<?php echo ucfirst($champsDisplay[$value]);?>.png') no-repeat;" <?php echo (isset($filters['fChampion']) && $filters['fChampion'] == $value)?"selected":"";?>>
+								<option value="<?php echo $value;?>" style="background: url('<?php echo PATH;?>img/champions/<?php echo $champsDisplay[$value];?>.png') no-repeat;" <?php echo (isset($filters['fChampion']) && $filters['fChampion'] == $value)?"selected":"";?>>
 								<?php echo $champsDisplay[$value];?>
 								</option>
 								<?
