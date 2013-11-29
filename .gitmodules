@@ -2,5 +2,5 @@
 	path = libs/bootstrap
 	url = https://github.com/twbs/bootstrap.git
 [submodule "libs/darkstrap/darkstrap"]
-	path = libs/darkstrap/darkstrap
+	path = libs/darkstrap
 	url = https://github.com/danneu/darkstrap
