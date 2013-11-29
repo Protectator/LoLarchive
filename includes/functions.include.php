@@ -496,7 +496,7 @@
 	* @return string HTML code
 	*/
 	function HTMLitem($itemId) {
-		return ($itemId != "") ? "<a href=\"http://www.lolking.net/items/".$itemId."\"><img class= \"img-rounded imgitem32\" src=\"http://lkimg.zamimg.com/shared/riot/images/items/".$itemId."_32.png\" alt=\"".$itemId."\"></a>" : "";
+		return ($itemId != "" && $itemId != 0) ? "<a href=\"http://www.lolking.net/items/".$itemId."\"><img class= \"img-rounded imgitem32\" src=\"http://lkimg.zamimg.com/shared/riot/images/items/".$itemId."_32.png\" alt=\"".$itemId."\"></a>" : "";
 	}
 	
 	/**
