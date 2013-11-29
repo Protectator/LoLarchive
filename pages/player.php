@@ -287,13 +287,16 @@
 							</div>
 							
 							<div class="matchcell sscell">
-								<div class="ss"><img class="icon img-rounded" src="<?php echo PATH;?>img/ss/<?php echo $row['spell1'];?>.png" alt="Summoner Spell n <?php echo $row['spell1'];?>"></div>
-								<div class="ss"><img class="icon img-rounded" src="<?php echo PATH;?>img/ss/<?php echo $row['spell2'];?>.png" alt="Summoner Spell n <?php echo $row['spell2'];?>"></div>
+								<?php echo HTMLsummonerSpells($row['spell1'], $row['spell2']) ?>
 							</div>
 							
 							<div class="matchcell itemscell">
 								<table>
-									<?php echo items($row); ?>
+									<?php 
+									$inventory = array($row['ITEM0'], $row['ITEM1'], $row['ITEM2'], 
+													   $row['ITEM3'], $row['ITEM4'], $row['ITEM5'], 
+													   $row['ITEM6']);
+									echo HTMLinventory($inventory); ?>
 								</table>
 							</div>
 						<?php

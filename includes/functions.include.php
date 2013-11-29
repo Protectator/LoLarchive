@@ -328,9 +328,10 @@
 		}
 	}
 	
-	/*
+	/**
 	* Returns the image link of a champion
-        * @return string Link to the image 
+	*
+    * @return string Link to the image 
 	*/
 	function champImg($champId, $champsName) {
 		return PATH."img/champions/".$champsName[$champId].".png";
@@ -506,15 +507,15 @@
 	* @param array<int> itemsId List of item's id
 	* @return string HTML code
 	*/
-	function HTMLplayerStuff($itemsId) {
+	function HTMLinventory($itemsId) {
 		array_pad($itemsId, 7, ""); // Completes array with empty Strings
-		$result.= "<tr><td class=\"singleitemcell\">".HTMLitem($itemsId[0])."<td>";
-		$result.= "<td class=\"singleitemcell\">".HTMLitem($itemsId[1])."<td>";
-		$result.= "<td class=\"singleitemcell\">".HTMLitem($itemsId[2])."<td>";
-		$result.= "<td class=\"singleitemcell\" rowspan=\"2\">".HTMLitem($itemsId[6])."<td></tr>";
-		$result.= "<tr><td class=\"singleitemcell\">".HTMLitem($itemsId[3])."<td>";
-		$result.= "<td class=\"singleitemcell\">".HTMLitem($itemsId[4])."<td>";
-		$result.= "<td class=\"singleitemcell\">".HTMLitem($itemsId[5])."<td></tr>";
+		$result = "<tr><td class=\"singleitemcell\">".HTMLitem($itemsId[0])."<td>".
+		"<td class=\"singleitemcell\">".HTMLitem($itemsId[1])."<td>".
+		"<td class=\"singleitemcell\">".HTMLitem($itemsId[2])."<td>".
+		"<td class=\"singleitemcell\" rowspan=\"2\">".HTMLitem($itemsId[6])."<td></tr>".
+		"<tr><td class=\"singleitemcell\">".HTMLitem($itemsId[3])."<td>".
+		"<td class=\"singleitemcell\">".HTMLitem($itemsId[4])."<td>".
+		"<td class=\"singleitemcell\">".HTMLitem($itemsId[5])."<td></tr>";
 		return $result;
 	}
 	
