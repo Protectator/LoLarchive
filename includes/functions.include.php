@@ -569,8 +569,9 @@
     * @param string date Date at start of the game
 	* @return string HTML code
 	*/
-	function HTMLgeneralStats($type, $win, $duraiton, $date) {
-		// TODO
+	function HTMLgeneralStats($type, $text, $duration, $date) {
+		$result = $type."<br><span class=\"resultText\">".$text."</span><br>".$duration."<br>".$date;
+		return $result;
 	}
 	
 	/*

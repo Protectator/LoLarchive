@@ -47,13 +47,13 @@ well {
 	background-color: #4f0011;
 }
 
-.wintext {
+.winmatch .resultText {
 	font-size: 16px;
 	font-weight: bold;
 	color: #66CC33;
 }
 
-.losstext {
+.lossmatch .resultText {
 	font-size: 16px;
 	font-weight: bold;
 	color: #DD7777;

@@ -269,11 +269,8 @@
 				
 						<div class="matchcell championcell"><?php echo HTMLchampionImg($row['championId'], "big", $champsName); ?></div>
 						
-						<div class="matchcell headcell">
-							<?php echo $modes[$row['type']];?>
-							<br><span class="<?php echo $classtext;?>"><?php echo $text;?></span>
-							<br> <?php echo $duration;?>
-							<br> <?php echo $time;?>
+						<div class="matchcell headcell">							
+							<?php echo HTMLgeneralStats($modes[$row['type']], $text, $duration, $time);?>
 						</div>
 						
 						<?php
