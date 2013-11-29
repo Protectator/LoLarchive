@@ -4,3 +4,6 @@
 [submodule "libs/darkstrap"]
 	path = libs/darkstrap
 	url = https://github.com/danneu/darkstrap
+[submodule "libs/flot"]
+	path = libs/flot
+	url = https://github.com/flot/flot
