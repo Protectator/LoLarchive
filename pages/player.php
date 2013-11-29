@@ -257,11 +257,14 @@
 			$hour = substr($row['time'], 11, 2);
 			$min = substr($row['time'], 14, 2);
 			$time = $day.".".$month.".".$year." ".$hour.":".$min;
+			
+			$inventory = array($row['ITEM0'], $row['ITEM1'], $row['ITEM2'], 
+				$row['ITEM3'], $row['ITEM4'], $row['ITEM5'], $row['ITEM6']);
 
 		?>
 			<div class="row">
 				<div class="span12">
-                                    
+				
 					<div class="well<?php echo $class;?> match" id="<?php echo $row['gameId'];?>">
 				
 						<div class="matchcell championcell"><?php echo HTMLchampionImg($row['championId'], "big", $champsName); ?></div>
@@ -278,12 +281,9 @@
 						{
 						?>
 							<div class="matchcell kdacell">
-								<div class="kdaNumber"><?php echo $row['CHAMPIONS_KILLED'];?><img class="icon" src="<?php echo PATH;?>img/kill.png" alt="kills"></div>
-								<div class="kdaNumber"><?php echo $row['NUM_DEATHS'];?><img class="icon" src="<?php echo PATH;?>img/death.png" alt="deaths"></div>
-								<div class="kdaNumber"><?php echo $row['ASSISTS'];?><img class="icon" src="<?php echo PATH;?>img/assist.png" alt="assists"></div>
-
-								<br><div class="minion"><?php echo $row['MINIONS_KILLED'];?><img class="icon" src="<?php echo PATH;?>img/minion.png" alt="minions"></div>
-								<br><div class="gold"><?php echo $row['GOLD_EARNED'];?><img class="icon" src="<?php echo PATH;?>img/gold.png" alt="gold"></div>
+								<?php
+								echo HTMLkda($row['CHAMPIONS_KILLED'], $row['NUM_DEATHS'],
+									$row['ASSISTS'], $row['MINIONS_KILLED'], $row['GOLD_EARNED']) ?>
 							</div>
 							
 							<div class="matchcell sscell">
@@ -293,9 +293,6 @@
 							<div class="matchcell itemscell">
 								<table>
 									<?php 
-									$inventory = array($row['ITEM0'], $row['ITEM1'], $row['ITEM2'], 
-													   $row['ITEM3'], $row['ITEM4'], $row['ITEM5'], 
-													   $row['ITEM6']);
 									echo HTMLinventory($inventory); ?>
 								</table>
 							</div>
