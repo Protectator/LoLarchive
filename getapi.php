@@ -47,14 +47,14 @@ if (count($query) > 0) {
 			$time = $save[3]."-".$months[$save[1]]."-".$save[2]." ".date("H:i", strtotime($save[4].":".$save[5].":".$save[6]." ".$save[7]));
 		
 			/*
-			First we need to match every stat in the json file to a line in the database.
+			First we need to match every stat in the json file to a column in the database.
 			We'll put things in 3 different tables :
 			- games   
 			- data    
 			- players 
 			*/
 			
-			// Table "games"
+			// Matching columns in "games" with API
 			$games = array (
 				"gameId" => $match['gameId'],
 				"region" => $region,
@@ -66,10 +66,10 @@ if (count($query) > 0) {
 				"sender" => 0
 			);
 			
-			// If there is a difficulty, then it's a bot game. Else, it is to 0.
+			// If there is a difficulty, then it's a bot game. Else, it is 0.
 			$games["difficulty"] = (isset($match['difficulty'])) ? $match['difficulty'] : "0";
 			
-			// Table "data"
+			// Matching columns in "data" with API
 			$data = array (
 				"gameId" => $match['gameId'],
 				"summonerId" => $sId,
@@ -94,7 +94,7 @@ if (count($query) > 0) {
 				$data[$stat['statType']] = $stat['value'];
 			}
 			
-			// Table "players"
+			// Matching columns in "players" with API
 			$players = array();
 			foreach ($match['fellowPlayers']['array'] as $player) {
 				$players[] = array (	

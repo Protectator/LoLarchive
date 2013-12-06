@@ -420,6 +420,26 @@
 		return ($ip - $dominion - $base) / ($ipminute * $modifier);
 	}
 	
+	/**
+	* Writes text at the end of the access log file
+	*
+	* @param string $text Text to log
+	*/
+	function logAccess($text) {
+		$file = PATH.'private/logs/access.log';
+		file_put_contents($file, file_get_contents($file).'\n'.$text);
+	}
+	
+	/**
+	* Writes text at the end of the error log file
+	*
+	* @param string $text Text to log
+	*/
+	function logError($text) {
+		$file = PATH.'private/logs/error.log';
+		file_put_contents($file, file_get_contents($file).'\n'.$text);
+	}
+	
 	/*
 	PRINT FUNCTIONS
 	*/
