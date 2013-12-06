@@ -246,7 +246,7 @@
 	* @return string json containing the request
 	*/
 	function getSummonerByName(&$c, $region, $name) {
-		$url = "http://legendaryapi.com/api/v1.0/".$region."/summoner/getSummonerByName/".$name;
+		$url = "https://community-league-of-legends.p.mashape.com/api/v1.0/".$region."/summoner/getSummonerByName/".$name;
 		curl_setopt($c, CURLOPT_URL, $url);
 		curl_setopt($c, CURLOPT_HTTPHEADER, array('authentication: '.API_KEY));
 		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
@@ -262,9 +262,9 @@
 	* @return string json containing the request
 	*/
 	function getRecentGames(&$c, $region, $aId) {
-		$url = "http://legendaryapi.com/api/v1.0/".$region."/summoner/getRecentGames/".$aId;
+		$url = "https://community-league-of-legends.p.mashape.com/api/v1.0/".$region."/summoner/getRecentGames/".$aId;
 		curl_setopt($c, CURLOPT_URL, $url);
-		curl_setopt($c, CURLOPT_HTTPHEADER, array('authentication: '.API_KEY));
+		curl_setopt($c, CURLOPT_HTTPHEADER, array('X-Mashape-Authorization: '.API_KEY));
 		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 		return trim(curl_exec($c));
 	}
@@ -278,7 +278,7 @@
 	* @return string json containing the request
 	*/
 	function getPublicData(&$c, $region, $aId) {
-		$url = "http://legendaryapi.com/api/v1.0/".$region."/summoner/getAllPublicSummonerDataByAccount/".$aId;
+		$url = "https://community-league-of-legends.p.mashape.com/api/v1.0/".$region."/summoner/getAllPublicSummonerDataByAccount/".$aId;
 		curl_setopt($c, CURLOPT_URL, $url);
 		curl_setopt($c, CURLOPT_HTTPHEADER, array('authentication: '.API_KEY));
 		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
