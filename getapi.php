@@ -14,7 +14,9 @@ $query = rawSelect($pdo, "SELECT * FROM usersToTrack ORDER BY region, summonerId
 $ip = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : "local";
 
 date_default_timezone_set('Europe/Berlin');
-echo "> ".date('d/m/Y H:i:s', time())." - Request by ".$ip;
+$header = "> ".date('d/m/Y H:i:s', time())." - Request by ".$ip.PHP_EOL;
+logAccess($header);
+echo $header;
 
 $countTotalMatches = 0;
 // Si la requête retourne des résultats
@@ -38,105 +40,110 @@ if (count($query) > 0) {
 		/*echo "<pre>";
 		print_r($array);
 		echo "</pre>";*/
-		$matches = $array['gameStatistics']['array'];
-		
-		foreach ($matches as $match) {
-		
-			// Just messing with the date formatting...
-			$date = preg_match('/(\w+) (\d+), (\d+) (\d+):(\d+):(\d+) (\w+)/', $match['createDate'], $save);
-			$time = $save[3]."-".$months[$save[1]]."-".$save[2]." ".date("H:i", strtotime($save[4].":".$save[5].":".$save[6]." ".$save[7]));
-		
-			/*
-			First we need to match every stat in the json file to a column in the database.
-			We'll put things in 3 different tables :
-			- games   
-			- data    
-			- players 
-			*/
+		if (isset($array['error']) && $array['error']!= "") {
+			logError($array['error']);
+		} else {
+			$matches = $array['gameStatistics']['array'];
+
+			foreach ($matches as $match) {
 			
-			// Matching columns in "games" with API
-			$games = array (
-				"gameId" => $match['gameId'],
-				"region" => $region,
-				"mapId" => $match['gameMapId'],
-				"time" => $time,
-				"type" => $match['queueType'],
-				"subType" => $match['subType'],
-				"duration" => timeOf($match['gameMapId'], $match['type'], $match['ipEarned'], $match['win'], $match['difficulty'], $match['level']),
-				"sender" => 0
-			);
+				// Just messing with the date formatting...
+				$date = preg_match('/(\w+) (\d+), (\d+) (\d+):(\d+):(\d+) (\w+)/', $match['createDate'], $save);
+				$time = $save[3]."-".$months[$save[1]]."-".$save[2]." ".date("H:i", strtotime($save[4].":".$save[5].":".$save[6]." ".$save[7]));
 			
-			// If there is a difficulty, then it's a bot game. Else, it is 0.
-			$games["difficulty"] = (isset($match['difficulty'])) ? $match['difficulty'] : "0";
-			
-			// Matching columns in "data" with API
-			$data = array (
-				"gameId" => $match['gameId'],
-				"summonerId" => $sId,
-				"region" => $region,
-				"spell1" => $match['spell1'],
-				"spell2" => $match['spell2'],
-				"ipData" => $ip,
-				"leaver" => $match['afk'],
-				"invalid" => $match['invalid'],
-				"dataVersion" => $match['dataVersion'],
-				"playerLevel" => $match['level'],
-				"premade" => $match['premadeSize'],
-				"ipEarned" => $match['ipEarned'],
-				"fwotd" => $match['eligibleFirstWinOfDay'],
-				"estimatedDuration" => '0', // TODO : Estimer la durée d'une game en fonction des IP gagnés
-				"boostIpEarned" => $match['boostIpEarned'],
-				"skinIndex" => $match['skinIndex']
-			);
-			// For each other stat (the ones in caps) we put them directly with their name
-			// in the table
-			foreach ($match['statistics']['array'] as $stat) {
-				$data[$stat['statType']] = $stat['value'];
-			}
-			
-			// Matching columns in "players" with API
-			$players = array();
-			foreach ($match['fellowPlayers']['array'] as $player) {
-				$players[] = array (	
+				/*
+				First we need to match every stat in the json file to a column in the database.
+				We'll put things in 3 different tables :
+				- games   
+				- data    
+				- players 
+				*/
+				
+				// If there is a difficulty, then it's a bot game. Else, it is 0.
+				$games["difficulty"] = (isset($match['difficulty'])) ? $match['difficulty'] : "0";
+				
+				// Matching columns in "games" with API
+				$games = array (
 					"gameId" => $match['gameId'],
-					"summonerId" => $player['summonerId'],
-					"teamId" => $player['teamId'],
-					"championId" => $player['championId'],
+					"region" => $region,
+					"mapId" => $match['gameMapId'],
+					"time" => $time,
+					"type" => $match['queueType'],
+					"subType" => $match['subType'],
+					"duration" => timeOf($match['gameMapId'], $match['type'], $match['ipEarned'], $match['win'], $match['difficulty'], $match['level']),
+					"sender" => 0
+				);
+				
+				// Matching columns in "data" with API
+				$data = array (
+					"gameId" => $match['gameId'],
+					"summonerId" => $sId,
+					"region" => $region,
+					"spell1" => $match['spell1'],
+					"spell2" => $match['spell2'],
+					"ipData" => $ip,
+					"leaver" => $match['afk'],
+					"invalid" => $match['invalid'],
+					"dataVersion" => $match['dataVersion'],
+					"playerLevel" => $match['level'],
+					"premade" => $match['premadeSize'],
+					"ipEarned" => $match['ipEarned'],
+					"fwotd" => $match['eligibleFirstWinOfDay'],
+					"estimatedDuration" => '0', // TODO : Estimer la durée d'une game en fonction des IP gagnés
+					"boostIpEarned" => $match['boostIpEarned'],
+					"skinIndex" => $match['skinIndex']
+				);
+				// For each other stat (the ones in caps) we put them directly with their name
+				// in the table
+				foreach ($match['statistics']['array'] as $stat) {
+					$data[$stat['statType']] = $stat['value'];
+				}
+				
+				// Matching columns in "players" with API
+				$players = array();
+				foreach ($match['fellowPlayers']['array'] as $player) {
+					$players[] = array (	
+						"gameId" => $match['gameId'],
+						"summonerId" => $player['summonerId'],
+						"teamId" => $player['teamId'],
+						"championId" => $player['championId'],
+						"dataVersion" => "2"
+					);
+				} // Now we nees to add the player that we're checking (he isn't in the json array)
+				$players[] = array (
+					"gameId" => $match['gameId'],
+					"summonerId" => $sId,
+					"teamId" => $match['teamId'],
+					"championId" => $match['championId'],
 					"dataVersion" => "2"
 				);
-			} // Now we nees to add the player that we're checking (he isn't in the json array)
-			$players[] = array (
-				"gameId" => $match['gameId'],
-				"summonerId" => $sId,
-				"teamId" => $match['teamId'],
-				"championId" => $match['championId'],
-				"dataVersion" => "2"
-			);
-			
-			$req = array(); // Will contain requests to do			
-
-			// Request on the "games" table
-			$req[0] = "INSERT IGNORE INTO games ".buildInsert($games);
 				
-			// Request on the "data" table
-			$req[1] = "INSERT IGNORE INTO data ".buildInsert($data);
-			
-			// Request on the "players" table
-			$req[2] = "INSERT IGNORE INTO players ".buildMultInsert($players);
-			
-			// Execute all three requests in a secured way
-			$result = securedInsert($pdo, $req);
-			if ($result[0]) {
-				if ($result[1] >= 1) {
-					$countNewMatches++;
-					$countTotalMatches++;
+				$req = array(); // Will contain requests to do			
+
+				// Request on the "games" table
+				$req[0] = "INSERT IGNORE INTO games ".buildInsert($games);
+					
+				// Request on the "data" table
+				$req[1] = "INSERT IGNORE INTO data ".buildInsert($data);
+				
+				// Request on the "players" table
+				$req[2] = "INSERT IGNORE INTO players ".buildMultInsert($players);
+				
+				// Execute all three requests in a secured way
+				$result = securedInsert($pdo, $req);
+				if ($result[0]) {
+					if ($result[1] >= 1) {
+						$countNewMatches++;
+						$countTotalMatches++;
+					}
 				}
-			}
-			
-		} // END foreach match
-		
-		echo ($countNewMatches > 0) ? "\n[".$region."] Summoner ".$sId." \"".$row['name']."\" : ".$countNewMatches." added games" : "";
-		
+				
+			} // END foreach match
+			$text = ($countNewMatches > 0) ? "[".$region."] Summoner ".$sId." \"".$row['name']."\" : ".$countNewMatches." added games".PHP_EOL : "";
+			echo $text;
+			logAccess($text);
+		}	
+	
 	} // END foreach player
 
 }

@@ -303,7 +303,6 @@
 		$json = getSummonerByName($c, $region, $name);
 		$jsonArray = json_decode($json, true);
 		$aId = $jsonArray['acctId'];
-		$sId = $jsonArray['summonerId'];
 		$infos = array (
 			"region" => $region,
 			"summonerId" => $sId,
@@ -426,7 +425,7 @@
 	* @param string $text Text to log
 	*/
 	function logAccess($text) {
-		$file = PATH.'private/logs/access.log';
+		$file = LOCAL.PATH.'private/logs/access.log';
 		file_put_contents($file, file_get_contents($file).'\n'.$text);
 	}
 	
@@ -436,7 +435,7 @@
 	* @param string $text Text to log
 	*/
 	function logError($text) {
-		$file = PATH.'private/logs/error.log';
+		$file = LOCAL.PATH.'private/logs/error.log';
 		file_put_contents($file, file_get_contents($file).'\n'.$text);
 	}
 	
@@ -592,6 +591,18 @@
 	function HTMLgeneralStats($type, $text, $duration, $date) {
 		$result = $type."<br><span class=\"resultText\">".$text."</span><br>".$duration."<br>".$date;
 		return $result;
+	}
+	
+	/**
+	* Generates the HTML code to display a player's game small view
+	*
+	* @param 
+	* @param
+	* @return string HTML code
+	*/
+	
+	function HTMLplayerGame() {
+		return ;
 	}
 	
 	/*

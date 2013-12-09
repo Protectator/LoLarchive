@@ -1,6 +1,6 @@
 <?php
 
-require_once('includes/functions.include.php');
+require_once('../includes/functions.include.php');
 
 // Initialize connexion to database
 $pdo = newDBConnection();
@@ -35,6 +35,7 @@ if (count($query) > 0) {
 		curl_close($c);
 		// Transform json in an Array
 		$array = json_decode($json, true);
+		echo $region." | ".$row['name']." (".$sId.")<br>";
 		echo "<pre>";
 		print_r($array);
 		echo "</pre>";

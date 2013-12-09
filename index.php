@@ -1,4 +1,4 @@
-<?
+<?php
 // Counting the time required to create the page
 $mtime = microtime();
 $mtime = explode(" ", $mtime);
