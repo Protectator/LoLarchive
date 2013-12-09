@@ -426,7 +426,7 @@
 	*/
 	function logAccess($text) {
 		$file = LOCAL.PATH.'private/logs/access.log';
-		file_put_contents($file, file_get_contents($file).'\n'.$text);
+		file_put_contents($file, file_get_contents($file).$text);
 	}
 	
 	/**
@@ -436,7 +436,7 @@
 	*/
 	function logError($text) {
 		$file = LOCAL.PATH.'private/logs/error.log';
-		file_put_contents($file, file_get_contents($file).'\n'.$text);
+		file_put_contents($file, file_get_contents($file).$text);
 	}
 	
 	/*
