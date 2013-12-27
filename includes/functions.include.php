@@ -40,7 +40,9 @@
 			"BOT_3x3" => "Co-op vs AI 3v3",
 			"ARAM_UNRANKED_5x5" => "ARAM",
 			"ODIN_UNRANKED" => "Dominion",
-			"ONEFORALL_5x5" => "One for all"
+			"ONEFORALL_5x5" => "One for all",
+			"FIRSTBLOOD_2x2" => "Snowdown 2v2",
+			"FIRSTBLOOD_1x1" => "Snowdown 1v1"
 	);
 	
 	/*
