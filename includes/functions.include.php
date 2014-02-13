@@ -315,6 +315,18 @@
 		return securedInsert($pdo, $request); // Returns the number of affected rows
 	}
 	
+	/**
+	* Gets the games in a specified page of a specified search
+	*
+	* @param resource $pdo Opened PDO connection
+	* @param string $region Region of the summoner account
+	* @param string $sId Summoner id
+	* @return PDOStatement Contains the result of the PDO request
+	*/
+	function getPage(&$pdo, $region, $sId, $filters, $page) {
+		// TODO
+	}
+	
 	/*
 	LOWER LEVEL FUNCTIONS
 	undocumented part
