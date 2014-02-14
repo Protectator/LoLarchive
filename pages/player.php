@@ -88,10 +88,10 @@
 			LEFT JOIN data ON games.gameId = data.gameId AND players.gameId = data.gameId
 			WHERE players.summonerId = :sId AND data.summonerId = :sId".implode($filtersStr);
 			
-			$statsString = "SELECT count(games), avg(CHAMPIONS_KILLED), avg(NUM_DEATHS), avg(ASSISTS),
-			avg(MINIONS_KILLED), avg(GOLD_EARNED), avg(estimatedDuration)".$conditions;
+			$statsString = "SELECT count(*) AS nbGames, avg(data.CHAMPIONS_KILLED) AS k, avg(data.NUM_DEATHS) AS d, avg(data.ASSISTS) AS a,
+			avg(data.MINIONS_KILLED) AS minions, avg(data.GOLD_EARNED) AS gold, avg(data.estimatedDuration) AS duration".$conditions;
 			
-			$wonGames = "SELECT count(games)".$conditions." AND data.WIN = (1);";
+			$wonGamesString = "SELECT count(*) AS nb".$conditions." AND data.WIN = (1);";
 			
 			$requestString[1] = "SELECT * ".$conditions." ORDER BY games.time DESC;";
 
@@ -101,19 +101,30 @@
 			// New request : All games of this user
 			$summonerGames = $pdo->prepare($requestString[1]);
 			$summonerGames->bindParam(":sId", $id);
+			// Stats requests
+			$stats = $pdo->prepare($statsString);
+			$stats->bindParam(":sId", $id);
+			$wonGames = $pdo->prepare($wonGamesString);
+			$wonGames->bindParam(":sId", $id);
 			
 			// Check if each filter is activated
 			
 			// filter games by Champion
 			if ($filters['fChampion']) {
 				$summonerGames->bindParam(":championId", intval($filters['fChampion']));
+				$stats->bindParam(":championId", intval($filters['fChampion']));
+				$wonGames->bindParam(":championId", intval($filters['fChampion']));
 			}
 			// filter games by Mode
 			if ($filters['fMode']) {
 				$summonerGames->bindParam(":typeStr", $filters['fMode']);
+				$stats->bindParam(":typeStr", $filters['fMode']);
+				$wonGames->bindParam(":typeStr", $filters['fMode']);
 			}
 			
 			$summonerGames->execute();        // Execute the request
+			$stats->execute();        // Execute the request
+			$wonGames->execute();        // Execute the request
 			//$summonerGames->fetch(); // Get the array
 		}
 	}
@@ -140,6 +151,21 @@
 			<h2><?php echo htmlentities(utf8_decode($name));?> <a href="http://www.lolking.net/summoner/<? echo $region."/".$id; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a></h2>
 			<?php echo htmlentities($regionTxt);?>
 			<br><?php echo htmlentities($id);?>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="span12">
+		<div class="well">
+			<legend>Statistics</legend>
+			<?php
+			$finalStats = $stats->fetch();
+			$nbWon = $wonGames->fetch();
+			echo $nbWon['nb']." wins / ".$finalStats['nbGames']." games (".round($nbWon['nb']/$finalStats['nbGames']*100, 2)."% win)";
+			echo "<br>Average KDA; ".round($finalStats['k'], 1)." / ".round($finalStats['d'], 1)." / ".round($finalStats['a'], 1);
+			echo "<br>Rate; ".round(($finalStats['k']+$finalStats['a'])/$finalStats['d'], 2)." : 1";
+			?>
 		</div>
 	</div>
 </div>
