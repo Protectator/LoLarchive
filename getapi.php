@@ -70,7 +70,7 @@ if (count($query) > 0) {
 					"time" => $time,
 					"type" => $match['queueType'],
 					"subType" => $match['subType'],
-					"duration" => timeOf($match['gameMapId'], $match['type'], $match['ipEarned'], $match['win'], $match['difficulty'], $match['level']),
+					"duration" => timeOf($match['gameMapId'], $match['type'], $match['ipEarned'], $match['win'], $match['eligibleFirstWinOfDay'] == (1), $match['difficulty'], $match['level']),
 					"sender" => 0
 				);
 				

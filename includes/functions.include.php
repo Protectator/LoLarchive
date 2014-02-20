@@ -42,7 +42,8 @@
 			"ODIN_UNRANKED" => "Dominion",
 			"ONEFORALL_5x5" => "One for all",
 			"FIRSTBLOOD_2x2" => "Snowdown 2v2",
-			"FIRSTBLOOD_1x1" => "Snowdown 1v1"
+			"FIRSTBLOOD_1x1" => "Snowdown 1v1",
+			"SR_6x6" => "Hexakill"
 	);
 	
 	/*
@@ -376,7 +377,10 @@
 	* @param int $level Summoner's level that played the game
 	* @return int Estimated duration of the game
 	*/
-	function timeOf($map, $mode, $ip, $win, $difficulty = "", $level = 30) {
+	function timeOf($map, $mode, $ip, $win, $fwotd, $difficulty = "", $level = 30) {
+		if ($fwotd) {
+			$ip -= 150;
+		}
 		$dominion = 0.;
 		$modifier = 1.;
 		switch ($map) { // IP/minute gains depends mainly on the map played on
@@ -503,7 +507,7 @@
 	function HTMLparticipants($region, $team1, $team2, $champsName) {
 		$result = "<table class=\"players\">";
 		// Line per line
-		for ($i = 0; $i <= 4 ; $i++) {
+		for ($i = 0; $i <= 5 ; $i++) {
 			$result .= "<tr class=\"playerLine\">";
 			// Left team member
 			if (isset($team1[$i])) {
