@@ -279,7 +279,7 @@
 			if($row['duration'] == "0") {
 				$duration = "??? mins";
 			} else {
-				$duration = round(timeOf($row['mapId'], $row['type'], $row['ipEarned'], $row['win'], ($row['fwotd'] == (1)), $row['difficulty'], $row['level']), 0)." mins";
+				$duration = round(timeOf($row['mapId'], $row['type'], $row['ipEarned'], $row['win'], ord($row['fwotd']), $row['difficulty'], $row['level']), 0)." mins";
 			}
 			
 			$year = substr($row['time'], 0, 4);
