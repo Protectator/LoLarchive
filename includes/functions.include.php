@@ -274,6 +274,20 @@ function getRecentGames(&$c, $region, $aId) {
 }
 
 /**
+ * Gets most recent games by summoner id
+ *
+ * @param resource $c opened cURL session
+ * @param string $region abbreviated server's name
+ * @param string $sId account Id to look for
+ * @return string json containing the request
+ */
+function apiGame(&$c, $region, $sId) {
+	$url = API_URL.$region."/v1.3/game/by-summoner/".$sId."/recent?api_key=".RIOT_KEY;
+	curl_setopt($c, CURLOPT_URL, $url);
+	return trim(curl_exec($c));
+}
+
+/**
  * Gets all public data of a summoner
  *
  * @param resource $c opened cURL session
