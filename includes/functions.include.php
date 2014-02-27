@@ -440,6 +440,107 @@ function timeOf($map, $mode, $ip, $win, $fwotd, $difficulty = "", $level = 30) {
 }
 
 /**
+ * Estimates the duration of a game
+ *
+ * I insist on the word ESTIMATION.
+ * Made from the rules listed on http://leagueoflegends.wikia.com/wiki/Influence_Points
+ *
+ * @param int $map ID of the map played on
+ * @param string $mode Mode played
+ * @param int $ip amount of won ip
+ * @param int $win 1 if game was won, 0 otherwise
+ * @param $fwotd
+ * @param string $difficulty Level of difficulty if played against bots
+ * @param int $level Summoner's level that played the game
+ * @return int Estimated duration of the game
+ */
+function superEstimation($map, $mode, $ip, $win, $fwotd, $difficulty = "", $level = 30, $balanced = true) {
+	if ($fwotd) { // First Win Of The Day
+		$ip -= 150;
+	}
+	$dominion = 0.; // Dominion bonus
+	$modifier = 1.; // Custom games modifier
+
+	//////////////
+	// IP / minute
+
+	// General case : Summoner's Rift
+	$ipminute = ($win) ? 2.312 : 1.405;
+
+	switch ($map) {
+		case '8': // The Crystal Scar
+			$dominion = 1.;
+		case '1': // Summoner's rift
+		case '2': // Summoner's rift (autumn)
+		case '3': // Proving grounds
+		case '12': // ARAM
+			$ipminute = ($win) ? 2.312 : 1.405;
+			break;
+
+		case '4':  // Twisted Treeline (old)
+		case '10': // Twisted Treeline
+			$ipminute = ($win) ? 2. : 1.;
+			break;
+	}
+
+	//////////
+	// Base IP
+	// by mode
+
+	switch ($mode) { // Base IP gain depends on the mode played
+
+		case 'NONE': // Custom game
+			if (!$balanced) {return 0;}
+			$base = ($win) ? 18. : 16.;
+			$modifier = 0.75;
+			break;
+
+		case 'ODIN_UNRANKED': // Dominion
+			$base = ($win) ? 20. : 12.5;
+			break;
+
+		case 'RANKED_TEAM_3x3': // TODO : Lots of things to do here
+
+		case 'NORMAL_3x3';
+
+		case 'RANKED_SOLO_5x5':
+
+		case 'RANKED_TEAM_5x5':
+
+		case 'NORMAL': // Normal
+			if ($win) {$base = 18.;} else {$base = 16;}
+			break;
+
+		case 'BOT_3x3':
+		
+		case 'BOT': // Coop vs AI 5v5
+			switch ($difficulty) {
+				case 'EASY': // Beginner
+					if ($win) {$base = 7.;} else {$base = 6.;}
+					if ($level == 30) {$ipminute *= 0.55;}
+					else if (20 <= $level) {$ipminute *= 0.7;}
+					else if (10 <= $level) {$ipminute *= 0.85;}
+				case 'MEDIUM': // Intermediate
+					if ($win) {$base = 5.;} else {$base = 2.5;}
+					if ($level == 30) {$ipminute *= 0.8;}
+					else if (20 <= $level) {$ipminute *= 0.9;}
+			}
+			break;
+		case 'ARAM_UNRANKED_5x5':
+			if ($win) {$base = 15.;} else {$base = 14.;}
+			break;
+		case 'ONEFORALL_5x5':
+			if ($win) {$base = 15.;} else {$base = 14.;}
+			break;
+	}
+	
+
+	// Return the final result
+	return ($ip - $dominion - $base) / ($ipminute * $modifier);
+}
+
+
+/**
  * Writes text at the end of the access log file
  *
  * @param string $text Text to log
