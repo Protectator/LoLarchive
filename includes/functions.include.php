@@ -1,10 +1,10 @@
 <?php
 
-define('PATH', "/lolarchive/"); // root of the LoLarchive directory
-define('LOCAL', "/var/www");    // local directory of the LoLarchive directory
+define('PATH', "/"); // web directory directory
+define('LOCAL', "/var/www/lolarchivedev/");    // local directory of the LoLarchive directory
 
 // Start by loading variables that shouldn't be public
-require_once(LOCAL.PATH.'private/config.php');
+require_once(LOCAL.'private/config.php');
 
 // Useful variables
 
@@ -284,6 +284,7 @@ function getRecentGames(&$c, $region, $aId) {
 function apiGame(&$c, $region, $sId) {
 	$url = API_URL.$region."/v1.3/game/by-summoner/".$sId."/recent?api_key=".RIOT_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
+	//curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	return trim(curl_exec($c));
 }
 
@@ -560,7 +561,7 @@ function superEstimation($map, $mode, $ip, $win, $fwotd, $difficulty = "", $leve
  * @param string $text Text to log
  */
 function logAccess($text) {
-	$file = LOCAL.PATH.'private/logs/access.log';
+	$file = LOCAL.'private/logs/access.log';
 	file_put_contents($file, file_get_contents($file).$text);
 }
 
@@ -570,7 +571,7 @@ function logAccess($text) {
  * @param string $text Text to log
  */
 function logError($text) {
-	$file = LOCAL.PATH.'private/logs/error.log';
+	$file = LOCAL.'private/logs/error.log';
 	file_put_contents($file, file_get_contents($file).$text);
 }
 
