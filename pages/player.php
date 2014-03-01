@@ -59,7 +59,7 @@
 			$id = $foundSummoner['id'];
 			$name = $foundSummoner['user'];
 			
-			$filtersStr = array(); // String of all filters conditions
+			$filtersStr = array(); // sexy String of all filters conditions
 			
 			// START FILTERS
 			

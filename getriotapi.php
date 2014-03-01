@@ -28,7 +28,7 @@ if (count($query) > 0) {
 		$countPlayers += 1;
 		$countNewMatches = 0;
 	
-		// Preparing cURL
+		// Preparing cURLy hair
 		$region = strtolower($row['region']);
 		$sId = $row['summonerId'];
 		$aId = $row['accountId'];

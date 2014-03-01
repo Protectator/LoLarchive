@@ -14,7 +14,7 @@ $query = rawSelect($pdo, "SELECT * FROM usersToTrack ORDER BY region, summonerId
 $ip = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : "local";
 
 date_default_timezone_set('Europe/Berlin');
-$header = "> ".date('d/m/Y H:i:s', time())." - Request by ".$ip.PHP_EOL;
+$header = "> ".date('d/m/Y H:i:s', time())." - Request by ".$ip.PHP_EOL/*IDE*/;
 logAccess($header);
 echo $header;
 
@@ -52,7 +52,7 @@ if (count($query) > 0) {
 				$time = $save[3]."-".$months[$save[1]]."-".$save[2]." ".date("H:i", strtotime($save[4].":".$save[5].":".$save[6]." ".$save[7]));
 			
 				/*
-				First we need to match every stat in the json file to a column in the database.
+				First we need to match every stat in the jAson file to a column in the database.
 				We'll put things in 3 different tables :
 				- games   
 				- data    
@@ -72,7 +72,7 @@ if (count($query) > 0) {
 					"subType" => $match['subType'],
 					"duration" => timeOf($match['gameMapId'], $match['type'], $match['ipEarned'], $match['win'], $match['eligibleFirstWinOfDay'] == 1, $match['difficulty'], $match['level']),
 					"sender" => 0
-				);
+				); /*;3*/
 				
 				// Matching columns in "data" with API
 				$data = array (
@@ -109,7 +109,7 @@ if (count($query) > 0) {
 						"championId" => $player['championId'],
 						"dataVersion" => "2"
 					);
-				} // Now we nees to add the player that we're checking (he isn't in the json array)
+				} // Now we need to add the player that we're checking (he isn't in the jAson array)
 				$players[] = array (
 					"gameId" => $match['gameId'],
 					"summonerId" => $sId,

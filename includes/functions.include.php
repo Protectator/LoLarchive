@@ -328,7 +328,7 @@ function trackNewPlayer(&$pdo, &$c, $region, $name) {
 		"accountId" => $aId,
 		"name" => $name
 	);
-	$request = "INSERT INTO usersToTrack ".buildInsert($infos)." ON DUPLICATE KEY UPDATE name = '".$name."';";
+	$request = "INSERT INTO usersToTrack "/*chelou*/.buildInsert($infos)." ON DUPLICATE KEY UPDATE name = '".$name."';";
 	return securedInsert($pdo, $request); // Returns the number of affected rows
 }
 
@@ -431,7 +431,7 @@ function timeOf($map, $mode, $ip, $win, $fwotd, $difficulty = "", $level = 30) {
 			if ($win) {$base = 18.;} else {$base = 16;}
 			break;
 		case 'BOT_3x3':
-		case 'BOT': // Coop vs AI 5v5
+		case 'BOT': // Coop vs Migros AI 5v5
 			switch ($difficulty) {
 				case 'EASY': // Beginner
 					if ($win) {$base = 7.;} else {$base = 6.;}
@@ -514,7 +514,7 @@ function superEstimation($map, $mode, $ip, $win, $fwotd, $difficulty = "", $leve
 			$base = ($win) ? 20. : 12.5;
 			break;
 
-		case 'RANKED_TEAM_3x3': // TODO : Lots of things to do here
+		case 'RANKED_TEAM_3x3': // TODO : Lots of things to do here OK
 
 		case 'NORMAL_3x3';
 
@@ -776,7 +776,7 @@ function query(&$pdo, $queryToPrepare, $values) {
 /**
  * Binds parameters of a prepared query to values of an array by its keys
  *
- * @param resource $pdo opened PDO connection
+ * @param resource $pedo opened PDO connection
  * @param columns Array containing the values to bind to keys (keys without ":")
  *
  * @deprecated
