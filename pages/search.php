@@ -1,6 +1,6 @@
 <div class="row">
 	<div class="span12">
-		<form class="form-horizontal well" action="http://protectator.ch/lolarchive/index.php" method="get">
+		<form class="form-horizontal well" action="<?php echo PATH;?>index.php" method="get">
 			<fieldset>
 				<legend>Find a summoner</legend>
 				<input type="hidden" name="page" value="player"/> 
