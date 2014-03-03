@@ -29,21 +29,22 @@ if (count($query) > 0) {
 		$countNewMatches = 0;
 	
 		// Preparing cURL
-		$region = mb_strtoupper($row['region']);
+		$region = strtolower($row['region']);
 		$sId = $row['summonerId'];
 		$aId = $row['accountId'];
 		$c = curl_init();
-		$json = getRecentGames($c, $region, $aId);
+		$json = apiGame($c, $region, $sId);
+		echo API_URL.$region."/v1.3/game/by-summoner/".$sId."/recent?api_key=".RIOT_KEY;
 		curl_close($c);
 		// Transform json in an Array
 		$array = json_decode($json, true);
-		/*echo "<pre>";
+		echo "<pre>";
 		print_r($array);
-		echo "</pre>";*/
+		echo "</pre>";
 		if (isset($array['error']) && $array['error']!= "") {
 			logError($array['error']);
 		} else {
-			$matches = $array['gameStatistics']['array'];
+			$matches = $array['games'];
 
 			foreach ($matches as $match) {
 			
@@ -52,7 +53,7 @@ if (count($query) > 0) {
 				$time = $save[3]."-".$months[$save[1]]."-".$save[2]." ".date("H:i", strtotime($save[4].":".$save[5].":".$save[6]." ".$save[7]));
 			
 				/*
-				First we need to match every stat in the jAson file to a column in the database.
+				First we need to match every stat in the json file to a column in the database.
 				We'll put things in 3 different tables :
 				- games   
 				- data    
@@ -109,7 +110,7 @@ if (count($query) > 0) {
 						"championId" => $player['championId'],
 						"dataVersion" => "2"
 					);
-				} // Now we need to add the player that we're checking (he isn't in the json array)
+				} // Now we nees to add the player that we're checking (he isn't in the json array)
 				$players[] = array (
 					"gameId" => $match['gameId'],
 					"summonerId" => $sId,
@@ -143,7 +144,7 @@ if (count($query) > 0) {
 			echo $text;
 			logAccess($text);
 		}	
-	
+	sleep(1);
 	} // END foreach player
 
 }
