@@ -51,5 +51,5 @@ $totalTime = ($endTime - $startTime);
 echo "<!-- This page was created in ".$totalTime." seconds. -->";
 
 // Close the database connection
-$pdo = null /*un seul l :/ */;
+$pdo = null;
 ?>

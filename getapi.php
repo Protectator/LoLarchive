@@ -109,7 +109,7 @@ if (count($query) > 0) {
 						"championId" => $player['championId'],
 						"dataVersion" => "2"
 					);
-				} // Now we need to add the player that we're checking (he isn't in the jAson array)
+				} // Now we need to add the player that we're checking (he isn't in the json array)
 				$players[] = array (
 					"gameId" => $match['gameId'],
 					"summonerId" => $sId,
