@@ -1,5 +1,7 @@
 <?php
 
+define('DATAVERSION', '2');
+
 require_once('includes/functions.include.php');
 
 // Initialize connexion to database
@@ -15,7 +17,7 @@ $ip = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : "local";
 
 date_default_timezone_set('Europe/Berlin');
 $header = "> ".date('d/m/Y H:i:s', time())." - Request by ".$ip.PHP_EOL/*IDE*/;
-logAccess($header);
+logAccess($header);/*;3*/
 echo $header;
 
 $countTotalMatches = 0;
@@ -31,16 +33,15 @@ if (count($query) > 0) {
 		// Preparing cURL
 		$region = strtolower($row['region']);
 		$sId = $row['summonerId'];
-		$aId = $row['accountId'];
 		$c = curl_init();
 		$json = apiGame($c, $region, $sId);
-		echo API_URL.$region."/v1.3/game/by-summoner/".$sId."/recent?api_key=".RIOT_KEY;
+		echo API_URL.$region."/v1.3/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
 		curl_close($c);
 		// Transform json in an Array
 		$array = json_decode($json, true);
-		echo "<pre>";
+		/*echo "<pre>";
 		print_r($array);
-		echo "</pre>";
+		echo "</pre>";*/
 		if (isset($array['error']) && $array['error']!= "") {
 			logError($array['error']);
 		} else {
@@ -48,9 +49,9 @@ if (count($query) > 0) {
 
 			foreach ($matches as $match) {
 			
-				// Just messing with the date formatting...
-				$date = preg_match('/(\w+) (\d+), (\d+) (\d+):(\d+):(\d+) (\w+)/', $match['createDate'], $save);
-				$time = $save[3]."-".$months[$save[1]]."-".$save[2]." ".date("H:i", strtotime($save[4].":".$save[5].":".$save[6]." ".$save[7]));
+				// Converting the epoch to Datetime
+				$epochCreateDate = $match['createDate'];
+				$DTCreateDate = new DateTime("@$epochCreateDate");
 			
 				/*
 				First we need to match every stat in the json file to a column in the database.
@@ -59,47 +60,115 @@ if (count($query) > 0) {
 				- data    
 				- players 
 				*/
-				
-				// If there is a difficulty, then it's a bot game. Else, it is 0.
-				$games["difficulty"] = (isset($match['difficulty'])) ? $match['difficulty'] : "0";
-				
-				// Matching columns in "games" with API
+
+				/* Every field that is null means it's simply the same
+				name as the one in the API and needs no other treatment.
+				*/
+								
+				// Table 'games'
 				$games = array (
-					"gameId" => $match['gameId'],
+					"gameId" => null,
 					"region" => $region,
-					"mapId" => $match['gameMapId'],
-					"time" => $time,
-					"type" => $match['queueType'],
-					"subType" => $match['subType'],
-					"duration" => timeOf($match['gameMapId'], $match['type'], $match['ipEarned'], $match['win'], $match['eligibleFirstWinOfDay'] == 1, $match['difficulty'], $match['level']),
-					"sender" => 0
-				); /*;3*/
-				
-				// Matching columns in "data" with API
-				$data = array (
-					"gameId" => $match['gameId'],
-					"summonerId" => $sId,
-					"region" => $region,
-					"spell1" => $match['spell1'],
-					"spell2" => $match['spell2'],
-					"ipData" => $ip,
-					"leaver" => $match['afk'],
-					"invalid" => $match['invalid'],
-					"dataVersion" => $match['dataVersion'],
-					"playerLevel" => $match['level'],
-					"premade" => $match['premadeSize'],
-					"ipEarned" => $match['ipEarned'],
-					"fwotd" => $match['eligibleFirstWinOfDay'],
-					"estimatedDuration" => '0', // TODO : Estimer la durée d'une game en fonction des IP gagnés
-					"boostIpEarned" => $match['boostIpEarned'],
-					"skinIndex" => $match['skinIndex']
+					"createDate" => $DTCreateDate->format("Y-m-d H:i:s"),
+					"gameMode" => null,
+					"gameType" => null,
+					"subType" => null,
+					"time" => '0',
+					"mapId" => null,
+					"invalid" => null,
+					"dataVersion" => DATAVERSION, 
+					"dataIp" => $_SERVER['REMOTE_ADDR']
 				);
-				// For each other stat (the ones in caps) we put them directly with their name
-				// in the table
-				foreach ($match['statistics']['array'] as $stat) {
-					$data[$stat['statType']] = $stat['value'];
+				foreach ($games as $key => $value) {
+					if (is_null($value)) $value = $match[$key];
 				}
 				
+				// Table 'dates'
+				$data = array (
+					"gameId" => $match['gameId'], 
+					"summonerId" => $sId, 
+					"region" => $region, 
+					"goldEarned" => null, 
+					"championsKilled" => null, 
+					"numDeaths" => null, 
+					"assists" => null, 
+					"minionsKilled" => null, 
+					"spell1" => $match['spell1'], 
+					"spell2" => $match['spell2'], 
+					"item0" => null, 
+					"item1" => null, 
+					"item2" => null, 
+					"item3" => null, 
+					"item4" => null, 
+					"item5" => null, 
+					"item6" => null, 
+					"largestMultiKill" => null, 
+					"largestKillingSpree" => null, 
+					"turretsKilled" => null, 
+					"totalHeal" => null, 
+					"invalid" => null, 
+					"totalDamageDealtToChampions" => null, 
+					"physicalDamageDealtToChampions" => null, 
+					"magicDamageDealtToChampions" => null, 
+					"trueDamageDealtToChampions" => null, 
+					"totalDamageDealt" => null, 
+					"physicalDamageDealtPlayer" => null, 
+					"magicDamageDealtPlayer" => null, 
+					"trueDamageDealtPlayer" => null, 
+					"totalDamageTaken" => null, 
+					"physicalDamageTaken" => null, 
+					"magicDamageTaken" => null, 
+					"trueDamageTaken" => null, 
+					"sightWardsBought" => null, 
+					"visionWardsBought" => null, 
+					"neutralMinionsKilled" => null, 
+					"neutralMinionsKilledYourJungle" => null, 
+					"neutralMinionsKilledEnemyJungle" => null, 
+					"level" => null, 
+					"wardPlaced" => null, 
+					"wardKilled" => null, 
+					"summonerLevel" => null, 
+					"totalTimeCrowdControlDealt" => null, 
+					"largestCriticalStrike" => null, 
+					"win" => null, 
+					"barracksKilled" => null, 
+					"totalScoreRank" => null, 
+					"objectivePlayerScore" => null, 
+					"victoryPointTotal" => null, 
+					"nodeCaptureAssist" => null, 
+					"totalPlayerScore" => null, 
+					"nodeCapture" => null, 
+					"nodeNeutralize" => null, 
+					"nodeNeutralizeAssist" => null, 
+					"teamObjective" => null, 
+					"combatPlayerScore" => null, 
+					"consumablesPurchased" => null, 
+					"firstBlood" => null, 
+					"spell1Cast" => null, 
+					"spell2Cast" => null, 
+					"spell3Cast" => null, 
+					"spell4Cast" => null, 
+					"summonSpell1Cast" => null, 
+					"summonSpell2Cast" => null, 
+					"superMonsterKilled" => null, 
+					"timePlayed" => null, 
+					"unrealKills" => null, 
+					"doubleKills" => null, 
+					"tripleKills" => null, 
+					"quadraKills" => null, 
+					"pentaKills" => null, 
+					"nexusKilled" => null, 
+					"gold" => null, 
+					"itemsPurchased" => null, 
+					"numItemsBought" => null, 
+					"dataVersion" => DATAVERSION, 
+					"dataIp" => $_SERVER['REMOTE_ADDR']
+				);
+				foreach ($data as $key => $value) {
+					if (is_null($value)) $value = $match['stats'][$key];
+				}
+
+
 				// Matching columns in "players" with API
 				$players = array();
 				foreach ($match['fellowPlayers']['array'] as $player) {
@@ -108,7 +177,6 @@ if (count($query) > 0) {
 						"summonerId" => $player['summonerId'],
 						"teamId" => $player['teamId'],
 						"championId" => $player['championId'],
-						"dataVersion" => "2"
 					);
 				} // Now we nees to add the player that we're checking (he isn't in the json array)
 				$players[] = array (
@@ -142,9 +210,9 @@ if (count($query) > 0) {
 			} // END foreach match
 			$text = ($countNewMatches > 0) ? "[".$region."] Summoner ".$sId." \"".$row['name']."\" : ".$countNewMatches." added games".PHP_EOL : "";
 			echo $text;
-			logAccess($text);
+			// logAccess($text);
 		}	
-	sleep(1);
+	sleep(0.9);
 	} // END foreach player
 
 }
