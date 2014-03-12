@@ -29,19 +29,19 @@ if (count($query) > 0) {
 		// Only used to log informations
 		$countPlayers += 1;
 		$countNewMatches = 0;
-	
+
 		// Preparing cURL
 		$region = strtolower($row['region']);
 		$sId = $row['summonerId'];
 		$c = curl_init();
+		echo "<br>4<br>";
 		$json = apiGame($c, $region, $sId);
-		echo API_URL.$region."/v1.3/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
+		echo "<br>5<br>";
+		//echo API_URL.$region."/v1.3/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
 		curl_close($c);
 		// Transform json in an Array
 		$array = json_decode($json, true);
-		/*echo "<pre>";
-		print_r($array);
-		echo "</pre>";*/
+
 		if (isset($array['error']) && $array['error']!= "") {
 			logError($array['error']);
 		} else {
@@ -171,12 +171,14 @@ if (count($query) > 0) {
 
 				// Matching columns in "players" with API
 				$players = array();
-				foreach ($match['fellowPlayers']['array'] as $player) {
+				foreach ($match['fellowPlayers'] as $player) {
 					$players[] = array (	
 						"gameId" => $match['gameId'],
 						"summonerId" => $player['summonerId'],
 						"teamId" => $player['teamId'],
-						"championId" => $player['championId'],
+						"championId" => $player['championId'], 
+						"dataVersion" => DATAVERSION, 
+						"dataIp" => $_SERVER['REMOTE_ADDR']
 					);
 				} // Now we nees to add the player that we're checking (he isn't in the json array)
 				$players[] = array (
@@ -184,7 +186,8 @@ if (count($query) > 0) {
 					"summonerId" => $sId,
 					"teamId" => $match['teamId'],
 					"championId" => $match['championId'],
-					"dataVersion" => "2"
+					"dataVersion" => DATAVERSION, 
+					"dataIp" => $_SERVER['REMOTE_ADDR']
 				);
 				
 				$req = array(); // Will contain requests to do			
@@ -209,7 +212,7 @@ if (count($query) > 0) {
 				
 			} // END foreach match
 			$text = ($countNewMatches > 0) ? "[".$region."] Summoner ".$sId." \"".$row['name']."\" : ".$countNewMatches." added games".PHP_EOL : "";
-			echo $text;
+			//echo $text;
 			// logAccess($text);
 		}	
 	sleep(0.9);
