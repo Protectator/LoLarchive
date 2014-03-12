@@ -353,8 +353,8 @@ function getPage(&$pdo, $region, $sId, $filters, $page) {
  * Returns the HTML showing an item
  */
 function item($row, $int) {
-	if ($row['ITEM'.$int] > 0) {
-		return "<a href=\"http://www.lolking.net/items/".$row['ITEM'.$int]."\"><img class= \"img-rounded imgitem32\" src=\"http://lkimg.zamimg.com/shared/riot/images/items/".$row['ITEM'.$int]."_32.png\" alt=\"".$row['ITEM'.$int]."\"></a>";
+	if ($row['item'.$int] > 0) {
+		return "<a href=\"http://www.lolking.net/items/".$row['item'.$int]."\"><img class= \"img-rounded imgitem32\" src=\"http://lkimg.zamimg.com/shared/riot/images/items/".$row['item'.$int]."_32.png\" alt=\"".$row['item'.$int]."\"></a>";
 	}
 }
 
