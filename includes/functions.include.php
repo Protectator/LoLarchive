@@ -1,7 +1,7 @@
 <?php
 
 define('PATH', "/"); // web directory directory
-define('LOCAL', "/var/www/lolarchivedev/");    // local directory of the LoLarchive directory
+define('LOCAL', getcwd()."/");    // local directory of the LoLarchive directory
 
 // Start by loading variables that shouldn't be public
 require_once(LOCAL.'private/config.php');
@@ -282,9 +282,9 @@ function getRecentGames(&$c, $region, $aId) {
  * @return string json containing the request
  */
 function apiGame(&$c, $region, $sId) {
-	$url = API_URL.$region."/v1.3/game/by-summoner/".$sId."/recent?api_key=".RIOT_KEY;
+	$url = API_URL.$region."/v1.3/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
-	//curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	return trim(curl_exec($c));
 }
 
