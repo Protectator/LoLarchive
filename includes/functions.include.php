@@ -625,8 +625,10 @@ function HTMLchampionImg($championId, $size = "small", $champsName) {
  */
 function HTMLparticipants($region, $team1, $team2, $champsName) {
 	$result = "<table class=\"players\">";
+	$nbLines = max (5, count($team1), count($team2));
 	// Line per line
-	for ($i = 0; $i <= 5 ; $i++) {
+	for ($i = 0; $i < $nbLines ; $i++) {
+
 		$result .= "<tr class=\"playerLine\">";
 		// Left team member
 		if (isset($team1[$i])) {
@@ -642,6 +644,7 @@ function HTMLparticipants($region, $team1, $team2, $champsName) {
 		}
 		$result .= "</tr>";
 	}
+
 	return $result."</table>";
 }
 
