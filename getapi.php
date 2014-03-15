@@ -47,9 +47,10 @@ if (count($query) > 0) {
 			foreach ($matches as $match) {
 			
 				// Converting the epoch to Datetime
-				$epochCreateDate = $match['createDate'];
-				//echo "<br>"."EPOCH: ".$epochCreateDate;
-				$DTCreateDate = new DateTime("@$epochCreateDate");
+				$epochCreateDate = $match['createDate']/1000;
+				echo "<br>"."EPOCH: ".$epochCreateDate;
+				$finalDate = date('Y-m-d H:i:s', $epochCreateDate);
+				echo "<br>"."FINAL: ".$finalDate;
 			
 				/*
 				First we need to match every stat in the json file to a column in the database.
@@ -67,7 +68,7 @@ if (count($query) > 0) {
 				$games = array (
 					"gameId" => null,
 					"region" => $region,
-					"createDate" => $DTCreateDate->format("Y-m-d H:i:s"),
+					"createDate" => $finalDate,
 					"gameMode" => null,
 					"gameType" => null,
 					"subType" => null,
