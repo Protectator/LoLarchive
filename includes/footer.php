@@ -1,5 +1,5 @@
 	  <footer id="foot">
-	    <p class="pull-right">2013</p>
+	    <p class="pull-right">2013 - 2014</p>
 		<p><a href="http://twitter.com/Protectator">Protectator</a></p>
 	  </footer>
     </div>

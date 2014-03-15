@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Client: localhost
--- Généré le : Mar 04 Mars 2014 à 14:50
+-- Généré le : Sam 15 Mars 2014 à 21:54
 -- Version du serveur: 5.5.31
 -- Version de PHP: 5.3.10-1ubuntu3.9
 
@@ -19,6 +19,19 @@ SET time_zone = "+00:00";
 --
 -- Base de données: `lolarchivedev`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `champions`
+--
+
+CREATE TABLE IF NOT EXISTS `champions` (
+  `id` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(32) NOT NULL,
+  `display` varchar(32) NOT NULL,
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -103,10 +116,78 @@ CREATE TABLE IF NOT EXISTS `data` (
   `gold` mediumint(8) unsigned NOT NULL,
   `itemsPurchased` tinyint(3) unsigned NOT NULL,
   `numItemsBought` tinyint(3) unsigned NOT NULL,
-  `dataVersion` tinyint(4) NOT NULL COMMENT '1: lolhistory | 2: mashape | 3: riotgames',
+  `dataVersion` tinyint(4) unsigned NOT NULL COMMENT '1: lolhistory | 2: mashape | 3: riotgames',
   `dataIp` varchar(16) NOT NULL COMMENT 'ip adress that registered this entry',
   `dataStamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp of the last edition of the entry',
   PRIMARY KEY (`gameId`,`summonerId`,`region`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `games`
+--
+
+CREATE TABLE IF NOT EXISTS `games` (
+  `gameId` int(11) NOT NULL AUTO_INCREMENT,
+  `region` varchar(8) COLLATE utf8_bin NOT NULL,
+  `createDate` datetime NOT NULL,
+  `gameMode` varchar(32) COLLATE utf8_bin NOT NULL,
+  `gameType` varchar(32) COLLATE utf8_bin NOT NULL,
+  `subType` varchar(32) COLLATE utf8_bin NOT NULL,
+  `duration` int(8) NOT NULL,
+  `mapId` tinyint(3) unsigned NOT NULL,
+  `invalid` bit(1) NOT NULL,
+  `dataVersion` tinyint(3) unsigned NOT NULL,
+  `dataIp` varchar(16) COLLATE utf8_bin NOT NULL,
+  `dataStamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`gameId`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1374279066 ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `players`
+--
+
+CREATE TABLE IF NOT EXISTS `players` (
+  `gameId` int(10) unsigned NOT NULL,
+  `summonerId` int(10) unsigned NOT NULL,
+  `teamId` tinyint(3) unsigned NOT NULL,
+  `championId` smallint(5) unsigned NOT NULL,
+  `dataVersion` tinyint(3) unsigned NOT NULL,
+  `dataIp` varchar(16) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `dataStamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`gameId`,`summonerId`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `users`
+--
+
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int(11) NOT NULL,
+  `user` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `region` varchar(8) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `stamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `ip` varchar(32) NOT NULL,
+  PRIMARY KEY (`id`,`region`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `usersToTrack`
+--
+
+CREATE TABLE IF NOT EXISTS `usersToTrack` (
+  `region` varchar(6) NOT NULL,
+  `summonerId` int(10) unsigned NOT NULL,
+  `accountId` int(10) unsigned NOT NULL,
+  `name` varchar(32) NOT NULL,
+  PRIMARY KEY (`summonerId`,`accountId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
