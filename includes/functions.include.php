@@ -726,7 +726,7 @@ function HTMLkda($k, $d, $a, $minions, $gold) {
  * @return string HTML code
  */
 function HTMLgeneralStats($type, $text, $duration, $date) {
-	$result = $type."<br><span class=\"resultText\">".$text."</span><br>".$duration."<br>".$date;
+	$result = $type."<br><span class=\"resultText\">".$text."</span><br>~".round($duration/60)." min.<br>".$date;
 	return $result;
 }
 
