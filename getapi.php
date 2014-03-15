@@ -48,9 +48,7 @@ if (count($query) > 0) {
 			
 				// Converting the epoch to Datetime
 				$epochCreateDate = $match['createDate']/1000;
-				echo "<br>"."EPOCH: ".$epochCreateDate;
 				$finalDate = date('Y-m-d H:i:s', $epochCreateDate);
-				echo "<br>"."FINAL: ".$finalDate;
 			
 				/*
 				First we need to match every stat in the json file to a column in the database.
