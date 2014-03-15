@@ -34,15 +34,12 @@ if (count($query) > 0) {
 		$region = strtolower($row['region']);
 		$sId = $row['summonerId'];
 		$c = curl_init();
-		echo "<br>4<br>";
 		$json = apiGame($c, $region, $sId);
-		echo "<br>5<br>";
-		//echo API_URL.$region."/v1.3/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
 		curl_close($c);
 		// Transform json in an Array
 		$array = json_decode($json, true);
 
-		if (isset($array['error']) && $array['error']!= "") {
+		if (isset($array['status']) && $array['status']!= "") {
 			logError($array['error']);
 		} else {
 			$matches = $array['games'];
@@ -51,6 +48,7 @@ if (count($query) > 0) {
 			
 				// Converting the epoch to Datetime
 				$epochCreateDate = $match['createDate'];
+				//echo "<br>"."EPOCH: ".$epochCreateDate;
 				$DTCreateDate = new DateTime("@$epochCreateDate");
 			
 				/*
@@ -73,7 +71,7 @@ if (count($query) > 0) {
 					"gameMode" => null,
 					"gameType" => null,
 					"subType" => null,
-					"time" => '0',
+					"duration" => '0',
 					"mapId" => null,
 					"invalid" => null,
 					"dataVersion" => DATAVERSION, 

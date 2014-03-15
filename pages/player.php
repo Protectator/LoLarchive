@@ -93,7 +93,7 @@
 			
 			$wonGamesString = "SELECT count(*) AS nb".$conditions." AND data.win = (1);";
 			
-			$requestString[1] = "SELECT * ".$conditions." ORDER BY games.createDate DESC;";
+			$requestString[1] = "SELECT * ".$conditions." ORDER BY `games`.`createDate` DESC;";
 
 			if (isset($_GET['debug'])) {
 				echo $requestString[1];
@@ -272,7 +272,7 @@
 				}
 			}
 
-			$duration = $row['timePlayed']
+			$duration = $row['timePlayed'];
 			
 			$year = substr($row['createDate'], 0, 4);
 			$month = substr($row['createDate'], 5, 2);
