@@ -30,7 +30,7 @@ if (isset($_GET['page'])) {
 	try {
 		require_once($pages[$_GET['page']]);
 	} catch (Exception $e) {
-		echo "An error occured during the generation of this page. <br>Seems like you're lost. There's nothing here.";
+		echo "An error occured during the generation of this page. <br>Seems like you're lost. There's nothing here."/*even you, you are nothing here. Just get a life.*/;
 		if (isset($_GET['debug'])) {
 			echo "<br>".$e->getMessage();
 		}

@@ -59,7 +59,7 @@
 			$id = $foundSummoner['id'];
 			$name = $foundSummoner['user'];
 			
-			$filtersStr = array(); // String of all filters conditions
+			$filtersStr = array(); // sexy String of all filters conditions
 			
 			// START FILTERS
 			
@@ -78,7 +78,7 @@
 			// filter games by Game Mode
 			if (isset($_GET['fMode']) AND $_GET['fMode'] != '') {
 				$filters['fMode'] = $_GET['fMode'];
-				$modeFilterStr = " AND games.type = :typeStr";
+				$modeFilterStr = " AND games.subType = :typeStr";
 				$filtersStr[] = $modeFilterStr;
 			}
 			
@@ -88,12 +88,12 @@
 			LEFT JOIN data ON games.gameId = data.gameId AND players.gameId = data.gameId
 			WHERE players.summonerId = :sId AND data.summonerId = :sId".implode($filtersStr);
 			
-			$statsString = "SELECT count(*) AS nbGames, avg(data.CHAMPIONS_KILLED) AS k, avg(data.NUM_DEATHS) AS d, avg(data.ASSISTS) AS a,
-			avg(data.MINIONS_KILLED) AS minions, avg(data.GOLD_EARNED) AS gold, avg(data.estimatedDuration) AS duration".$conditions;
+			$statsString = "SELECT count(*) AS nbGames, avg(data.championsKilled) AS k, avg(data.numDeaths) AS d, avg(data.assists) AS a,
+			avg(data.minionsKilled) AS minions, avg(data.goldEarned) AS gold, avg(data.timePlayed) AS duration".$conditions;
 			
-			$wonGamesString = "SELECT count(*) AS nb".$conditions." AND data.WIN = (1);";
+			$wonGamesString = "SELECT count(*) AS nb".$conditions." AND data.win = (1);";
 			
-			$requestString[1] = "SELECT * ".$conditions." ORDER BY games.time DESC;";
+			$requestString[1] = "SELECT * ".$conditions." ORDER BY `games`.`createDate` DESC;";
 
 			if (isset($_GET['debug'])) {
 				echo $requestString[1];
@@ -238,11 +238,7 @@
 			} // END Debug
 			
 			// Handles all bit(1) data
-			$win = ord($row['WIN']);
-			$lose = ord($row['LOSE']);
-			$fwotd = ord($row['fwotd']);
-			$leaver = ord($row['leaver']);
-			$afk = ord($row['afk']);
+			$win = ord($row['win']);
 			$invalid = ord($row['invalid']);
 			
 			if ($win == 1) {
@@ -275,22 +271,18 @@
 					$teamR[] = $player;
 				}
 			}
+
+			$duration = $row['timePlayed'];
 			
-			if($row['duration'] == "0") {
-				$duration = "??? mins";
-			} else {
-				$duration = round(timeOf($row['mapId'], $row['type'], $row['ipEarned'], $row['win'], ord($row['fwotd']), $row['difficulty'], $row['level']), 0)." mins";
-			}
-			
-			$year = substr($row['time'], 0, 4);
-			$month = substr($row['time'], 5, 2);
-			$day = substr($row['time'], 8, 2);
-			$hour = substr($row['time'], 11, 2);
-			$min = substr($row['time'], 14, 2);
+			$year = substr($row['createDate'], 0, 4);
+			$month = substr($row['createDate'], 5, 2);
+			$day = substr($row['createDate'], 8, 2);
+			$hour = substr($row['createDate'], 11, 2);
+			$min = substr($row['createDate'], 14, 2);
 			$time = $day.".".$month.".".$year." ".$hour.":".$min;
 			
-			$inventory = array($row['ITEM0'], $row['ITEM1'], $row['ITEM2'], 
-				$row['ITEM3'], $row['ITEM4'], $row['ITEM5'], $row['ITEM6']);
+			$inventory = array($row['item0'], $row['item1'], $row['item2'], 
+				$row['item3'], $row['item4'], $row['item5'], $row['item6']);
 
 		?>
 			<div class="row">
@@ -301,7 +293,7 @@
 						<div class="matchcell championcell"><?php echo HTMLchampionImg($row['championId'], "big", $champsName); ?></div>
 						
 						<div class="matchcell headcell">							
-							<?php echo HTMLgeneralStats($modes[$row['type']], $text, $duration, $time);?>
+							<?php echo HTMLgeneralStats($modes[$row['subType']], $text, $duration, $time);?>
 						</div>
 						
 						<?php
@@ -310,8 +302,8 @@
 						?>
 							<div class="matchcell kdacell">
 								<?php
-								echo HTMLkda($row['CHAMPIONS_KILLED'], $row['NUM_DEATHS'],
-									$row['ASSISTS'], $row['MINIONS_KILLED'], $row['GOLD_EARNED']) ?>
+								echo HTMLkda($row['championsKilled'], $row['numDeaths'],
+									$row['assists'], $row['minionsKilled'], $row['goldEarned']) ?>
 							</div>
 							
 							<div class="matchcell sscell">

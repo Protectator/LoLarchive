@@ -1,10 +1,10 @@
 <?php
 
-define('PATH', "/lolarchive/"); // root of the LoLarchive directory
-define('LOCAL', "/var/www");    // local directory of the LoLarchive directory
+define('PATH', "/"); // web directory directory
+define('LOCAL', getcwd()."/");    // local directory of the LoLarchive directory
 
 // Start by loading variables that shouldn't be public
-require_once(LOCAL.PATH.'private/config.php');
+require_once(LOCAL.'private/config.php');
 
 // Useful variables
 
@@ -274,6 +274,21 @@ function getRecentGames(&$c, $region, $aId) {
 }
 
 /**
+ * Gets most recent games by summoner id
+ *
+ * @param resource $c opened cURL session
+ * @param string $region abbreviated server's name
+ * @param string $sId account Id to look for
+ * @return string json containing the request
+ */
+function apiGame(&$c, $region, $sId) {
+	$url = API_URL.$region."/v1.3/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
+	curl_setopt($c, CURLOPT_URL, $url);
+	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+	return trim(curl_exec($c));
+}
+
+/**
  * Gets all public data of a summoner
  *
  * @param resource $c opened cURL session
@@ -313,7 +328,7 @@ function trackNewPlayer(&$pdo, &$c, $region, $name) {
 		"accountId" => $aId,
 		"name" => $name
 	);
-	$request = "INSERT INTO usersToTrack ".buildInsert($infos)." ON DUPLICATE KEY UPDATE name = '".$name."';";
+	$request = "INSERT INTO usersToTrack "/*chelou*/.buildInsert($infos)." ON DUPLICATE KEY UPDATE name = '".$name."';";
 	return securedInsert($pdo, $request); // Returns the number of affected rows
 }
 
@@ -338,8 +353,8 @@ function getPage(&$pdo, $region, $sId, $filters, $page) {
  * Returns the HTML showing an item
  */
 function item($row, $int) {
-	if ($row['ITEM'.$int] > 0) {
-		return "<a href=\"http://www.lolking.net/items/".$row['ITEM'.$int]."\"><img class= \"img-rounded imgitem32\" src=\"http://lkimg.zamimg.com/shared/riot/images/items/".$row['ITEM'.$int]."_32.png\" alt=\"".$row['ITEM'.$int]."\"></a>";
+	if ($row['item'.$int] > 0) {
+		return "<a href=\"http://www.lolking.net/items/".$row['item'.$int]."\"><img class= \"img-rounded imgitem32\" src=\"http://lkimg.zamimg.com/shared/riot/images/items/".$row['item'.$int]."_32.png\" alt=\"".$row['item'.$int]."\"></a>";
 	}
 }
 
@@ -416,7 +431,7 @@ function timeOf($map, $mode, $ip, $win, $fwotd, $difficulty = "", $level = 30) {
 			if ($win) {$base = 18.;} else {$base = 16;}
 			break;
 		case 'BOT_3x3':
-		case 'BOT': // Coop vs AI 5v5
+		case 'BOT': // Coop vs Migros AI 5v5
 			switch ($difficulty) {
 				case 'EASY': // Beginner
 					if ($win) {$base = 7.;} else {$base = 6.;}
@@ -499,7 +514,7 @@ function superEstimation($map, $mode, $ip, $win, $fwotd, $difficulty = "", $leve
 			$base = ($win) ? 20. : 12.5;
 			break;
 
-		case 'RANKED_TEAM_3x3': // TODO : Lots of things to do here
+		case 'RANKED_TEAM_3x3': // TODO : Lots of things to do here OK
 
 		case 'NORMAL_3x3';
 
@@ -546,7 +561,7 @@ function superEstimation($map, $mode, $ip, $win, $fwotd, $difficulty = "", $leve
  * @param string $text Text to log
  */
 function logAccess($text) {
-	$file = LOCAL.PATH.'private/logs/access.log';
+	$file = LOCAL.'private/logs/access.log';
 	file_put_contents($file, file_get_contents($file).$text);
 }
 
@@ -556,7 +571,7 @@ function logAccess($text) {
  * @param string $text Text to log
  */
 function logError($text) {
-	$file = LOCAL.PATH.'private/logs/error.log';
+	$file = LOCAL.'private/logs/error.log';
 	file_put_contents($file, file_get_contents($file).$text);
 }
 
@@ -711,7 +726,7 @@ function HTMLkda($k, $d, $a, $minions, $gold) {
  * @return string HTML code
  */
 function HTMLgeneralStats($type, $text, $duration, $date) {
-	$result = $type."<br><span class=\"resultText\">".$text."</span><br>".$duration."<br>".$date;
+	$result = $type."<br><span class=\"resultText\">".$text."</span><br>~".round($duration/60)." min.<br>".$date;
 	return $result;
 }
 
@@ -761,7 +776,7 @@ function query(&$pdo, $queryToPrepare, $values) {
 /**
  * Binds parameters of a prepared query to values of an array by its keys
  *
- * @param resource $pdo opened PDO connection
+ * @param resource $pedo opened PDO connection
  * @param columns Array containing the values to bind to keys (keys without ":")
  *
  * @deprecated
