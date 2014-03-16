@@ -1,13 +1,38 @@
 <?
+/*
+This is the config file of LoLarchive.
+This file isn't accessible from outside your site (if everything's configured right)
+Don't tell the password or API key to other people...
+*/
 
+// HOST is the location of the database you're going to use.
+// If you don't know what to put here, leave "localhost"
 define('HOST', "localhost");
 
+// DBNAME is the name of the database you'll use to store LoLarchive's data
+// Please select an empty database
 define('DBNAME', "lolarchive");
 
+// USERNAME is the name of the user LoLarchive is going to use to communicate
+// with the database. It need to have the following rights on the the database:
+// SELECT, INSERT, DELETE, UPDATE
 define('USERNAME', "yourUserName");
 
+// PASSWORD is the password associated with the USERNAME you provided.
 define('PASSWORD', "yourPassword");
 
+// API_KEY is the key that will be sent with each cURL request. If you don't
+// have any, look at how to get one for legendaryapi.net
 define('API_KEY', "ApiKeyOfYourApiProvider");
+
+// PROD_KEY defines if the key you wrote just above is a RiotGame's Production Key.
+// By default, Riot Games gives you a developement key, which has more limitations.
+// Use the register process on https://developer.riotgames.com to have your site
+// approved and recieve a production key. If the key you wrote is a production key,
+// set the next line to 'TRUE' instead of 'FALSE'.
+define('PROD_KEY', FALSE);
+
+// API_URL is the url pointing to the API you're using.
+define('API_URL', "https://prod.api.pvp.net/api/lol/")
 
 ?>

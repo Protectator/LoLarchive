@@ -217,10 +217,12 @@ if (count($query) > 0) {
 				
 			} // END foreach match
 			$text = ($countNewMatches > 0) ? "[".$region."] Summoner ".$sId." \"".$row['name']."\" : ".$countNewMatches." added games".PHP_EOL : "";
-			//echo $text;
-			// logAccess($text);
-		}	
-	sleep(0.9);
+			echo $text;
+			logAccess($text);
+		}
+		if (!PROD_KEY) {
+			sleep(0.9);
+		}
 	} // END foreach player
 
 }
