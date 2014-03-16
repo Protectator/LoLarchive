@@ -77,7 +77,9 @@ if (count($query) > 0) {
 					"dataIp" => $_SERVER['REMOTE_ADDR']
 				);
 				foreach ($games as $key => $value) {
-					if (is_null($value)) {$games[$key] = $match[$key];}
+					if (!isset($value)) {
+						$games[$key] = $match[$key];
+					}
 				}
 				
 				// Table 'dates'
@@ -162,7 +164,9 @@ if (count($query) > 0) {
 					"dataIp" => $_SERVER['REMOTE_ADDR']
 				);
 				foreach ($data as $key => $value) {
-					if (is_null($value)) {$data[$key] = $match['stats'][$key];}
+					if (!isset($value)) {
+						$data[$key] = $match['stats'][$key];
+					}
 				}
 
 
