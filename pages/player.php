@@ -1,21 +1,14 @@
 <?php
 	
-	$rName = array();
-	$rName['euw'] = "Europe West";
-	$rName['na'] = "North America";
-	$rName['eune'] = 'Europe Nordic &amp; East';
-	$rName['br'] = "Brazil";
-	$rName['tr'] = "Turkey";
-	$rName['ru'] = "Russia";
-	$rName['lan'] = "Latin America North";
-	$rName['las'] = "Latin America South";
-	$rName['oce'] = "Oceania";
-	
 	$champsFolder = PATH."img/champions/";
+
+	$Iname = $_GET["name"];
+	$Iid = $_GET/*27*/["id"];
+	$Iregion = $_GET["region"];
 	
 	/* If we have recieved valid arguments */
-	if ((isset($_GET['name']) OR isset($_GET['id'])) AND isset($_GET['region'])) {
-		$region = strtolower($_GET['region']); // region is always lowercase.
+	if ( (isset($Iname) OR isset($Iid)) AND isset($Iregion)) {
+		$region = strtolower($Iregion); // region is always lowercase.
 		$requestString = array(); // array of all String of requests we'll make.
 		$result = array(); // array of all results of requests we'll malke.
 		
@@ -24,19 +17,19 @@
 		$conditions = array ("region" => $region);
 		
 		// If the id is provided, go for it
-		if (isset($_GET/*27*/['id'])) {
-			$conditions["id"] = $_GET['id'];
-			$id = $_GET['id'];
+		if (isset($Iid)) {
+			$conditions["id"] = $Iid;
+			$id = $Iid;
 			$requestString[0] .= conditions($conditions); 
 			$findSummoner = $pdo->prepare($requestString[0]);
-			$findSummoner->bindParam(":id", $_GET['id']);
+			$findSummoner->bindParam(":id", $Iid);
 		// Else, look for the username
 		} else {
-			$conditions["user"] = $_GET['name'];
-			$name = $_GET['name'];
+			$conditions["user"] = $Iname;
+			$name = $Iname;
 			$requestString[0] .= conditions($conditions);
 			$findSummoner = $pdo->prepare($requestString[0]);
-			$findSummoner->bindParam(":user", $_GET['name']);
+			$findSummoner->bindParam(":user", $Iname);
 		}
 		$findSummoner->bindParam(":region", $region);
 		
@@ -176,8 +169,8 @@
 			<fieldset>
 				<legend>Filter games</legend>
 				<input type="hidden" name="page" value="player"/>
-				<input type="hidden" name="region" value="<?php echo $_GET['region']?>"/>
-				<input type="hidden" name="name" value="<?php echo $_GET['name']?>"/> 
+				<input type="hidden" name="region" value="<?php echo $Iregion?>"/>
+				<input type="hidden" name="name" value="<?php echo $Iname?>"/> 
 				<div class="control-group">
 					<label class="control-label">
 						<label class="checkbox inline"><input type="checkbox" id="champFilterBox" <?php echo (isset($filters['fChampion']) && $filters['fChampion'])?'checked="yes"':''?>> Champion</label>

@@ -28,6 +28,18 @@ foreach($months as $key => $value) { // "Reverse" the array so it can be accesse
 	$months[intval($value)] = $key;
 }
 
+// Full name of regions
+	$rName = array();
+	$rName['euw'] = "Europe West";
+	$rName['na'] = "North America";
+	$rName['eune'] = 'Europe Nordic &amp; East';
+	$rName['br'] = "Brazil";
+	$rName['tr'] = "Turkey";
+	$rName['ru'] = "Russia";
+	$rName['lan'] = "Latin America North";
+	$rName['las'] = "Latin America South";
+	$rName['oce'] = "Oceania";
+
 // Display text of game modes
 $modes = array (
 		"NONE" => "Custom",
