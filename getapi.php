@@ -13,7 +13,7 @@ foreach ($_GET as &$thing) {
 $query = rawSelect($pdo, "SELECT * FROM usersToTrack ORDER BY region, summonerId");
 
 // If REMOTE_ADDR ain't set, it's that we're doing this request locally
-$ip = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : "local";
+$ip = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : "127.0.0.1";
 
 date_default_timezone_set('Europe/Berlin');
 $header = "> ".date('d/m/Y H:i:s', time())." - Request by ".$ip.PHP_EOL/*IDE*/;
@@ -74,7 +74,7 @@ if (count($query) > 0) {
 					"mapId" => null,
 					"invalid" => null,
 					"dataVersion" => DATAVERSION, 
-					"dataIp" => $_SERVER['REMOTE_ADDR']
+					"dataIp" => $ip
 				);
 				foreach ($games as $key => $value) {
 					if (!isset($value)) {
@@ -161,11 +161,15 @@ if (count($query) > 0) {
 					"itemsPurchased" => null, 
 					"numItemsBought" => null, 
 					"dataVersion" => DATAVERSION, 
-					"dataIp" => $_SERVER['REMOTE_ADDR']
+					"dataIp" => $ip
 				);
 				foreach ($data as $key => $value) {
 					if (!isset($value)) {
-						$data[$key] = $match['stats'][$key];
+						if (isset($match['stats'][$key])) {
+							$data[$key] = $match['stats'][$key];
+						} else {
+							$data[$key] = '0';
+						}
 					}
 				}
 
@@ -179,7 +183,7 @@ if (count($query) > 0) {
 						"teamId" => $player['teamId'],
 						"championId" => $player['championId'], 
 						"dataVersion" => DATAVERSION, 
-						"dataIp" => $_SERVER['REMOTE_ADDR']
+						"dataIp" => $ip
 					);
 				} // Now we nees to add the player that we're checking (he isn't in the json array)
 				$players[] = array (
@@ -188,7 +192,7 @@ if (count($query) > 0) {
 					"teamId" => $match['teamId'],
 					"championId" => $match['championId'],
 					"dataVersion" => DATAVERSION, 
-					"dataIp" => $_SERVER['REMOTE_ADDR']
+					"dataIp" => $ip
 				);
 				
 				$req = array(); // Will contain requests to do			
