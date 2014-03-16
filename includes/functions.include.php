@@ -1,7 +1,7 @@
 <?php
 
 define('PATH', "/"); // web directory directory
-define('LOCAL', getcwd()."/");    // local directory of the LoLarchive directory
+define('LOCAL', "/var/www/lolarchive/");    // local directory of the LoLarchive directory
 
 // Start by loading variables that shouldn't be public
 require_once(LOCAL.'private/config.php');
