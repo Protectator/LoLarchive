@@ -2,9 +2,9 @@
 	
 	$champsFolder = PATH."img/champions/";
 
-	$Iname = $_GET["name"];
-	$Iid = $_GET/*27*/["id"];
-	$Iregion = $_GET["region"];
+	if (isset($_GET["name"])) { $Iname = $_GET["name"];}
+	if (isset($_GET["id"])) { $Iid = $_GET/*27*/["id"];}
+	if (isset($_GET["region"])) { $Iregion = $_GET["region"];}
 	
 	/* If we have recieved valid arguments */
 	if ( (isset($Iname) OR isset($Iid)) AND isset($Iregion)) {
@@ -169,8 +169,9 @@
 			<fieldset>
 				<legend>Filter games</legend>
 				<input type="hidden" name="page" value="player"/>
-				<input type="hidden" name="region" value="<?php echo $Iregion?>"/>
-				<input type="hidden" name="name" value="<?php echo $Iname?>"/> 
+				<input type="hidden" name="region" value="<?php echo $region?>"/>
+				<input type="hidden" name="name" value="<?php echo $name?>"/>
+				<input type="hidden" name="id" value="<?php echo $id?>"/> 
 				<div class="control-group">
 					<label class="control-label">
 						<label class="checkbox inline"><input type="checkbox" id="champFilterBox" <?php echo (isset($filters['fChampion']) && $filters['fChampion'])?'checked="yes"':''?>> Champion</label>
