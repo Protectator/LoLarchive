@@ -1,3 +1,6 @@
+<?php
+echoHeader();
+?>
 <div class="row">
 	<div class="span12">
 		<form class="form-horizontal well" action="<?php echo PATH;?>index.php" method="get">
@@ -36,3 +39,6 @@
 		</form>
 	</div>
 </div>
+<?php
+echoFooter();
+?>

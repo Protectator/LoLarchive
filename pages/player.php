@@ -13,7 +13,7 @@
 		$result = array(); // array of all results of requests we'll malke.
 		
 		// First request is to select the right user
-		$requestString[0] = "SELECT id, user FROM users WHERE ";
+		$requestString[0] = "SELECT id, user, region FROM users WHERE ";
 		$conditions = array ("region" => $region);
 		
 		// If the id is provided, go for it
@@ -50,6 +50,7 @@
 			} // END Debug
 			$id = $foundSummoner['id'];
 			$name = $foundSummoner['user'];
+			$region = $foundSummoner['region'];
 			
 			$filtersStr = array(); // sexy String of all filters conditions
 			
@@ -117,7 +118,10 @@
 			$summonerGames->execute();        // Execute the request
 			$stats->execute();        // Execute the request
 			$wonGames->execute();        // Execute the request
-			//$summonerGames->fetch(); // Get the array
+
+			echoHeader($name." [".strtoupper($region)."] - LoLarchive");
+		} else {
+			echoHeader("Summoner not found - LoLarchive");
 		}
 	}
 	
@@ -133,7 +137,11 @@
 		$champsDisplay[$champ['id']] = $champ['display'];
 		$champsName[$champ['id']] = $champ['name'];
 	}
+
+echoHeader($name." [".strtoupper($region)."] - LoLarchive");
 ?>
+
+
 <div class="row">
 	<div class="span12">
 		<div class="well">
@@ -217,111 +225,113 @@
 	</div>
 </div>
 		
-		<?php
-		/*
-			FOR EACH GAME
-		*/
-		while ($row = $summonerGames->fetch()) {
+<?php
+/*
+	FOR EACH GAME
+*/
+while ($row = $summonerGames->fetch()) {
+
+	//   START Debug
+	if (isset($_GET['debug'])) {
+		echo "<br>ARRAY:<pre>";
+		print_r($row);
+		echo "</pre>";
+	} // END Debug
+	
+	// Handles all bit(1) data
+	$win = ord($row['win']);
+	$invalid = ord($row['invalid']);
+	
+	if ($win == 1) {
+		$class = " winmatch";
+		$classtext = " wintext";
+		$text = "Win";
+	} else {
+		$class = " lossmatch";
+		$classtext = " losstext";
+		$text = "Loss";
+	}
+	
+	/* Request to find all summoners in a game */
+	$requestString[3] = "
+	SELECT * FROM players
+	LEFT JOIN users ON users.id = players.summonerId
+	WHERE players.gameId = :gId";
+	$playersRequest = $pdo->prepare($requestString[3]);
+	$playersRequest->bindParam(":gId", $row['gameId']);
+	$playersRequest->execute(); // Execute the request
+	
+	// Put each player on the right team
+	$summonersTeam = $row['teamId'];
+	$teamL = array();
+	$teamR = array();
+	while ($player = $playersRequest->fetch()) {
+		if ($player['teamId'] == $summonersTeam) {
+			$teamL[] = $player;
+		} else {
+			$teamR[] = $player;
+		}
+	}
+
+	$duration = $row['timePlayed'];
+	
+	$year = substr($row['createDate'], 0, 4);
+	$month = substr($row['createDate'], 5, 2);
+	$day = substr($row['createDate'], 8, 2);
+	$hour = substr($row['createDate'], 11, 2);
+	$min = substr($row['createDate'], 14, 2);
+	$time = $day.".".$month.".".$year." ".$hour.":".$min;
+	
+	$inventory = array($row['item0'], $row['item1'], $row['item2'], 
+		$row['item3'], $row['item4'], $row['item5'], $row['item6']);
+
+?>
+	<div class="row">
+		<div class="span12">
 		
-			//   START Debug
-			if (isset($_GET['debug'])) {
-				echo "<br>ARRAY:<pre>";
-				print_r($row);
-				echo "</pre>";
-			} // END Debug
-			
-			// Handles all bit(1) data
-			$win = ord($row['win']);
-			$invalid = ord($row['invalid']);
-			
-			if ($win == 1) {
-				$class = " winmatch";
-				$classtext = " wintext";
-				$text = "Win";
-			} else {
-				$class = " lossmatch";
-				$classtext = " losstext";
-				$text = "Loss";
-			}
-			
-			/* Request to find all summoners in a game */
-			$requestString[3] = "
-			SELECT * FROM players
-			LEFT JOIN users ON users.id = players.summonerId
-			WHERE players.gameId = :gId";
-			$playersRequest = $pdo->prepare($requestString[3]);
-			$playersRequest->bindParam(":gId", $row['gameId']);
-			$playersRequest->execute(); // Execute the request
-			
-			// Put each player on the right team
-			$summonersTeam = $row['teamId'];
-			$teamL = array();
-			$teamR = array();
-			while ($player = $playersRequest->fetch()) {
-				if ($player['teamId'] == $summonersTeam) {
-					$teamL[] = $player;
-				} else {
-					$teamR[] = $player;
-				}
-			}
-
-			$duration = $row['timePlayed'];
-			
-			$year = substr($row['createDate'], 0, 4);
-			$month = substr($row['createDate'], 5, 2);
-			$day = substr($row['createDate'], 8, 2);
-			$hour = substr($row['createDate'], 11, 2);
-			$min = substr($row['createDate'], 14, 2);
-			$time = $day.".".$month.".".$year." ".$hour.":".$min;
-			
-			$inventory = array($row['item0'], $row['item1'], $row['item2'], 
-				$row['item3'], $row['item4'], $row['item5'], $row['item6']);
-
-		?>
-			<div class="row">
-				<div class="span12">
+			<div class="well<?php echo $class;?> match" id="<?php echo $row['gameId'];?>">
+		
+				<div class="matchcell championcell"><?php echo HTMLchampionImg($row['championId'], "big", $champsName); ?></div>
 				
-					<div class="well<?php echo $class;?> match" id="<?php echo $row['gameId'];?>">
+				<div class="matchcell headcell">							
+					<?php echo HTMLgeneralStats($modes[$row['subType']], $text, $duration, $time);?>
+				</div>
 				
-						<div class="matchcell championcell"><?php echo HTMLchampionImg($row['championId'], "big", $champsName); ?></div>
-						
-						<div class="matchcell headcell">							
-							<?php echo HTMLgeneralStats($modes[$row['subType']], $text, $duration, $time);?>
-						</div>
-						
+				<?php
+				if (isset($row['spell1']))
+				{
+				?>
+					<div class="matchcell kdacell">
 						<?php
-						if (isset($row['spell1']))
-						{
-						?>
-							<div class="matchcell kdacell">
-								<?php
-								echo HTMLkda($row['championsKilled'], $row['numDeaths'],
-									$row['assists'], $row['minionsKilled'], $row['goldEarned']) ?>
-							</div>
-							
-							<div class="matchcell sscell">
-								<?php echo HTMLsummonerSpells($row['spell1'], $row['spell2']) ?>
-							</div>
-							
-							<div class="matchcell itemscell">
-								<table>
-									<?php 
-									echo HTMLinventory($inventory); ?>
-								</table>
-							</div>
-						<?php
-						} else {
-						?>
-							<div class="matchcell nodatacell">
-								No data.
-							</div>
-						<?php
-						}
-						?>
-						<div class="matchcell playerscell">
-							<?php echo HTMLparticipants($row['region'], $teamL, $teamR, $champsName); ?>
-						</div>
+						echo HTMLkda($row['championsKilled'], $row['numDeaths'],
+							$row['assists'], $row['minionsKilled'], $row['goldEarned']) ?>
 					</div>
+					
+					<div class="matchcell sscell">
+						<?php echo HTMLsummonerSpells($row['spell1'], $row['spell2']) ?>
+					</div>
+					
+					<div class="matchcell itemscell">
+						<table>
+							<?php 
+							echo HTMLinventory($inventory); ?>
+						</table>
+					</div>
+				<?php
+				} else {
+				?>
+					<div class="matchcell nodatacell">
+						No data.
+					</div>
+				<?php
+				}
+				?>
+				<div class="matchcell playerscell">
+					<?php echo HTMLparticipants($row['region'], $teamL, $teamR, $champsName); ?>
 				</div>
 			</div>
-		<?php } ?>
+		</div>
+	</div>
+<?php
+} 
+echoFooter();?>

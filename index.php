@@ -22,9 +22,6 @@ $pages = array(
 	$thing = secure($pdo, $thing);
 }*/
 
-// Loads the header
-require_once('includes/header.php');
-
 // Load the content of the page requested
 if (isset($_GET['page'])) {
 	try {
@@ -38,9 +35,6 @@ if (isset($_GET['page'])) {
 } else {
 	require_once($pages["search"]);
 }
-
-// Load the footer
-include('includes/footer.php');
 
 // Stop counting the time required and display it in comments
 $mtime = microtime();
