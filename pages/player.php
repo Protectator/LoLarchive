@@ -25,9 +25,8 @@
 			$findSummoner->bindParam(":id", $Iid);
 		// Else, look for the username
 		} else {
-			$conditions["user"] = $Iname;
 			$name = $Iname;
-			$requestString[0] .= conditions($conditions);
+			$requestString[0] .= "LOWER(user) = LOWER(:user) AND region = :region";
 			$findSummoner = $pdo->prepare($requestString[0]);
 			$findSummoner->bindParam(":user", $Iname);
 		}
