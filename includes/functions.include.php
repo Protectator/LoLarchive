@@ -55,7 +55,8 @@ $modes = array (
 		"ONEFORALL_5x5" => "One for all",
 		"FIRSTBLOOD_2x2" => "Snowdown 2v2",
 		"FIRSTBLOOD_1x1" => "Snowdown 1v1",
-		"SR_6x6" => "Hexakill"
+		"SR_6x6" => "Hexakill",
+		"CAP_5x5" => "Team Builder 5v5"
 );
 
 /*
