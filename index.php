@@ -19,7 +19,8 @@ $pdo = newDBConnection();
 // Pages available
 $pages = array(
 	"player" => "pages/player.php",
-	"search" => "pages/search.php"
+	"search" => "pages/search.php",
+	"404" => "404.php"
 );
 
 // Load the content of the page requested
