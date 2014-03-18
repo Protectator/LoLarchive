@@ -33,6 +33,14 @@ define('API_KEY', "ApiKeyOfYourApiProvider");
 define('PROD_KEY', FALSE);
 
 // API_URL is the url pointing to the API you're using.
-define('API_URL', "https://prod.api.pvp.net/api/lol/")
+define('API_URL', "https://prod.api.pvp.net/api/lol/");
+
+// Path to the root directory of LoLarchive (The one directly containing index.php)
+// from your domain name when accessed through HTTP.
+define('PATH', "/lolarchive/");
+
+// Path to the root directory of LoLarchive (The one directly containing index.php)
+// from the root of your machine.
+define('LOCAL', "/var/www/lolarchive/");
 
 ?>

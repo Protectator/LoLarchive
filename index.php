@@ -6,9 +6,14 @@ $mtime = $mtime[1] + $mtime[0];
 $startTime = $mtime;
 // This page loads every other page asked
 // It's the one an end-user always asks for.
+
+// Start by loading the config file
+require_once('private/config.php');
+
+// Then all the useful functions
 require_once('includes/functions.include.php');
 
-// Database connection
+// Open the database connection
 $pdo = newDBConnection();
 
 // Pages available
@@ -16,11 +21,6 @@ $pages = array(
 	"player" => "pages/player.php",
 	"search" => "pages/search.php"
 );
-
-// Securize inputs
-/*foreach ($_GET as &$thing) {
-	$thing = secure($pdo, $thing);
-}*/
 
 // Load the content of the page requested
 if (isset($_GET['page'])) {

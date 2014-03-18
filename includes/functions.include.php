@@ -1,11 +1,5 @@
 <?php
 
-define('PATH', "/"); // web directory directory
-define('LOCAL', "/var/www/lolarchivedev/");    // local directory of the LoLarchive directory
-
-// Start by loading variables that shouldn't be public
-require_once(LOCAL.'private/config.php');
-
 // Useful variables
 
 // Number to name of month and reverse
