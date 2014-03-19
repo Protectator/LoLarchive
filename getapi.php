@@ -2,6 +2,8 @@
 
 define('DATAVERSION', '3');
 
+require_once('private/config.php');
+
 require_once('includes/functions.include.php');
 
 // Initialize connexion to database
