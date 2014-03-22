@@ -7,3 +7,6 @@
 [submodule "libs/flot"]
 	path = libs/flot
 	url = https://github.com/flot/flot
+[submodule "libs/bootstrap-datepicker"]
+	path = libs/bootstrap-datepicker
+	url = https://github.com/eternicode/bootstrap-datepicker
