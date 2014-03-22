@@ -147,6 +147,11 @@ select[disabled] {
    color: #333333;
 }
 
+input[disabled] {
+	background-color: #171717;
+	color: #333333;
+}
+
 .control-label .checkbox.inline {
 	padding-top: 0px;
 }
@@ -176,4 +181,44 @@ select[disabled] {
 
 .recallLink {
 	text-decoration: none !important;
+}
+
+/* 
+ * Changes to darkstrap
+ */
+
+[class^="icon-"],
+[class*=" icon-"] {
+  background-image: url("/libs/bootstrap/img/glyphicons-halflings-white.png");
+}
+
+.icon-white,
+.nav-pills > .active > a > [class^="icon-"],
+.nav-pills > .active > a > [class*=" icon-"],
+.nav-list > .active > a > [class^="icon-"],
+.nav-list > .active > a > [class*=" icon-"],
+.navbar-inverse .nav > .active > a > [class^="icon-"],
+.navbar-inverse .nav > .active > a > [class*=" icon-"],
+.dropdown-menu > li > a:hover > [class^="icon-"],
+.dropdown-menu > li > a:hover > [class*=" icon-"],
+.dropdown-menu > .active > a > [class^="icon-"],
+.dropdown-menu > .active > a > [class*=" icon-"],
+.dropdown-submenu:hover > a > [class^="icon-"],
+.dropdown-submenu:hover > a > [class*=" icon-"] {
+  background-image: url("/libs/bootstrap/img/glyphicons-halflings-white.png");
+}
+
+.datepicker.dropdown-menu {
+	color: #333333;
+}
+
+.add-on {
+  background-color: #404040 !important;
+  color: #c6c6c6 !important;
+  border: 1px solid #101010 !important;
+  text-shadow: 0 1px 0 black  !important;
+}
+
+.disabled > .add-on {
+  color: #333333 !important;
 }

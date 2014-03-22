@@ -7,9 +7,8 @@
 		<!-- Bootstrap -->
 		<link href="<?echo PATH;?>libs/bootstrap/docs/assets/css/bootstrap.css" rel="stylesheet" media="screen">
 		<link href="<?echo PATH;?>libs/darkstrap/darkstrap.min.css" rel="stylesheet" media="screen">
+		<link href="<?echo PATH;?>libs/bootstrap-datepicker/css/datepicker.css" rel="stylesheet" media="screen">
 		<link href="<?echo PATH;?>css/style.css" rel="stylesheet" media="screen">
-		<link href="<?echo PATH;?>libs/datepicker/css/datepicker.css" rel="stylesheet" media="screen">
-		<script src="<?echo PATH;?>libs/datepicker/js/bootstrap-datepicker.js"></script>
 		<link rel="icon" href="<?echo PATH;?>favicon.ico" />
 	</head>
 	<body>

@@ -5,6 +5,10 @@
     </div>
     <script src="libs/jQuery/jquery-2.0.3.min.js"></script>
 	<script src="libs/bootstrap/docs/assets/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+		today = "<?php echo date('j/n/Y'); ?>";
+	</script>
+	<script src="libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 	<script src="js/script.js"></script>
   </body>
 </html>

@@ -215,6 +215,18 @@ echoHeader($name." [".strtoupper($region)."] - LoLarchive");
 						</select>
 					</div>
 				</div>
+				<div class="control-group">
+					<label class="control-label">
+						<label class="checkbox inline"><input type="checkbox" id="dateFilterBox" <?php echo ($filters['fDate'])?'checked="yes"':''?>> Date range</label>
+					</label>
+					<div class="controls">
+						<div class="input-daterange" id="datepicker">
+							<input type="text" class="input-small" name="start" id="date1"/>
+							<span class="add-on">to</span>
+							<input type="text" class="input-small" name="end" id="date2" value="<?php echo date('j/n/Y'); ?>"/>
+						</div>
+					</div>
+				</div>
 				<div class="form-actions">
 					<div class="controls">
 						<button type="submit" class="btn btn-primary">Filter</button>
