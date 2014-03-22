@@ -63,7 +63,7 @@ $('#dateFilterBox').click (function ()
 });
 
 $('.input-daterange').datepicker({
-    format: "d/m/yyyy",
+    format: "d-m-yyyy",
     weekStart: 1,
     endDate: today,
     todayBtn: "linked",

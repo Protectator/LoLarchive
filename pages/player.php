@@ -223,7 +223,7 @@ echoHeader($name." [".strtoupper($region)."] - LoLarchive");
 						<div class="input-daterange" id="datepicker">
 							<input type="text" class="input-small" name="start" id="date1"/>
 							<span class="add-on">to</span>
-							<input type="text" class="input-small" name="end" id="date2" value="<?php echo date('j/n/Y'); ?>"/>
+							<input type="text" class="input-small" name="end" id="date2" value="<?php echo date('j-n-Y'); ?>"/>
 						</div>
 					</div>
 				</div>
