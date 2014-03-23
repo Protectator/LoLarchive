@@ -58,7 +58,9 @@
 			
 			$filters = array( // Array of activated filters
 						'fChampion' => false,
-						'fMode' => false
+						'fMode' => false,
+						'fStart' => false,
+						'fEnd' => false
 			);
 			
 			// filter games by Champion
@@ -73,6 +75,36 @@
 				$filters['fMode'] = $_GET['fMode'];
 				$modeFilterStr = " AND games.subType = :typeStr";
 				$filtersStr[] = $modeFilterStr;
+			}
+
+			$validDateFormat = "/^\d+-\d+-\d+$/";
+
+			// filter games by Date
+			if ((isset($_GET['fStart']) AND $_GET['fStart'] != '') AND (isset($_GET['fEnd']) AND $_GET['fEnd'] != '')) {
+				if (preg_match($validDateFormat, $_GET['fStart']) AND preg_match($validDateFormat, $_GET['fEnd'])) {
+					$nextStart = $_GET['fStart'];
+					$nextEnd = $_GET['fEnd'];
+					$filters['fStart'] = implode("-", array_reverse( explode("-", $_GET['fStart'])))." 00:00:00";
+					$filters['fEnd'] = implode("-", array_reverse( explode("-", $_GET['fEnd'])))." 23:59:59";
+					$dateFilterStr = " AND (games.createDate BETWEEN :from AND :to)";
+					$filtersStr[] = $dateFilterStr;
+				}
+
+			} elseif (isset($_GET['fStart']) AND $_GET['fStart'] != '') {
+				if (preg_match($validDateFormat, $_GET['fStart'])) {
+					$nextStart = $_GET['fStart'];
+					$filters['fStart'] = implode("-", array_reverse( explode("-", $_GET['fStart'])))." 00:00:00";
+					$dateFilterStr = " AND games.createDate >= :from ";
+					$filtersStr[] = $dateFilterStr;
+				}
+
+			} elseif (isset($_GET['fEnd']) AND $_GET['fEnd'] != '') {
+				if (preg_match($validDateFormat, $_GET['fEnd'])) {
+					$nextEnd = $_GET['fEnd'];
+					$filters['fEnd'] = implode("-", array_reverse( explode("-", $_GET['fEnd'])))." 23:59:59";
+					$dateFilterStr = " AND games.createDate <= :to";
+					$filtersStr[] = $dateFilterStr;
+				}
 			}
 			
 			$conditions = "
@@ -114,10 +146,21 @@
 				$stats->bindParam(":typeStr", $filters['fMode']);
 				$wonGames->bindParam(":typeStr", $filters['fMode']);
 			}
+			// filter games by Date
+			if ($filters['fStart']) {
+				$summonerGames->bindParam(":from", $filters['fStart']);
+				$stats->bindParam(":from", $filters['fStart']);
+				$wonGames->bindParam(":from", $filters['fStart']);
+			}
+			if ($filters['fEnd']) {
+				$summonerGames->bindParam(":to", $filters['fEnd']);
+				$stats->bindParam(":to", $filters['fEnd']);
+				$wonGames->bindParam(":to", $filters['fEnd']);
+			}
 			
-			$summonerGames->execute();        // Execute the request
-			$stats->execute();        // Execute the request
-			$wonGames->execute();        // Execute the request
+			$summonerGames->execute(); // Execute the request
+			$stats->execute();         // Execute the request
+			$wonGames->execute();      // Execute the request
 
 			echoHeader($name." [".strtoupper($region)."] - LoLarchive");
 		} else {
@@ -162,9 +205,13 @@ echoHeader($name." [".strtoupper($region)."] - LoLarchive");
 			<?php
 			$finalStats = $stats->fetch();
 			$nbWon = $wonGames->fetch();
-			echo $nbWon['nb']." wins / ".$finalStats['nbGames']." games (".round($nbWon['nb']/$finalStats['nbGames']*100, 2)."% win)";
-			echo "<br>Average KDA; ".round($finalStats['k'], 1)." / ".round($finalStats['d'], 1)." / ".round($finalStats['a'], 1);
-			echo "<br>Rate; ".round(($finalStats['k']+$finalStats['a'])/$finalStats['d'], 2)." : 1";
+			if ($finalStats['nbGames'] != 0) {
+				echo $nbWon['nb']." wins / ".$finalStats['nbGames']." games (".round($nbWon['nb']/$finalStats['nbGames']*100, 2)."% win)";
+				echo "<br>Average KDA; ".round($finalStats['k'], 1)." / ".round($finalStats['d'], 1)." / ".round($finalStats['a'], 1);
+				echo "<br>Rate; ".round(($finalStats['k']+$finalStats['a'])/$finalStats['d'], 2)." : 1";
+			} else {
+				echo "No game found.";
+			}
 			?>
 		</div>
 	</div>
@@ -217,13 +264,13 @@ echoHeader($name." [".strtoupper($region)."] - LoLarchive");
 				</div>
 				<div class="control-group">
 					<label class="control-label">
-						<label class="checkbox inline"><input type="checkbox" id="dateFilterBox" <?php echo ($filters['fDate'])?'checked="yes"':''?>> Date range</label>
+						<label class="checkbox inline"><input type="checkbox" id="dateFilterBox" <?php echo ($filters['fStart'] OR $filters['fEnd'])?'checked="yes"':''?>> Date range</label>
 					</label>
 					<div class="controls">
 						<div class="input-daterange" id="datepicker">
-							<input type="text" class="input-small" name="start" id="date1"/>
+							<input type="text" class="input-small" name="fStart" id="date1" <?php echo (isset($nextStart))?'value="'.$nextStart.'"':'' ?> />
 							<span class="add-on">to</span>
-							<input type="text" class="input-small" name="end" id="date2" value="<?php echo date('j-n-Y'); ?>"/>
+							<input type="text" class="input-small" name="fEnd" id="date2" value="<?php echo (isset($nextEnd))?$nextEnd:date('j-n-Y') ?>" />
 						</div>
 					</div>
 				</div>
