@@ -31,16 +31,16 @@ foreach($months as $key => $value) { // "Reverse" the array so it can be accesse
 }
 
 // Full name of regions
-	$rName = array();
-	$rName['euw'] = "Europe West";
-	$rName['na'] = "North America";
-	$rName['eune'] = 'Europe Nordic &amp; East';
-	$rName['br'] = "Brazil";
-	$rName['tr'] = "Turkey";
-	$rName['ru'] = "Russia";
-	$rName['lan'] = "Latin America North";
-	$rName['las'] = "Latin America South";
-	$rName['oce'] = "Oceania";
+$regionName = array();
+$regionName['euw'] = "Europe West";
+$regionName['na'] = "North America";
+$regionName['eune'] = 'Europe Nordic &amp; East';
+$regionName['br'] = "Brazil";
+$regionName['tr'] = "Turkey";
+$regionName['ru'] = "Russia";
+$regionName['lan'] = "Latin America North";
+$regionName['las'] = "Latin America South";
+$regionName['oce'] = "Oceania";
 
 // Display text of game modes
 $modes = array (
@@ -279,8 +279,24 @@ function apiGame(&$c, $region, $sId) {
  * @param string $sName summoner name to look for
  * @return string array of result
  */
-function apiSummoner(&$c, $region, $sName) {
+function apiSummonerByName(&$c, $region, $sName) {
 	$url = API_URL.$region."/v1.3/summoner/by-name/".$sName."?api_key=".API_KEY;
+	curl_setopt($c, CURLOPT_URL, $url);
+	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+	return json_decode(trim(curl_exec($c)), true);
+}
+
+/**
+ * Gets summoner infos by its id
+ *
+ * @param resource $c opened cURL session
+ * @param string $region abbreviated server's name
+ * @param string $sName summoner name to look for
+ * @return string array of result
+ */
+function apiSummonerNames(&$c, $region, $sIds) {
+	if (is_array($sIds)) {$sIds = implode(",", array_slice($sIds, 0, 40));}
+	$url = API_URL.$region."/v1.3/summoner/".$sIds."/name?api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	return json_decode(trim(curl_exec($c)), true);

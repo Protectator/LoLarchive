@@ -2,9 +2,61 @@
 	
 	$champsFolder = PATH."img/champions/";
 
-	if (isset($_GET["name"])) { $Iname = $_GET["name"];}
-	if (isset($_GET["id"])) { $Iid = $_GET/*27*/["id"];}
-	if (isset($_GET["region"])) { $Iregion = $_GET["region"];}
+	if (isset($_GET["name"])) {
+		if ($_GET["name"]) != "") {$Iname = $_GET["name"];}
+	}
+	if (isset($_GET["id"])) {
+		if ($_GET["id"]) != "") {$Iid = $_GET/*27*/["id"];}
+	}
+	if (isset($_GET["region"])) { 
+		if ($_GET["id"]) != "") {$Iregion = strtolower($_GET["region"]);}
+	}
+
+	if (isset($Iregion)) {
+		if ($regionName[$Iregion]) {
+			$summonerRegion = $regionName[$Iregion];
+			if (isset($Iname) && !isset($Iid)) {
+				// Look for summoner by name in users
+				if (/* A summoner is found */) {
+					$summonerId = /* Found id */;
+					$summonerName = /* Found name */;
+				} else {
+					if (/* API requests for summoner names are enabled */) {
+						// Look if that name exists.
+						if (/* The name exists */) {
+							// Add that name in table users
+							$summonerId = /* Found id */;
+							$summonerName = /* Found name */;
+						} else {
+							echo "No summoner with that name seems to exist.";
+						}
+					} else {
+						echo "No summoner with that name was found in the database.";
+					}
+				}
+			} elseif (isset($Iid)) {
+				// Look for a summoner by id in users
+				if (/* A summoner is found */) {
+					$summonerId = /* Found id */;
+					$summonerName = /* Found name */;
+				} else {
+					$summonerId = /* Provided id */;
+				}
+			} else {
+				echo "Please provide either a summoner name or id."
+			}
+			if (isset($summonerId)) {
+				if (isset($summonerName)) {
+					// Display infos about that summoner
+				}
+				// Display infos about summoner games
+			}
+		} else {
+			echo "Please provide a valid region.";
+		}
+	} else {
+		echo "Please provide a region.";
+	}
 	
 	/* If we have recieved valid arguments */
 	if ( (isset($Iname) OR isset($Iid)) AND isset($Iregion)) {
@@ -40,7 +92,7 @@
 		$findSummoner->execute();        // Execute the request
 		$foundSummoner = $findSummoner->fetch(); // Get the array
 		
-		// If there exists an user
+		// If we have infos about that user
 		if (!empty($foundSummoner)) {
 			//   START Debug
 			if (isset($_GET['debug'])) {
@@ -53,118 +105,119 @@
 			$id = $foundSummoner['id'];
 			$name = $foundSummoner['user'];
 			$region = $foundSummoner['region'];
+		}
 			
-			$filtersStr = array(); // sexy String of all filters conditions
-			
-			// START FILTERS
-			
-			$filters = array( // Array of activated filters
-						'fChampion' => false,
-						'fMode' => false,
-						'fStart' => false,
-						'fEnd' => false
-			);
-			
-			// filter games by Champion
-			if (isset($_GET['fChampion']) AND $_GET['fChampion'] != '') {
-				$filters['fChampion'] = $_GET['fChampion'];
-				$championFilterStr = " AND players.championId = :championId";
-				$filtersStr[] = $championFilterStr;
-			}
-			
-			// filter games by Game Mode
-			if (isset($_GET['fMode']) AND $_GET['fMode'] != '') {
-				$filters['fMode'] = $_GET['fMode'];
-				$modeFilterStr = " AND games.subType = :typeStr";
-				$filtersStr[] = $modeFilterStr;
+		$filtersStr = array(); // sexy String of all filters conditions
+		
+		// START FILTERS
+		
+		$filters = array( // Array of activated filters
+					'fChampion' => false,
+					'fMode' => false,
+					'fStart' => false,
+					'fEnd' => false
+		);
+		
+		// filter games by Champion
+		if (isset($_GET['fChampion']) AND $_GET['fChampion'] != '') {
+			$filters['fChampion'] = $_GET['fChampion'];
+			$championFilterStr = " AND players.championId = :championId";
+			$filtersStr[] = $championFilterStr;
+		}
+		
+		// filter games by Game Mode
+		if (isset($_GET['fMode']) AND $_GET['fMode'] != '') {
+			$filters['fMode'] = $_GET['fMode'];
+			$modeFilterStr = " AND games.subType = :typeStr";
+			$filtersStr[] = $modeFilterStr;
+		}
+
+		$validDateFormat = "/^\d+-\d+-\d+$/";
+
+		// filter games by Date
+		if ((isset($_GET['fStart']) AND $_GET['fStart'] != '') AND (isset($_GET['fEnd']) AND $_GET['fEnd'] != '')) {
+			if (preg_match($validDateFormat, $_GET['fStart']) AND preg_match($validDateFormat, $_GET['fEnd'])) {
+				$nextStart = $_GET['fStart'];
+				$nextEnd = $_GET['fEnd'];
+				$filters['fStart'] = implode("-", array_reverse( explode("-", $_GET['fStart'])))." 00:00:00";
+				$filters['fEnd'] = implode("-", array_reverse( explode("-", $_GET['fEnd'])))." 23:59:59";
+				$dateFilterStr = " AND (games.createDate BETWEEN :from AND :to)";
+				$filtersStr[] = $dateFilterStr;
 			}
 
-			$validDateFormat = "/^\d+-\d+-\d+$/";
+		} elseif (isset($_GET['fStart']) AND $_GET['fStart'] != '') {
+			if (preg_match($validDateFormat, $_GET['fStart'])) {
+				$nextStart = $_GET['fStart'];
+				$filters['fStart'] = implode("-", array_reverse( explode("-", $_GET['fStart'])))." 00:00:00";
+				$dateFilterStr = " AND games.createDate >= :from ";
+				$filtersStr[] = $dateFilterStr;
+			}
 
-			// filter games by Date
-			if ((isset($_GET['fStart']) AND $_GET['fStart'] != '') AND (isset($_GET['fEnd']) AND $_GET['fEnd'] != '')) {
-				if (preg_match($validDateFormat, $_GET['fStart']) AND preg_match($validDateFormat, $_GET['fEnd'])) {
-					$nextStart = $_GET['fStart'];
-					$nextEnd = $_GET['fEnd'];
-					$filters['fStart'] = implode("-", array_reverse( explode("-", $_GET['fStart'])))." 00:00:00";
-					$filters['fEnd'] = implode("-", array_reverse( explode("-", $_GET['fEnd'])))." 23:59:59";
-					$dateFilterStr = " AND (games.createDate BETWEEN :from AND :to)";
-					$filtersStr[] = $dateFilterStr;
-				}
+		} elseif (isset($_GET['fEnd']) AND $_GET['fEnd'] != '') {
+			if (preg_match($validDateFormat, $_GET['fEnd'])) {
+				$nextEnd = $_GET['fEnd'];
+				$filters['fEnd'] = implode("-", array_reverse( explode("-", $_GET['fEnd'])))." 23:59:59";
+				$dateFilterStr = " AND games.createDate <= :to";
+				$filtersStr[] = $dateFilterStr;
+			}
+		}
+		
+		$conditions = "
+		FROM games 
+		LEFT JOIN players ON games.gameId = players.gameId
+		LEFT JOIN data ON games.gameId = data.gameId AND players.gameId = data.gameId
+		WHERE players.summonerId = :sId AND data.summonerId = :sId".implode($filtersStr);
+		
+		$statsString = "SELECT count(*) AS nbGames, avg(data.championsKilled) AS k, avg(data.numDeaths) AS d, avg(data.assists) AS a,
+		avg(data.minionsKilled) AS minions, avg(data.goldEarned) AS gold, avg(data.timePlayed) AS duration".$conditions;
+		
+		$wonGamesString = "SELECT count(*) AS nb".$conditions." AND data.win = (1);";
+		
+		$requestString[1] = "SELECT * ".$conditions." ORDER BY `games`.`createDate` DESC;";
 
-			} elseif (isset($_GET['fStart']) AND $_GET['fStart'] != '') {
-				if (preg_match($validDateFormat, $_GET['fStart'])) {
-					$nextStart = $_GET['fStart'];
-					$filters['fStart'] = implode("-", array_reverse( explode("-", $_GET['fStart'])))." 00:00:00";
-					$dateFilterStr = " AND games.createDate >= :from ";
-					$filtersStr[] = $dateFilterStr;
-				}
+		if (isset($_GET['debug'])) {
+			echo $requestString[1];
+		}
+		// New request : All games of this user
+		$summonerGames = $pdo->prepare($requestString[1]);
+		$summonerGames->bindParam(":sId", $id);
+		// Stats requests
+		$stats = $pdo->prepare($statsString);
+		$stats->bindParam(":sId", $id);
+		$wonGames = $pdo->prepare($wonGamesString);
+		$wonGames->bindParam(":sId", $id);
+		
+		// Check if each filter is activated
+		
+		// filter games by Champion
+		if ($filters['fChampion']) {
+			$summonerGames->bindParam(":championId", intval($filters['fChampion']));
+			$stats->bindParam(":championId", intval($filters['fChampion']));
+			$wonGames->bindParam(":championId", intval($filters['fChampion']));
+		}
+		// filter games by Mode
+		if ($filters['fMode']) {
+			$summonerGames->bindParam(":typeStr", $filters['fMode']);
+			$stats->bindParam(":typeStr", $filters['fMode']);
+			$wonGames->bindParam(":typeStr", $filters['fMode']);
+		}
+		// filter games by Date
+		if ($filters['fStart']) {
+			$summonerGames->bindParam(":from", $filters['fStart']);
+			$stats->bindParam(":from", $filters['fStart']);
+			$wonGames->bindParam(":from", $filters['fStart']);
+		}
+		if ($filters['fEnd']) {
+			$summonerGames->bindParam(":to", $filters['fEnd']);
+			$stats->bindParam(":to", $filters['fEnd']);
+			$wonGames->bindParam(":to", $filters['fEnd']);
+		}
+		
+		$summonerGames->execute(); // Execute the request
+		$stats->execute();         // Execute the request
+		$wonGames->execute();      // Execute the request
 
-			} elseif (isset($_GET['fEnd']) AND $_GET['fEnd'] != '') {
-				if (preg_match($validDateFormat, $_GET['fEnd'])) {
-					$nextEnd = $_GET['fEnd'];
-					$filters['fEnd'] = implode("-", array_reverse( explode("-", $_GET['fEnd'])))." 23:59:59";
-					$dateFilterStr = " AND games.createDate <= :to";
-					$filtersStr[] = $dateFilterStr;
-				}
-			}
-			
-			$conditions = "
-			FROM games 
-			LEFT JOIN players ON games.gameId = players.gameId
-			LEFT JOIN data ON games.gameId = data.gameId AND players.gameId = data.gameId
-			WHERE players.summonerId = :sId AND data.summonerId = :sId".implode($filtersStr);
-			
-			$statsString = "SELECT count(*) AS nbGames, avg(data.championsKilled) AS k, avg(data.numDeaths) AS d, avg(data.assists) AS a,
-			avg(data.minionsKilled) AS minions, avg(data.goldEarned) AS gold, avg(data.timePlayed) AS duration".$conditions;
-			
-			$wonGamesString = "SELECT count(*) AS nb".$conditions." AND data.win = (1);";
-			
-			$requestString[1] = "SELECT * ".$conditions." ORDER BY `games`.`createDate` DESC;";
-
-			if (isset($_GET['debug'])) {
-				echo $requestString[1];
-			}
-			// New request : All games of this user
-			$summonerGames = $pdo->prepare($requestString[1]);
-			$summonerGames->bindParam(":sId", $id);
-			// Stats requests
-			$stats = $pdo->prepare($statsString);
-			$stats->bindParam(":sId", $id);
-			$wonGames = $pdo->prepare($wonGamesString);
-			$wonGames->bindParam(":sId", $id);
-			
-			// Check if each filter is activated
-			
-			// filter games by Champion
-			if ($filters['fChampion']) {
-				$summonerGames->bindParam(":championId", intval($filters['fChampion']));
-				$stats->bindParam(":championId", intval($filters['fChampion']));
-				$wonGames->bindParam(":championId", intval($filters['fChampion']));
-			}
-			// filter games by Mode
-			if ($filters['fMode']) {
-				$summonerGames->bindParam(":typeStr", $filters['fMode']);
-				$stats->bindParam(":typeStr", $filters['fMode']);
-				$wonGames->bindParam(":typeStr", $filters['fMode']);
-			}
-			// filter games by Date
-			if ($filters['fStart']) {
-				$summonerGames->bindParam(":from", $filters['fStart']);
-				$stats->bindParam(":from", $filters['fStart']);
-				$wonGames->bindParam(":from", $filters['fStart']);
-			}
-			if ($filters['fEnd']) {
-				$summonerGames->bindParam(":to", $filters['fEnd']);
-				$stats->bindParam(":to", $filters['fEnd']);
-				$wonGames->bindParam(":to", $filters['fEnd']);
-			}
-			
-			$summonerGames->execute(); // Execute the request
-			$stats->execute();         // Execute the request
-			$wonGames->execute();      // Execute the request
-
-			echoHeader($name." [".strtoupper($region)."] - LoLarchive");
+		echoHeader($name." [".strtoupper($region)."] - LoLarchive");
 		} else {
 			echoHeader("Summoner not found - LoLarchive");
 		}
@@ -191,8 +244,8 @@ echoHeader($name." [".strtoupper($region)."] - LoLarchive");
 	<div class="span12">
 		<div class="well">
 			<?php 
-			if (isset($rName[$region])) {
-				$regionTxt = $rName[$region];} else {$regionTxt = $region; } ?>
+			if (isset($regionName[$region])) {
+				$regionTxt = $regionName[$region];} else {$regionTxt = $region; } ?>
 			<h2><?php echo htmlentities(utf8_decode($name));?> <a href="http://www.lolking.net/summoner/<? echo $region."/".$id; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a></h2>
 			<?php echo htmlentities($regionTxt);?>
 			<br><?php echo htmlentities($id);?>
