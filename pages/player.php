@@ -40,10 +40,12 @@
 		$findSummoner->execute();        // Execute the request
 		$foundSummoner = $findSummoner->fetch(); // Get the array
 		
-		// If there is an user
-		if (count($foundSummoner) > 0) {
+		// If there exists an user
+		if (!empty($foundSummoner)) {
 			//   START Debug
 			if (isset($_GET['debug'])) {
+				echo $foundSummoner."<br>";
+				echo count($foundSummoner)."<br>";
 				echo "<br>ARRAY:<pre>";
 				print_r($foundSummoner);
 				echo "</pre>";

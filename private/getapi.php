@@ -36,10 +36,9 @@ if (count($query) > 0) {
 		$region = strtolower($row['region']);
 		$sId = $row['summonerId'];
 		$c = curl_init();
-		$json = apiGame($c, $region, $sId);
+		$array = apiGame($c, $region, $sId);
 		curl_close($c);
 		// Transform json in an Array
-		$array = json_decode($json, true);
 
 		if (isset($array['status']) && $array['status']!= "") {
 			logError($array['error']);
