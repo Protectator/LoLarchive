@@ -16,10 +16,14 @@
 		if ($regionName[$Iregion]) {
 			$summonerRegion = $regionName[$Iregion];
 			if (isset($Iname) && !isset($Iid)) {
-				// Look for summoner by name in users
-				if (/* A summoner is found */) {
-					$summonerId = /* Found id */;
-					$summonerName = /* Found name */;
+				$requestString = "SELECT id, user, region FROM users WHERE region = :region AND LOWER(user) = LOWER(:name)";
+				$findSummoner = $pdo->prepare($requestString);
+				$findSummoner->bindParam(":region", $Iregion);
+				$findSummoner->bindParam(":name", $Iname);
+				$foundSummoner = $findSummoner->fetch(); // Get the array
+				if (!empty($foundSummoner)) {
+					$summonerId = $foundSummoner['id'];
+					$summonerName = $foundSummoner['user'];
 				} else {
 					if (/* API requests for summoner names are enabled */) {
 						// Look if that name exists.
