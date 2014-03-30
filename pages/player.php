@@ -15,40 +15,59 @@
 	if (isset($Iregion)) {
 		if ($regionName[$Iregion]) {
 			$summonerRegion = $regionName[$Iregion];
-			if (isset($Iname) && !isset($Iid)) {
+			// Look for summoner by name in users
+			if (isset($Iname) && !isset($Iid)) { // If only the name is provided
 				$requestString = "SELECT id, user, region FROM users WHERE region = :region AND LOWER(user) = LOWER(:name)";
 				$findSummoner = $pdo->prepare($requestString);
 				$findSummoner->bindParam(":region", $Iregion);
 				$findSummoner->bindParam(":name", $Iname);
-				$foundSummoner = $findSummoner->fetch(); // Get the array
+				$foundSummoner = $findSummoner->fetch();
+				if (!empty($foundSummoner)) { // If a summoner is found in the database
+					$summonerId = $foundSummoner['id'];
+					$summonerName = $foundSummoner['user'];
+				} else { // Else, we'll have to get infos outside our database
+					// If API requests for summoner names are enabled
+					if (IMMEDIATE_QUERY_SUMMONER_NAMES) {
+						$cUrl = curl_init();
+						$byNameSummoner = apiSummonerByName($cUrl, $summonerRegion, $Iname);
+						curl_close($cUrl);
+						if (isset($byNameSummoner['id'])) { // If we found someone in the API
+							$summonerId = $byNameSummoner['id'];
+							$summonerName = $byNameSummoner['name'];
+							$usersFields[] = array(
+								"id" => $summonerId,
+								"user" => $summonerName,
+								"region" => $summonerRegion
+								);
+							$addUserRequestString = "INSERT IGNORE INTO users ".buildInsert($usersFields);
+							$result = securedInsert($pdo, $addUserRequestString);
+						} else { // If we didn't find anything in the API either
+							echo "No summoner with that name seems to exist.";
+						}
+					} else { // If other API requests aren't authorized
+						echo "No summoner with that name was found in the database.";
+					}
+				}
+
+			} elseif (isset($Iid)) {
+				// Look for a summoner by id in users
+				$requestString = "SELECT id, user, region FROM users WHERE region = :region AND id = :id";
+				$findSummoner = $pdo->prepare($requestString);
+				$findSummoner->bindParam(":region", $Iregion);
+				$findSummoner->bindParam(":id", $Iid);
+				$foundSummoner = $findSummoner->fetch();
 				if (!empty($foundSummoner)) {
 					$summonerId = $foundSummoner['id'];
 					$summonerName = $foundSummoner['user'];
 				} else {
-					if (/* API requests for summoner names are enabled */) {
-						// Look if that name exists.
-						if (/* The name exists */) {
-							// Add that name in table users
-							$summonerId = /* Found id */;
-							$summonerName = /* Found name */;
-						} else {
-							echo "No summoner with that name seems to exist.";
-						}
-					} else {
-						echo "No summoner with that name was found in the database.";
-					}
-				}
-			} elseif (isset($Iid)) {
-				// Look for a summoner by id in users
-				if (/* A summoner is found */) {
-					$summonerId = /* Found id */;
-					$summonerName = /* Found name */;
-				} else {
-					$summonerId = /* Provided id */;
+					$summonerId = $Iid;
+					// Check infos in the API if authorized
 				}
 			} else {
 				echo "Please provide either a summoner name or id."
 			}
+
+			// Done with treating user input, now we'll display all of this
 			if (isset($summonerId)) {
 				if (isset($summonerName)) {
 					// Display infos about that summoner
@@ -61,6 +80,8 @@
 	} else {
 		echo "Please provide a region.";
 	}
+
+	// Old version
 	
 	/* If we have recieved valid arguments */
 	if ( (isset($Iname) OR isset($Iid)) AND isset($Iregion)) {

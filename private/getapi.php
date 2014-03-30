@@ -186,7 +186,7 @@ if (count($query) > 0) {
 						"dataVersion" => DATAVERSION, 
 						"dataIp" => $ip
 					);
-				} // Now we nees to add the player that we're checking (he isn't in the json array)
+				} // Now we need to add the player that we're checking (he isn't in the json array)
 				$players[] = array (
 					"gameId" => $match['gameId'],
 					"summonerId" => $sId,
