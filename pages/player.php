@@ -29,7 +29,7 @@
 					// If API requests for summoner names are enabled
 					if (IMMEDIATE_QUERY_SUMMONER_NAMES) {
 						$cUrl = curl_init();
-						$byNameSummoner = apiSummonerByName($cUrl, $summonerRegion, $Iname);
+						$byNameSummoner = current(apiSummonerByName($cUrl, $summonerRegion, $Iname));
 						curl_close($cUrl);
 						if (isset($byNameSummoner['id'])) { // If we found someone in the API
 							$summonerId = $byNameSummoner['id'];
@@ -62,6 +62,33 @@
 				} else {
 					$summonerId = $Iid;
 					// Check infos in the API if authorized
+
+
+
+					// If API requests for summoner names are enabled
+					if (IMMEDIATE_QUERY_SUMMONER_NAMES) {
+						$cUrl = curl_init();
+						$byNameSummoner = current(apiSummonerByName($cUrl, $summonerRegion, $Iname));
+						curl_close($cUrl);
+						if (isset($byNameSummoner['id'])) { // If we found someone in the API
+							$summonerId = $byNameSummoner['id'];
+							$summonerName = $byNameSummoner['name'];
+							$usersFields[] = array(
+								"id" => $summonerId,
+								"user" => $summonerName,
+								"region" => $summonerRegion
+								);
+							$addUserRequestString = "INSERT IGNORE INTO users ".buildInsert($usersFields);
+							$result = securedInsert($pdo, $addUserRequestString);
+						} else { // If we didn't find anything in the API either
+							echo "No summoner with that name seems to exist.";
+						}
+					} else { // If other API requests aren't authorized
+						echo "No summoner with that name was found in the database.";
+					}
+
+
+
 				}
 			} else {
 				echo "Please provide either a summoner name or id."
