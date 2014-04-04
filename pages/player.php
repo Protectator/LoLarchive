@@ -3,13 +3,13 @@
 	$champsFolder = PATH."img/champions/";
 
 	if (isset($_GET["name"])) {
-		if ($_GET["name"]) != "") {$Iname = $_GET["name"];}
+		if ($_GET["name"] != "") {$Iname = $_GET["name"];}
 	}
 	if (isset($_GET["id"])) {
-		if ($_GET["id"]) != "") {$Iid = $_GET/*27*/["id"];}
+		if ($_GET["id"] != "") {$Iid = $_GET/*27*/["id"];}
 	}
 	if (isset($_GET["region"])) { 
-		if ($_GET["id"]) != "") {$Iregion = strtolower($_GET["region"]);}
+		if ($_GET["id"] != "") {$Iregion = strtolower($_GET["region"]);}
 	}
 
 	if (isset($Iregion)) {
@@ -63,16 +63,13 @@
 					$summonerId = $Iid;
 					// Check infos in the API if authorized
 
-
-
 					// If API requests for summoner names are enabled
 					if (IMMEDIATE_QUERY_SUMMONER_NAMES) {
 						$cUrl = curl_init();
-						$byNameSummoner = current(apiSummonerByName($cUrl, $summonerRegion, $Iname));
+						$byIdSummoner = current(apiSummonerNames($cUrl, $summonerRegion, $Iid));
 						curl_close($cUrl);
-						if (isset($byNameSummoner['id'])) { // If we found someone in the API
-							$summonerId = $byNameSummoner['id'];
-							$summonerName = $byNameSummoner['name'];
+						if (isset($byIdSummoner)) { // If we found someone in the API
+							$summonerName = $byIdSummoner;
 							$usersFields[] = array(
 								"id" => $summonerId,
 								"user" => $summonerName,
@@ -81,17 +78,15 @@
 							$addUserRequestString = "INSERT IGNORE INTO users ".buildInsert($usersFields);
 							$result = securedInsert($pdo, $addUserRequestString);
 						} else { // If we didn't find anything in the API either
-							echo "No summoner with that name seems to exist.";
+							echo "This id doesn't match any existing summoner.";
 						}
 					} else { // If other API requests aren't authorized
-						echo "No summoner with that name was found in the database.";
+						echo "No name was found for this id in the database, and couldn't do request to Riot Game's API.";
 					}
-
-
 
 				}
 			} else {
-				echo "Please provide either a summoner name or id."
+				echo "Please provide either a summoner name or id.";
 			}
 
 			// Done with treating user input, now we'll display all of this
@@ -135,7 +130,7 @@
 			$findSummoner->bindParam(":user", $Iname);
 		}
 		$findSummoner->bindParam(":region", $region);
-		
+
 		//   START Debug
 		if (isset($_GET['debug'])) {
 			echo "REQUEST: ".$requestString[0];
@@ -437,6 +432,7 @@ while ($row = $summonerGames->fetch()) {
 		} else {
 			$teamR[] = $player;
 		}
+
 	}
 
 	$duration = $row['timePlayed'];

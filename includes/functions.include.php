@@ -265,7 +265,7 @@ API FUNCTIONS
  * @return string array of result
  */
 function apiGame(&$c, $region, $sId) {
-	$url = API_URL.$region."/v1.3/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
+	$url = API_URL.$region."/v".SUMMONER_API_VERSION."/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	return json_decode(trim(curl_exec($c)), true);
@@ -280,7 +280,7 @@ function apiGame(&$c, $region, $sId) {
  * @return string array of result
  */
 function apiSummonerByName(&$c, $region, $sName) {
-	$url = API_URL.$region."/v1.3/summoner/by-name/".$sName."?api_key=".API_KEY;
+	$url = API_URL.$region."/v".SUMMONER_API_VERSION."/summoner/by-name/".$sName."?api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	return json_decode(trim(curl_exec($c)), true);
@@ -296,7 +296,7 @@ function apiSummonerByName(&$c, $region, $sName) {
  */
 function apiSummonerNames(&$c, $region, $sIds) {
 	if (is_array($sIds)) {$sIds = implode(",", array_slice($sIds, 0, 40));}
-	$url = API_URL.$region."/v1.3/summoner/".$sIds."/name?api_key=".API_KEY;
+	$url = API_URL.$region."/v".SUMMONER_API_VERSION"/summoner/".$sIds."/name?api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	return json_decode(trim(curl_exec($c)), true);
