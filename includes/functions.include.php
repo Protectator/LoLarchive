@@ -296,7 +296,7 @@ function apiSummonerByName(&$c, $region, $sName) {
  */
 function apiSummonerNames(&$c, $region, $sIds) {
 	if (is_array($sIds)) {$sIds = implode(",", array_slice($sIds, 0, 40));}
-	$url = API_URL.$region."/v".SUMMONER_API_VERSION"/summoner/".$sIds."/name?api_key=".API_KEY;
+	$url = API_URL.$region."/v".SUMMONER_API_VERSION."/summoner/".$sIds."/name?api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	return json_decode(trim(curl_exec($c)), true);

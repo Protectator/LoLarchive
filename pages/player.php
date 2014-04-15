@@ -9,7 +9,7 @@
 		if ($_GET["id"] != "") {$Iid = $_GET/*27*/["id"];}
 	}
 	if (isset($_GET["region"])) { 
-		if ($_GET["id"] != "") {$Iregion = strtolower($_GET["region"]);}
+		if ($_GET["region"] != "") {$Iregion = strtolower($_GET["region"]);}
 	}
 
 	if (isset($Iregion)) {
@@ -17,11 +17,22 @@
 			$summonerRegion = $regionName[$Iregion];
 			// Look for summoner by name in users
 			if (isset($Iname) && !isset($Iid)) { // If only the name is provided
-				$requestString = "SELECT id, user, region FROM users WHERE region = :region AND LOWER(user) = LOWER(:name)";
+				$requestString = "SELECT id, user, region FROM users WHERE LOWER( user ) = LOWER( :user ) AND region = :region";
+				// deubg
+				if (isset($_GET['debug'])) {
+					echo $requestString;
+					echo "<br/>name: ".$Iname;
+					echo "<br/>region: ".$Iregion;
+				}
+				//
 				$findSummoner = $pdo->prepare($requestString);
 				$findSummoner->bindParam(":region", $Iregion);
-				$findSummoner->bindParam(":name", $Iname);
+				$findSummoner->bindParam(":user", $Iname);
+				$findSummoner->execute(); 
 				$foundSummoner = $findSummoner->fetch();
+				echo "<pre>";
+				print_r($foundSummoner);
+				echo "</pre>";
 				if (!empty($foundSummoner)) { // If a summoner is found in the database
 					$summonerId = $foundSummoner['id'];
 					$summonerName = $foundSummoner['user'];
@@ -55,6 +66,7 @@
 				$findSummoner = $pdo->prepare($requestString);
 				$findSummoner->bindParam(":region", $Iregion);
 				$findSummoner->bindParam(":id", $Iid);
+				$findSummoner->execute(); 
 				$foundSummoner = $findSummoner->fetch();
 				if (!empty($foundSummoner)) {
 					$summonerId = $foundSummoner['id'];
@@ -265,9 +277,8 @@
 		$wonGames->execute();      // Execute the request
 
 		echoHeader($name." [".strtoupper($region)."] - LoLarchive");
-		} else {
-			echoHeader("Summoner not found - LoLarchive");
-		}
+	} else {
+		echoHeader("Summoner not found - LoLarchive");
 	}
 	
 	// We want infos about all champions. This request will never change
