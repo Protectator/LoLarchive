@@ -281,9 +281,10 @@
 							$finalStats = $stats->fetch();
 							$nbWon = $wonGames->fetch();
 							if ($finalStats['nbGames'] != 0) {
+								$kdaRatio = ($finalStats['d'] != 0) ? round(($finalStats['k']+$finalStats['a'])/$finalStats['d'], 2) : $finalStats['k'] + $finalStats['a'];
 								echo $nbWon['nb']." wins / ".$finalStats['nbGames']." games (".round($nbWon['nb']/$finalStats['nbGames']*100, 2)."% win)";
 								echo "<br>Average KDA; ".round($finalStats['k'], 1)." / ".round($finalStats['d'], 1)." / ".round($finalStats['a'], 1);
-								echo "<br>Rate; ".round(($finalStats['k']+$finalStats['a'])/$finalStats['d'], 2)." : 1";
+								echo "<br>Ratio; ".$kdaRatio;
 							} else {
 								echo "No game found.";
 							}
