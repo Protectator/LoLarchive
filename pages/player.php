@@ -51,56 +51,73 @@
 							$result = securedInsert($pdo, $addUserRequestString);
 						} else { // If we didn't find anything in the API either
 							echoHeader("Summoner not found");
-							echo "No summoner with that name seems to exist.";
+							echo "<div class='alert alert-error'><h4>Summoner doesn't exist</h4>";
+							echo "No summoner named <strong>".purify($Iname)."</strong> on ".$summonerRegion." seems to exist.</div>";
 						}
 					} else { // If other API requests aren't authorized
 						echoHeader("Summoner not found");
-						echo "No summoner with that name was found in the database.";
+						echo "<div class='alert alert-info'><h4>Summoner not found</h4>";
+						echo "No summoner named <strong>".purify($Iname)."</strong> on ".$summonerRegion." was found in the database.</div>";
 					}
 				}
 
 			} elseif (isset($Iid)) {
-				// Look for a summoner by id in users
-				$userRequestString = "SELECT id, user, region FROM users WHERE region = :region AND id = :id";
-				$findSummoner = $pdo->prepare($userRequestString);
-				$findSummoner->bindParam(":region", $Iregion);
-				$findSummoner->bindParam(":id", $Iid);
-				$findSummoner->execute(); 
-				$foundSummoner = $findSummoner->fetch();
-				if (!empty($foundSummoner)) {
-					$summonerId = $foundSummoner['id'];
-					$summonerName = $foundSummoner['user'];
-				} else {
-					$summonerId = $Iid;
-					// Check infos in the API if authorized
+				if (is_numeric($Iid)) {
 
-					// If API requests for summoner names are enabled
-					if (IMMEDIATE_QUERY_SUMMONER_NAMES) {
-						$cUrl = curl_init();
-						$byIdSummoner = current(apiSummonerNames($cUrl, $summonerRegion, $Iid));
-						curl_close($cUrl);
-						if (isset($byIdSummoner)) { // If we found someone in the API
-							$summonerName = $byIdSummoner;
-							$usersFields[] = array(
-								"id" => $summonerId,
-								"user" => $summonerName,
-								"region" => $summonerRegion
-								);
-							$addUserRequestString = "INSERT IGNORE INTO users ".buildInsert($usersFields);
-							$result = securedInsert($pdo, $addUserRequestString);
-						} else { // If we didn't find anything in the API either
-							echoHeader("Summoner not found");
-							echo "This id doesn't match any existing summoner.";
+					// Look for a summoner by id in users
+					$userRequestString = "SELECT id, user, region FROM users WHERE region = :region AND id = :id";
+					$findSummoner = $pdo->prepare($userRequestString);
+					$findSummoner->bindParam(":region", $Iregion);
+					$findSummoner->bindParam(":id", $Iid);
+					$findSummoner->execute(); 
+					$foundSummoner = $findSummoner->fetch();
+					if (!empty($foundSummoner)) {
+						$summonerId = $foundSummoner['id'];
+						$summonerName = $foundSummoner['user'];
+					} else {
+						$summonerId = $Iid;
+						// Check infos in the API if authorized
+
+						// If API requests for summoner names are enabled
+						if (IMMEDIATE_QUERY_SUMMONER_NAMES) {
+							$cUrl = curl_init();
+							$byIdSummoner = current(apiSummonerNames($cUrl, $summonerRegion, $Iid));
+							curl_close($cUrl);
+							if (isset($byIdSummoner)) { // If we found someone in the API
+								$summonerName = $byIdSummoner;
+								$usersFields[] = array(
+									"id" => $summonerId,
+									"user" => $summonerName,
+									"region" => $summonerRegion
+									);
+								$addUserRequestString = "INSERT IGNORE INTO users ".buildInsert($usersFields);
+								$result = securedInsert($pdo, $addUserRequestString);
+							} else { // If we didn't find anything in the API either
+								echoHeader("Summoner not found");
+								echo "<div class='alert alert-error'><h4>Id doesn't exist</h4>";
+								echo "This id doesn't match any existing summoner.</div>";
+							}
+						} else { // If other API requests aren't authorized
+							echoHeader(purify($summonerId)." [".strtoupper($summonerRegion)."] - LoLarchive");
+							$potentiallyInexistantSummoner = true; // TODO : Display only if summoner has no games.
+							echo "<div class='alert alert-warning'><button type='button' class='close' data-dismiss='alert'>&times;</button>";
+							echo "<h4>Warning</h4>No name has been found for this id in the database, and no request have been sent to Riot Games' API.<br>";
+							echo "This page displays information about the summoner with id ".purify($summonerId).".<br>";
+							echo "If there is no game here, the summoner may not exist at all.</div>";
 						}
-					} else { // If other API requests aren't authorized
-						echoHeader("Summoner not found");
-						echo "No name was found for this id in the database, and couldn't do request to Riot Game's API.";
+
 					}
 
+				} else {
+					echoHeader("Summoner not found");
+					echo "<div class='alert alert-error'><h4>Bad search</h4>";
+					echo "Please provide a valid id.</div>";
 				}
+
 			} else {
 				echoHeader("Summoner not found");
-				echo "Please provide either a summoner name or id.";
+				echo "<div class='alert alert-error'><h4>Bad search</h4>";
+				echo "Please provide either a summoner name or id.</div>";
 			}
 
 
@@ -477,11 +494,13 @@
 
 		} else {
 			echoHeader("Summoner not found");
-			echo "Please provide a valid region.";
+			echo "<div class='alert alert-error'><h4>Bad search</h4>";
+			echo "Please provide a valid region.</div>";
 		}
 	} else {
 		echoHeader("Summoner not found");
-		echo "Please provide a region.";
+		echo "<div class='alert alert-error'><h4>Bad search</h4>";
+		echo "Please provide a region.</div>";
 	}
 	echoFooter();
 ?>

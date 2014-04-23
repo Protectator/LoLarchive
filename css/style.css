@@ -222,3 +222,11 @@ input[disabled] {
 .disabled > .add-on {
   color: #333333 !important;
 }
+
+.alert-error h1, .alert-error h2, .alert-error h3, .alert-error h4, .alert-error h5, .alert-error h6 {
+  color: #D8040B;
+}
+
+.alert-error {
+  border-color: #D8040B;
+}
