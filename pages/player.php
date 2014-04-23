@@ -332,7 +332,7 @@
 							<fieldset>
 								<legend>Filter games</legend>
 								<input type="hidden" name="page" value="player"/>
-								<input type="hidden" name="region" value="<?php echo $summonerRegion?>"/>
+								<input type="hidden" name="region" value="<?php echo $Iregion?>"/>
 								<?
 								if (isset($summonerName)) { ?>
 								<input type="hidden" name="name" value="<?php echo $summonerName?>"/>
