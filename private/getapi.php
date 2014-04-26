@@ -73,9 +73,9 @@ if (count($query) > 0) {
 					"subType" => null,
 					"duration" => '0',
 					"mapId" => null,
-					"invalid" => null,
-					"dataVersion" => DATAVERSION, 
-					"dataIp" => $ip
+					"invalid" => null, 
+					"gamesVersion" => DATAVERSION, 
+					"gamesIp" => $ip
 				);
 				foreach ($games as $key => $value) {
 					if (!isset($value)) {
@@ -106,7 +106,6 @@ if (count($query) > 0) {
 					"largestKillingSpree" => null, 
 					"turretsKilled" => null, 
 					"totalHeal" => null, 
-					"invalid" => null, 
 					"totalDamageDealtToChampions" => null, 
 					"physicalDamageDealtToChampions" => null, 
 					"magicDamageDealtToChampions" => null, 
@@ -183,8 +182,8 @@ if (count($query) > 0) {
 						"summonerId" => $player['summonerId'],
 						"teamId" => $player['teamId'],
 						"championId" => $player['championId'], 
-						"dataVersion" => DATAVERSION, 
-						"dataIp" => $ip
+						"playersVersion" => DATAVERSION, 
+						"playersIp" => $ip
 					);
 				} // Now we need to add the player that we're checking (he isn't in the json array)
 				$players[] = array (
@@ -192,8 +191,8 @@ if (count($query) > 0) {
 					"summonerId" => $sId,
 					"teamId" => $match['teamId'],
 					"championId" => $match['championId'],
-					"dataVersion" => DATAVERSION, 
-					"dataIp" => $ip
+					"playersVersion" => DATAVERSION, 
+					"playersIp" => $ip
 				);
 				
 				$req = array(); // Will contain requests to do			

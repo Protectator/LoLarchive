@@ -199,9 +199,9 @@
 				}
 				
 				$conditions = "
-				FROM games 
-				LEFT JOIN players ON games.gameId = players.gameId
-				LEFT JOIN data ON games.gameId = data.gameId AND players.summonerId = data.summonerId
+				FROM (games 
+				INNER JOIN players ON games.gameId = players.gameId)
+				LEFT JOIN data ON games.gameId = data.gameId AND players.summonerId = data.summonerId AND data.gameId = games.gameId
 				WHERE players.summonerId = :sId".implode($filtersStr);
 				
 				$statsString = "SELECT count(*) AS nbGames, avg(data.championsKilled) AS k, avg(data.numDeaths) AS d, avg(data.assists) AS a,
@@ -399,7 +399,7 @@
 				/*
 					FOR EACH GAME
 				*/
-				while ($row = $summonerGames->fetch()) {
+				while ($row = $summonerGames->fetch(PDO::FETCH_NAMED)) {
 
 					//   START Debug
 					if (isset($_GET['debug'])) {
@@ -428,13 +428,16 @@
 					LEFT JOIN users ON users.id = players.summonerId
 					WHERE players.gameId = :gId";
 					$playersRequest = $pdo->prepare($requestString[3]);
-					$playersRequest->bindParam(":gId", $row['gameId']);
+					$playersRequest->bindParam(":gId", $row['gameId'][0]);
 					$playersRequest->execute(); // Execute the request
+
+
 					
 					// Put each player on the right team
 					$summonersTeam = $row['teamId'];
 					$teamL = array();
 					$teamR = array();
+
 					while ($player = $playersRequest->fetch()) {
 						if ($player['teamId'] == $summonersTeam) {
 							$teamL[] = $player;
@@ -460,7 +463,7 @@
 					<div class="row">
 						<div class="span12">
 						
-							<div class="well<?php echo $class;?> match" id="<?php echo $row['gameId'];?>">
+							<div class="well<?php echo $class;?> match" id="<?php echo $row['gameId'][0];?>">
 						
 								<div class="matchcell championcell"><?php echo HTMLchampionImg($row['championId'], "big", $champsName); ?></div>
 								
@@ -498,7 +501,7 @@
 								}
 								?>
 								<div class="matchcell playerscell">
-									<?php echo HTMLparticipants($row['region'], $teamL, $teamR, $champsName); ?>
+									<?php echo HTMLparticipants($row['region'][0], $teamL, $teamR, $champsName); ?>
 								</div>
 							</div>
 						</div>
