@@ -42,14 +42,27 @@ if (count($query) > 0) {
 
 		if (isset($array['status']) && $array['status']!= "") {
 			logError($array['error']);
+			echo "<br>Error in API call '".API_URL.$region."/v".SUMMONER_API_VERSION."/game/by-summoner/".$sId."/recent?api_key=".API_KEY."': <br><pre>";
+			print_r($array);
+			echo "</pre>";
+
 		} else {
 			$matches = $array['games'];
+
+			if (isset($_GET['debug'])) {
+				echo "json : <br><pre>";
+				print_r($matches);
+				echo "</pre>";
+			}
 
 			foreach ($matches as $match) {
 			
 				// Converting the epoch to Datetime
 				$epochCreateDate = $match['createDate']/1000;
 				$finalDate = date('Y-m-d H:i:s', $epochCreateDate);
+
+				$estimatedWinningTeam = ($match['win']) ? $match['teamID'] : 300-$match['teamID'];
+				$estimatedDuration = $match['stats']['timePlayed'];
 			
 				/*
 				First we need to match every stat in the json file to a column in the database.
@@ -73,7 +86,9 @@ if (count($query) > 0) {
 					"subType" => null,
 					"duration" => '0',
 					"mapId" => null,
-					"invalid" => null, 
+					"invalid" => null,
+					"estimatedDuration" => $estimatedDuration,
+					"estimatedWinningTeam" => $estimatedWinningTeam,
 					"gamesVersion" => DATAVERSION, 
 					"gamesIp" => $ip
 				);
@@ -218,10 +233,12 @@ if (count($query) > 0) {
 			} // END foreach match
 			$text = ($countNewMatches > 0) ? "[".$region."] Summoner ".$sId." \"".$row['name']."\" : ".$countNewMatches." added games".PHP_EOL : "";
 			echo $text;
-			logAccess($text);
+			if (!isset($_GET['debug'])) {
+				logAccess($text);
+			}
 		}
 		if (!PROD_KEY) {
-			sleep(0.9);
+			sleep(1);
 		}
 	} // END foreach player
 

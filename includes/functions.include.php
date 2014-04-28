@@ -253,7 +253,7 @@ function secureArray(&$pdo, &$array) {
 }
 
 /*
-API FUNCTIONS
+ API FUNCTIONS
  */
 
 /**
@@ -265,7 +265,7 @@ API FUNCTIONS
  * @return string array of result
  */
 function apiGame(&$c, $region, $sId) {
-	$url = API_URL.$region."/v".SUMMONER_API_VERSION."/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
+	$url = API_URL.$region."/v".GAME_API_VERSION."/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	return json_decode(trim(curl_exec($c)), true);
@@ -331,6 +331,28 @@ function trackNewPlayer(&$pdo, &$c, $region, $name) {
 }
 
 /**
+ * Estimates the total duration of a game based on the playing time
+ * of the participating summoners.
+ * 
+ * @param  resource $pdo    Opened PDO connection
+ * @param  int 		$gameId id of the game to (re-)estimate the duration.
+ * @return int Should return "1" if the request was executed correctly.
+ */
+function estimateDurationOfGame(&$pdo, $gameId) {
+	$selectRequestString = "SELECT AVG(timePlayed) FROM data WHERE gameId = :gId";
+	$selectRequest = $pdo->prepare($selectRequestString);
+	$selectRequest->bindParam("gId", $gameId);
+	$selectRequest->execute();
+	$average = $selectRequest->fetch();
+	$updateRequestString = "UPDATE games SET estimatedDuration=".$average." WHERE gameId = :gId";
+	$updateRequest = $pdo->prepare($updateRequestString);
+	$updateRequest->bindParam(":gId", $gameId);
+	$updateRequest->execute();
+	$result = $updateRequest->fetch();
+	return $result;
+}
+
+/**
  * Gets the games in a specified page of a specified search
  *
  * @param resource $pdo Opened PDO connection
@@ -365,8 +387,12 @@ function champImg($champId, $champsName) {
 	return PATH."img/champions/".$champsName[$champId].".png";
 }
 
+/**
+ * Returns the HTML code to display items
+ * @param  array $row  The row to take infos from
+ * @return string      HTML code
+ */
 function items($row) {
-	$result = "";
 	$result = "<tr><td class=\"singleitemcell\">".item($row, 0)."<td>";
 	$result.= "<td class=\"singleitemcell\">".item($row, 1)."<td>";
 	$result.= "<td class=\"singleitemcell\">".item($row, 2)."<td>";
