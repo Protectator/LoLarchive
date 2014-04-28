@@ -61,7 +61,7 @@ if (count($query) > 0) {
 				$epochCreateDate = $match['createDate']/1000;
 				$finalDate = date('Y-m-d H:i:s', $epochCreateDate);
 
-				$estimatedWinningTeam = ($match['win']) ? $match['teamID'] : 300-$match['teamID'];
+				$estimatedWinningTeam = ($match['stats']['win']) ? $match['stats']['team'] : 300-$match['stats']['team'];
 				$estimatedDuration = $match['stats']['timePlayed'];
 			
 				/*

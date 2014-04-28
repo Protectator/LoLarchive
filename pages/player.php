@@ -407,9 +407,11 @@
 						print_r($row);
 						echo "</pre>";
 					} // END Debug
+
+					$hasData = isset($row['spell1']);
 					
 					// Handles all bit(1) data
-					$win = ord($row['win']);
+					$win = ($hasData) ? ord($row['win']) : ($row['teamId'] == $row['estimatedWinningTeam']);
 					$invalid = ord($row['invalid']);
 					
 					if ($win == 1) {
@@ -431,7 +433,6 @@
 					$playersRequest->bindParam(":gId", $row['gameId'][0]);
 					$playersRequest->execute(); // Execute the request
 
-
 					
 					// Put each player on the right team
 					$summonersTeam = $row['teamId'];
@@ -444,10 +445,9 @@
 						} else {
 							$teamR[] = $player;
 						}
-
 					}
 
-					$duration = $row['timePlayed'];
+					$duration = ($hasData) ? $row['timePlayed'] : $row['estimatedDuration'];
 					
 					$year = substr($row['createDate'], 0, 4);
 					$month = substr($row['createDate'], 5, 2);
@@ -472,7 +472,7 @@
 								</div>
 								
 								<?php
-								if (isset($row['spell1']))
+								if ($hasData)
 								{
 								?>
 									<div class="matchcell kdacell">
