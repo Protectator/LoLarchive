@@ -107,7 +107,7 @@
 									echo "This id doesn't match any existing summoner.</div>";
 								}
 							} else { // If other API requests aren't authorized
-								echoHeader(purify($summonerId)." [".strtoupper($summonerRegion)."] - LoLarchive");
+								echoHeader(purify($summonerId)." [".strtoupper($Iregion)."] - LoLarchive");
 								$potentiallyInexistantSummoner = true; // TODO : Display only if summoner has no games.
 								echo "<div class='alert alert-warning alert-block'><button type='button' class='close' data-dismiss='alert'>&times;</button>";
 								echo "<h4>Warning</h4>No name has been found for this id in the database, and no request have been sent to Riot Games' API.<br>";
@@ -271,7 +271,7 @@
 				/// 
 
 				if (isset($summonerName)) {
-					echoHeader($summonerName." [".strtoupper($summonerRegion)."] - LoLarchive");
+					echoHeader($summonerName." [".strtoupper($Iregion)."] - LoLarchive");
 					// Display infos about that summoner
 					// 
 					?>
@@ -288,7 +288,7 @@
 
 
 				} else {
-					echoHeader($summonerId." [".strtoupper($summonerRegion)."] - LoLarchive");
+					echoHeader($summonerId." [".strtoupper($Iregion)."] - LoLarchive");
 
 
 					?>
