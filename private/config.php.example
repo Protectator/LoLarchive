@@ -5,6 +5,10 @@ This file isn't accessible from outside your site (if everything's configured ri
 Don't tell the password or API key to other people...
 */
 
+/*
+	Basic configuration
+*/
+
 // HOST is the location of the database you're going to use.
 // If you don't know what to put here, leave "localhost"
 define('HOST', "localhost");
@@ -23,7 +27,15 @@ define('PASSWORD', "yourPassword");
 
 // API_KEY is the key that will be sent with each cURL request. If you don't
 // have any, look at how to get one for legendaryapi.net
-define('API_KEY', "ApiKeyOfYourApiProvider");
+define('API_KEY', "ApiKeyOfRiotGamesDevelopers");
+
+// Path to the root directory of LoLarchive (The one directly containing index.php)
+// from the root of your machine.
+define('LOCAL', "/var/www/lolarchive/");
+
+// Path to the root directory of LoLarchive (The one directly containing index.php)
+// from your domain name when accessed through HTTP.
+define('PATH', "/");
 
 // PROD_KEY defines if the key you wrote just above is a RiotGame's Production Key.
 // By default, Riot Games gives you a developement key, which has more limitations.
@@ -32,15 +44,42 @@ define('API_KEY', "ApiKeyOfYourApiProvider");
 // set the next line to 'TRUE' instead of 'FALSE'.
 define('PROD_KEY', FALSE);
 
+/* 
+	Advanced configuration 
+*/
+
+// GAME_API_VERSION should be the value of the latest version of the
+// game method of Riot Games' API. To be sure it is correct, check it out at
+// http://developer.riotgames.com/api/methods#!/618
+define('GAME_API_VERSION', '1.3');
+
+// SUMMONER_API_VERSION should be the value of the latest version of the
+// summoner method of Riot Games' API. To be sure it is correct, check it out at
+// http://developer.riotgames.com/api/methods#!/620
+define('SUMMONER_API_VERSION', '1.4');
+
 // API_URL is the url pointing to the API you're using.
 define('API_URL', "https://prod.api.pvp.net/api/lol/");
 
-// Path to the root directory of LoLarchive (The one directly containing index.php)
-// from your domain name when accessed through HTTP.
-define('PATH', "/lolarchive/");
+// It is strongly recommended to not touch the following configuration if you have
+// set PROD_KEY to FALSE
 
-// Path to the root directory of LoLarchive (The one directly containing index.php)
-// from the root of your machine.
-define('LOCAL', "/var/www/lolarchive/");
+// QUERY_FOREIGN_SUMMONER_NAME_WHEN_PLAYER_ACCESSED tells if the database should ask
+// the API about the name of an unknown summoner when his player page is accessed.
+define('QUERY_FOREIGN_SUMMONER_NAME_WHEN_PLAYER_ACCESSED', FALSE);
+
+// IMMEDIATE_QUERY_SUMMONER_NAMES defines if the databse should ask the API for
+// the summoner names of all the foreign summoners participating in a game directly
+// when that game is registered.
+define('IMMEDIATE_QUERY_SUMMONER_NAMES', FALSE);
+
+/*
+	Constants
+
+	You normally have no reason at all to change this.
+*/
+
+define('SUMMONER_NAME_MAX_LENGTH', 16);
+define('SUMMONER_ID_MAX_LENGTH', 16);
 
 ?>
