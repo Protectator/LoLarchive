@@ -203,7 +203,7 @@
 				$statsString = "SELECT count(*) AS nbGames, avg(data.championsKilled) AS k, avg(data.numDeaths) AS d, avg(data.assists) AS a,
 				avg(data.minionsKilled+data.neutralMinionsKilled) AS minions, avg(data.goldEarned) AS gold, avg(data.timePlayed) AS duration".$conditions;
 				
-				$wonGamesString = "SELECT count(*) AS nb".$conditions." AND data.win = (1);";
+				$wonGamesString = "SELECT count(*) AS nb".$conditions." AND (data.win = (1) OR (games.estimatedWinningTeam = players.teamId));";
 				
 				$requestString = array();
 				$requestString[1] = "SELECT * ".$conditions." ORDER BY `games`.`createDate` DESC;";
@@ -290,7 +290,8 @@
 					<div class="row">
 						<div class="span12">
 							<div class="well">
-								<h2><?php echo htmlentities(utf8_decode($summonerName));?> <a href="http://www.lolking.net/summoner/<? echo $summonerRegion."/".$summonerId; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a></h2>
+								<h2><?php echo htmlentities(utf8_decode($summonerName));?>
+								<?php if (LINKTO_LOLKING) { ?><a href="http://www.lolking.net/summoner/<? echo $summonerRegion."/".$summonerId; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a><? } ?></h2>
 								<?php echo htmlentities($summonerRegion);?>
 								<br><?php echo htmlentities($summonerId);?>
 							</div>
@@ -307,8 +308,10 @@
 					<div class="row">
 						<div class="span12">
 							<div class="well">
-								<h2><?php echo htmlentities(utf8_decode($summonerId));?> <a href="http://www.lolking.net/summoner/<? echo $summonerRegion."/".$summonerId; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a></h2>
+								<h2>? 
+								<?php if (LINKTO_LOLKING) { ?><a href="http://www.lolking.net/summoner/<? echo $summonerRegion."/".$summonerId; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a><? } ?></h2>
 								<?php echo htmlentities($summonerRegion);?>
+								<br><?php echo htmlentities($summonerId);?>
 							</div>
 						</div>
 					</div>
