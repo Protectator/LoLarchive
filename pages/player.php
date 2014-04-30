@@ -201,7 +201,7 @@
 				WHERE players.summonerId = :sId".implode($filtersStr);
 				
 				$statsString = "SELECT count(*) AS nbGames, avg(data.championsKilled) AS k, avg(data.numDeaths) AS d, avg(data.assists) AS a,
-				avg(data.minionsKilled) AS minions, avg(data.goldEarned) AS gold, avg(data.timePlayed) AS duration".$conditions;
+				avg(data.minionsKilled+data.neutralMinionsKilled) AS minions, avg(data.goldEarned) AS gold, avg(data.timePlayed) AS duration".$conditions;
 				
 				$wonGamesString = "SELECT count(*) AS nb".$conditions." AND data.win = (1);";
 				
@@ -488,7 +488,7 @@
 									<div class="matchcell kdacell">
 										<?php
 										echo HTMLkda($row['championsKilled'], $row['numDeaths'],
-											$row['assists'], $row['minionsKilled'], $row['goldEarned']) ?>
+											$row['assists'], $row['minionsKilled']+$row['neutralMinionsKilled'], $row['goldEarned']) ?>
 									</div>
 									
 									<div class="matchcell sscell">
