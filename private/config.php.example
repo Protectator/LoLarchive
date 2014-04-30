@@ -44,6 +44,14 @@ define('PATH', "/");
 // set the next line to 'TRUE' instead of 'FALSE'.
 define('PROD_KEY', FALSE);
 
+/*
+	Optional
+*/
+
+// LINKTO_LOLKING tells if a link to summoners' Lolking page should be displayed
+// on their page.
+define('LINKTO_LOLKING', FALSE);
+
 /* 
 	Advanced configuration 
 */
