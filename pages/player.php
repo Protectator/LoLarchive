@@ -108,11 +108,7 @@
 								}
 							} else { // If other API requests aren't authorized
 								echoHeader(purify($summonerId)." [".strtoupper($Iregion)."] - LoLarchive");
-								$potentiallyInexistantSummoner = true; // TODO : Display only if summoner has no games.
-								echo "<div class='alert alert-warning alert-block'><button type='button' class='close' data-dismiss='alert'>&times;</button>";
-								echo "<h4>Warning</h4>No name has been found for this id in the database, and no request have been sent to Riot Games' API.<br>";
-								echo "This page displays information about the summoner with id ".purify($summonerId).".<br>";
-								echo "If there is no game here, the summoner may not exist at all.</div>";
+								$potentiallyInexistantSummoner = true;
 							}
 
 						}
@@ -254,6 +250,22 @@
 				$stats->execute();         // Execute the request
 				$wonGames->execute();      // Execute the request
 
+				$finalStats = $stats->fetch();
+				$nbWon = $wonGames->fetch();
+
+				if ($finalStats['nbGames'] != 0) {
+					$potentiallyInexistantSummoner = false;
+				}
+
+				if (isset($potentiallyInexistantSummoner)) {
+					if ($potentiallyInexistantSummoner) {
+					echo "<div class='alert alert-warning alert-block'><button type='button' class='close' data-dismiss='alert'>&times;</button>";
+					echo "<h4>Warning</h4>No name has been found for this id in the database, and no request have been sent to Riot Games' API.<br>";
+					echo "This page displays information about the summoner with id ".purify($summonerId).".<br>";
+					echo "If there is no game here, the summoner may not exist at all.</div>";	
+					}
+				}
+
 				// We want infos about all champions. This request will never change
 				$requestString[2] = "SELECT * FROM champions ORDER BY name ASC;";
 				$championsRequest = $pdo->prepare($requestString[2]);
@@ -311,8 +323,6 @@
 						<div class="well">
 							<legend>Statistics</legend>
 							<?php
-							$finalStats = $stats->fetch();
-							$nbWon = $wonGames->fetch();
 							if ($finalStats['nbGames'] != 0) {
 								$kdaRatio = ($finalStats['d'] != 0) ? round(($finalStats['k']+$finalStats['a'])/$finalStats['d'], 2) : $finalStats['k'] + $finalStats['a'];
 								echo $nbWon['nb']." wins / ".$finalStats['nbGames']." games (".round($nbWon['nb']/$finalStats['nbGames']*100, 2)."% win)";
