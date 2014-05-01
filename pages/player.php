@@ -83,22 +83,13 @@
 							// If API requests for summoner names are enabled
 							if (QUERY_FOREIGN_SUMMONER_NAME_WHEN_PLAYER_ACCESSED) {
 								$cUrl = curl_init();
-								$summoner = apiSummonerNames($cUrl, $Iregion, $Iid);
+								$summonerName = saveSummonerInfosById($pdo, $cUrl, $Iregion, $Iid);
 								curl_close($cUrl);
-								if (!is_null($summoner)) { // If we found someone in the API
+								if (!is_null($summonerName)) {
 									$summonerId = $Iid;
-									$byIdSummoner = current($summoner);
-									$summonerName = $byIdSummoner;
-									$usersFields = array(
-										"id" => $summonerId,
-										"user" => $summonerName,
-										"region" => $Iregion
-										);
-									$addUserRequestString = "INSERT IGNORE INTO users ".buildInsert($usersFields);
-									$result = securedInsert($pdo, $addUserRequestString);
 								} else { // If we didn't find anything in the API either
 									echoHeader("Summoner not found");
-									echo "<div class='alert alert-error'><h4>Id doesn't exist</h4>";
+									echo "<div class='alert alert-error alert-block'><h4>Id doesn't exist</h4>";
 									echo "This id doesn't match any existing summoner.</div>";
 								}
 							} else { // If other API requests aren't authorized

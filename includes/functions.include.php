@@ -312,7 +312,7 @@ function apiSummonerNames(&$c, $region, $sIds) {
  *
  * @param resource $pdo Opened PDO connection
  * @param resource $c Opened cURL conneciton
- * @param string $region Region of the summoner account
+ * @param string $region Region of the summoner
  * @param string $name Summoner name
  * @return int Should return "1" if the request was executed correctly.
  * Does not guarantee the summoner has effectively been tracked, though.
@@ -351,6 +351,36 @@ function estimateDurationOfGame(&$pdo, $gameId) {
 	$updateRequest->execute();
 	$result = $updateRequest->fetch();
 	return $result;
+}
+
+/**
+ * Saves the informations about a summoner by querying the API.
+ * 
+ * @param  resource	$pdo	Opened PDO connection
+ * @param  resource	$c		Opened cURL conneciton
+ * @param  string	$region	Region of the summoner
+ * @param  int		$id		id of the summoner
+ * @return string			Name of the summoner, or null if none was found.
+ */
+function saveSummonerInfosById(&$pdo, &$c, $region, $id) {
+	$summoner = apiSummonerNames($c, $region, $id);
+	if (!is_null($summoner)) { // If we found someone in the API
+		$summonerName = current($summoner);
+		$usersFields = array(
+			"id" => $id,
+			"user" => $summonerName,
+			"region" => $region
+			);
+		$addUserRequestString = "INSERT IGNORE INTO users ".buildInsert($usersFields);
+		$result = securedInsert($pdo, $addUserRequestString);
+		if (!($result == array(1, 1))) {
+			trigger_error("Tried to save informations about an already existing in database
+				summoner.", E_WARNING);
+		}
+		return $summonerName;
+	} else { // If we didn't find anything in the API either
+		return null;
+	}
 }
 
 /**
