@@ -20,13 +20,6 @@
 				if (strlen($Iname) <= SUMMONER_NAME_MAX_LENGTH) {
 
 					$userRequestString = "SELECT id, user, region FROM users WHERE LOWER( user ) = LOWER( :user ) AND region = :region";
-					// debug
-					if (isset($_GET['debug'])) {
-						echo $userRequestString;
-						echo "<br/>name: ".$Iname;
-						echo "<br/>region: ".$Iregion;
-					}
-					//
 					$findSummoner = $pdo->prepare($userRequestString);
 					$findSummoner->bindParam(":region", $Iregion);
 					$findSummoner->bindParam(":user", $Iname);
