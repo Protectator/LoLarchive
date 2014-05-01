@@ -203,29 +203,24 @@
 				$wonGames->bindParam(":sId", $summonerId);
 				
 				// Check if each filter is activated
-				
+				$filterNames = array(
+					$filters['fMode'] => ':typeStr',
+					$filters['fStart'] => ':from',
+					$filters['fEnd'] => ':to'
+				);
+				foreach($filterNames as $fName => $fParam) {
+					if ($fName) {
+						$summonerGames->bindParam($fParam, $fName);
+						$stats->bindParam($fParam, $fName);
+						$wonGames->bindParam($fParam, $fName);
+					}
+				}
+
 				// filter games by Champion
 				if ($filters['fChampion']) {
 					$summonerGames->bindParam(":championId", intval($filters['fChampion']));
 					$stats->bindParam(":championId", intval($filters['fChampion']));
 					$wonGames->bindParam(":championId", intval($filters['fChampion']));
-				}
-				// filter games by Mode
-				if ($filters['fMode']) {
-					$summonerGames->bindParam(":typeStr", $filters['fMode']);
-					$stats->bindParam(":typeStr", $filters['fMode']);
-					$wonGames->bindParam(":typeStr", $filters['fMode']);
-				}
-				// filter games by Date
-				if ($filters['fStart']) {
-					$summonerGames->bindParam(":from", $filters['fStart']);
-					$stats->bindParam(":from", $filters['fStart']);
-					$wonGames->bindParam(":from", $filters['fStart']);
-				}
-				if ($filters['fEnd']) {
-					$summonerGames->bindParam(":to", $filters['fEnd']);
-					$stats->bindParam(":to", $filters['fEnd']);
-					$wonGames->bindParam(":to", $filters['fEnd']);
 				}
 				
 				$summonerGames->execute(); // Execute the request
