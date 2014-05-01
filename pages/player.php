@@ -32,15 +32,16 @@
 						// If API requests for summoner names are enabled
 						if (QUERY_FOREIGN_SUMMONER_NAME_WHEN_PLAYER_ACCESSED) {
 							$cUrl = curl_init();
-							$byNameSummoner = current(apiSummonerByName($cUrl, $summonerRegion, $Iname));
+							$summoner = apiSummonerByName($cUrl, $Iregion, $Iname);
 							curl_close($cUrl);
-							if (isset($byNameSummoner['id'])) { // If we found someone in the API
+							if (!is_null($summoner)) { // If we found someone in the API
+								$byNameSummoner = current($summoner);
 								$summonerId = $byNameSummoner['id'];
 								$summonerName = $byNameSummoner['name'];
-								$usersFields[] = array(
+								$usersFields = array(
 									"id" => $summonerId,
 									"user" => $summonerName,
-									"region" => $summonerRegion
+									"region" => $Iregion
 									);
 								$addUserRequestString = "INSERT IGNORE INTO users ".buildInsert($usersFields);
 								$result = securedInsert($pdo, $addUserRequestString);
@@ -77,20 +78,21 @@
 							$summonerId = $foundSummoner['id'];
 							$summonerName = $foundSummoner['user'];
 						} else {
-							$summonerId = $Iid;
 							// Check infos in the API if authorized
 
 							// If API requests for summoner names are enabled
 							if (QUERY_FOREIGN_SUMMONER_NAME_WHEN_PLAYER_ACCESSED) {
 								$cUrl = curl_init();
-								$byIdSummoner = current(apiSummonerNames($cUrl, $summonerRegion, $Iid));
+								$summoner = apiSummonerNames($cUrl, $Iregion, $Iid);
 								curl_close($cUrl);
-								if (isset($byIdSummoner)) { // If we found someone in the API
+								if (!is_null($summoner)) { // If we found someone in the API
+									$summonerId = $Iid;
+									$byIdSummoner = current($summoner);
 									$summonerName = $byIdSummoner;
-									$usersFields[] = array(
+									$usersFields = array(
 										"id" => $summonerId,
 										"user" => $summonerName,
-										"region" => $summonerRegion
+										"region" => $Iregion
 										);
 									$addUserRequestString = "INSERT IGNORE INTO users ".buildInsert($usersFields);
 									$result = securedInsert($pdo, $addUserRequestString);
