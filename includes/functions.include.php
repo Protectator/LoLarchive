@@ -459,6 +459,28 @@ PRINT FUNCTIONS
  */
 
 /**
+ * Generates the HTML code to display a Error well.
+ * 
+ * @param string $title		Title of the Error
+ * @param string $content	Content of the Error
+ */
+function HTMLerror($title, $content) {
+	return "<div class='alert alert-error alert-block'><h4>".$title."</h4>".$content."</div>";
+}
+
+/**
+ * Generates the HTML code to display a Warning well (with an close button).
+ * 
+ * @param string $title		Title of the Warning
+ * @param string $content	Content of the Warning
+ */
+function HTMLwarning($title, $content) {
+	return "<div class='alert alert-warning alert-block'>
+		<button type='button' class='close' data-dismiss='alert'>&times;</button>
+		<h4>".$title."</h4>".$content."</div>";	
+}
+
+/**
  * Generates the HTML code to display the name of a summoner and its champion's icon.
  *
  * @param string region The server in which the game has taken place.

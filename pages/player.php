@@ -47,20 +47,17 @@
 								$result = securedInsert($pdo, $addUserRequestString);
 							} else { // If we didn't find anything in the API either
 								echoHeader("Summoner not found");
-								echo "<div class='alert alert-error alert-block'><h4>Summoner doesn't exist</h4>";
-								echo "No summoner named <strong>".purify($Iname)."</strong> on ".$summonerRegion." seems to exist.</div>";
+								echo HTMLerror("Summoner doesn't exist", "No summoner named <strong>".purify($Iname)."</strong> on ".$summonerRegion." seems to exist.");
 							}
 						} else { // If other API requests aren't authorized
 							echoHeader("Summoner not found");
-							echo "<div class='alert alert-info alert-block'><h4>Summoner not found</h4>";
-							echo "No summoner named <strong>".purify($Iname)."</strong> on ".$summonerRegion." was found in the database.</div>";
+							echo HTMLerror("Summoner not found", "No summoner named <strong>".purify($Iname)."</strong> on ".$summonerRegion." was found in the database.");
 						}
 					}
 
 				} else {
 					echoHeader("Summoner not found");
-					echo "<div class='alert alert-error alert-block'><h4>Bad search</h4>";
-					echo "Summoner name must not exceed ".SUMMONER_NAME_MAX_LENGTH." characters</div>";
+					echo HTMLerror("Bad search", "Summoner name must not exceed ".SUMMONER_NAME_MAX_LENGTH." characters.");
 				}
 
 			} elseif (isset($Iid)) {
@@ -89,10 +86,11 @@
 									$summonerId = $Iid;
 								} else { // If we didn't find anything in the API either
 									echoHeader("Summoner not found");
-									echo "<div class='alert alert-error alert-block'><h4>Id doesn't exist</h4>";
-									echo "This id doesn't match any existing summoner.</div>";
+									echo HTMLerror("Id doesn't exist", "This id doesn't match any existing summoner.");
+
 								}
 							} else { // If other API requests aren't authorized
+								$summonerId = $Iid;
 								echoHeader(purify($summonerId)." [".strtoupper($Iregion)."] - LoLarchive");
 								$potentiallyInexistantSummoner = true;
 							}
@@ -101,21 +99,19 @@
 
 					} else {
 						echoHeader("Summoner not found");
-						echo "<div class='alert alert-error alert-block'><h4>Bad search</h4>";
-						echo "Summoner id must not exceed ".SUMMONER_ID_MAX_LENGTH." digits</div>";
+						echo HTMLerror("Bad search", "Summoner id must not exceed ".SUMMONER_ID_MAX_LENGTH." digits.");
 					}
 
 
 				} else {
 					echoHeader("Summoner not found");
-					echo "<div class='alert alert-error alert-block'><h4>Bad search</h4>";
-					echo "Please provide an id containing only digits.</div>";
+					echo HTMLerror("Bad search", "Please provide an id containing only digits.");
 				}
 
 			} else {
 				echoHeader("Summoner not found");
 				echo "<div class='alert alert-error alert-block'><h4>Bad search</h4>";
-				echo "Please provide either a summoner name or id.</div>";
+				echo HTMLerror("Bad search", "Please provide either a summoner name or id.");
 			}
 
 
@@ -245,10 +241,10 @@
 
 				if (isset($potentiallyInexistantSummoner)) {
 					if ($potentiallyInexistantSummoner) {
-					echo "<div class='alert alert-warning alert-block'><button type='button' class='close' data-dismiss='alert'>&times;</button>";
-					echo "<h4>Warning</h4>No name has been found for this id in the database, and no request have been sent to Riot Games' API.<br>";
-					echo "This page displays information about the summoner with id ".purify($summonerId).".<br>";
-					echo "If there is no game here, the summoner may not exist at all.</div>";	
+						echo HTMLwarning("Warning",
+							"No name has been found for this id in the database, and no request have been sent to Riot Games' API.<br>
+							This page displays information about the summoner with id ".purify($summonerId).".<br>
+							If there is no game here, the summoner may not exist at all.");	
 					}
 				}
 
@@ -512,13 +508,11 @@
 
 		} else {
 			echoHeader("Summoner not found");
-			echo "<div class='alert alert-error alert-block'><h4>Bad search</h4>";
-			echo "Please provide a valid region.</div>";
+			echo HTMLerror("Bad search", "Please provide a valid region.");
 		}
 	} else {
 		echoHeader("Summoner not found");
-		echo "<div class='alert alert-error alert-block'><h4>Bad search</h4>";
-		echo "Please provide a region.</div>";
+		echo HTMLerror("Bad search", "Please provide a region.");
 	}
 	echoFooter();
 ?>
