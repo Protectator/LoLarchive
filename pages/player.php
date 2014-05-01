@@ -291,7 +291,7 @@
 						<div class="span12">
 							<div class="well">
 								<h2><?php echo htmlentities(utf8_decode($summonerName));?>
-								<?php if (LINKTO_LOLKING) { ?><a href="http://www.lolking.net/summoner/<? echo $summonerRegion."/".$summonerId; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a><? } ?></h2>
+								<?php if (LINKTO_LOLKING) { ?><a href="http://www.lolking.net/summoner/<? echo $Iregion."/".$summonerId; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a><? } ?></h2>
 								<?php echo htmlentities($summonerRegion);?>
 								<br><?php echo htmlentities($summonerId);?>
 							</div>
@@ -309,7 +309,7 @@
 						<div class="span12">
 							<div class="well">
 								<h2>? 
-								<?php if (LINKTO_LOLKING) { ?><a href="http://www.lolking.net/summoner/<? echo $summonerRegion."/".$summonerId; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a><? } ?></h2>
+								<?php if (LINKTO_LOLKING) { ?><a href="http://www.lolking.net/summoner/<? echo $Iregion."/".$summonerId; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a><? } ?></h2>
 								<?php echo htmlentities($summonerRegion);?>
 								<br><?php echo htmlentities($summonerId);?>
 							</div>
