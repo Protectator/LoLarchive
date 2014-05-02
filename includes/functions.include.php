@@ -58,8 +58,9 @@ $modes = array (
 		"FIRSTBLOOD_2x2" => "Snowdown 2v2",
 		"FIRSTBLOOD_1x1" => "Snowdown 1v1",
 		"SR_6x6" => "Hexakill",
-		"URF" => "Ultra Rapid Fire",
-		"CAP_5x5" => "Team Builder 5v5"
+		"URF" => "U.R.F.",
+		"CAP_5x5" => "Team Builder 5v5",
+		"URF_BOT" => "U.R.F. vs AI"
 );
 
 /*
@@ -387,7 +388,7 @@ function estimateWinningTeam(&$pdo, $gameId) {
 	$updateRequest->execute();
 	$affectedRows = $updateRequest->rowCount();
 	if ($affectedRows == 1) {
-		return $average;
+		return $reference;
 	} else {
 		trigger_error("Could not update estimated winning team of game ".$gameId." in database.", E_WARNING);
 		return null;
@@ -493,6 +494,17 @@ function logAccess($text) {
 function logError($text) {
 	$file = LOCAL.'private/logs/error.log';
 	file_put_contents($file, file_get_contents($file).$text);
+}
+
+/**
+ * Transforms a certainly formatted date to SQL's TIMESTAMP format.
+ * 
+ * @param  string $date date in format "yyyy-mm-dd" to convert
+ * @param  string $time time in format "hh:mm:ss"
+ * @return string 	DATETIME (format "dd-mm-yyyy hh:mm:ss")
+ */
+function dateToSQL($date, $time) {
+	return implode("-", array_reverse( explode("-", $date)))." ".$time;
 }
 
 /*

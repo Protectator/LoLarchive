@@ -153,8 +153,8 @@
 					if (preg_match($validDateFormat, $_GET['fStart']) AND preg_match($validDateFormat, $_GET['fEnd'])) {
 						$nextStart = $_GET['fStart'];
 						$nextEnd = $_GET['fEnd'];
-						$filters['fStart'] = implode("-", array_reverse( explode("-", $_GET['fStart'])))." 00:00:00";
-						$filters['fEnd'] = implode("-", array_reverse( explode("-", $_GET['fEnd'])))." 23:59:59";
+						$filters['fStart'] = dateToSQL($_GET['fStart'], "00:00:00");
+						$filters['fEnd'] = dateToSQL($_GET['fEnd'], "23:59:59");
 						$dateFilterStr = " AND (games.createDate BETWEEN :from AND :to)";
 						$filtersStr[] = $dateFilterStr;
 					}
@@ -162,7 +162,7 @@
 				} elseif (isset($_GET['fStart']) AND $_GET['fStart'] != '') {
 					if (preg_match($validDateFormat, $_GET['fStart'])) {
 						$nextStart = $_GET['fStart'];
-						$filters['fStart'] = implode("-", array_reverse( explode("-", $_GET['fStart'])))." 00:00:00";
+						$filters['fStart'] = dateToSQL($_GET['fStart'], "00:00:00");
 						$dateFilterStr = " AND games.createDate >= :from ";
 						$filtersStr[] = $dateFilterStr;
 					}
@@ -170,7 +170,7 @@
 				} elseif (isset($_GET['fEnd']) AND $_GET['fEnd'] != '') {
 					if (preg_match($validDateFormat, $_GET['fEnd'])) {
 						$nextEnd = $_GET['fEnd'];
-						$filters['fEnd'] = implode("-", array_reverse( explode("-", $_GET['fEnd'])))." 23:59:59";
+						$filters['fEnd'] = dateToSQL($_GET['fEnd'], "23:59:59");
 						$dateFilterStr = " AND games.createDate <= :to";
 						$filtersStr[] = $dateFilterStr;
 					}
@@ -438,7 +438,7 @@
 
 					if ($row['timePlayed'] == 0 AND $row['estimatedDuration'] == 0) {
 						$duration = estimateDuration($pdo, $row['gameId'][0]);
-						$win = ($estimateWinningTeam($pdo, $row['gameId'][0]) == $row['teamId']);
+						$win = (estimateWinningTeam($pdo, $row['gameId'][0]) == $row['teamId']);
 					}
 
 					if ($win == 1) {
