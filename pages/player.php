@@ -190,9 +190,6 @@
 				$requestString = array();
 				$requestString[1] = "SELECT * ".$conditions." ORDER BY `games`.`createDate` DESC;";
 
-				if (isset($_GET['debug'])) {
-					echo "<br>".$requestString[1];
-				}
 				// New request : All games of this user
 				$summonerGames = $pdo->prepare($requestString[1]);
 				$summonerGames->bindParam(":sId", $summonerId);
@@ -404,16 +401,6 @@
 					$win = ($hasData) ? ord($row['win']) : ($row['teamId'] == $row['estimatedWinningTeam']);
 					$invalid = ord($row['invalid']);
 					
-					if ($win == 1) {
-						$class = " winmatch";
-						$classtext = " wintext";
-						$text = "Win";
-					} else {
-						$class = " lossmatch";
-						$classtext = " losstext";
-						$text = "Loss";
-					}
-					
 					/* Request to find all summoners in a game */
 					$requestString[3] = "
 					SELECT * FROM players
@@ -448,6 +435,21 @@
 					
 					$inventory = array($row['item0'], $row['item1'], $row['item2'], 
 						$row['item3'], $row['item4'], $row['item5'], $row['item6']);
+
+					if ($row['timePlayed'] == 0 AND $row['estimatedDuration'] == 0) {
+						$duration = estimateDuration($pdo, $row['gameId'][0]);
+						$win = ($estimateWinningTeam($pdo, $row['gameId'][0]) == $row['teamId']);
+					}
+
+					if ($win == 1) {
+						$class = " winmatch";
+						$classtext = " wintext";
+						$text = "Win";
+					} else {
+						$class = " lossmatch";
+						$classtext = " losstext";
+						$text = "Loss";
+					}
 
 					?>
 					<div class="row">

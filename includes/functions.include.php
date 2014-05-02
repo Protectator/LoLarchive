@@ -337,20 +337,61 @@ function trackNewPlayer(&$pdo, &$c, $region, $name) {
  * 
  * @param  resource $pdo    Opened PDO connection
  * @param  int 		$gameId id of the game to (re-)estimate the duration.
- * @return int Should return "1" if the request was executed correctly.
+ * @return int The estimated duration of that game, or null if there is an error.
  */
-function estimateDurationOfGame(&$pdo, $gameId) {
-	$selectRequestString = "SELECT AVG(timePlayed) FROM data WHERE gameId = :gId";
+function estimateDuration(&$pdo, $gameId) {
+	$selectRequestString = "SELECT MAX(timePlayed) FROM data WHERE gameId = :gId";
 	$selectRequest = $pdo->prepare($selectRequestString);
 	$selectRequest->bindParam("gId", $gameId);
 	$selectRequest->execute();
-	$average = $selectRequest->fetch();
-	$updateRequestString = "UPDATE games SET estimatedDuration=".$average." WHERE gameId = :gId";
+	$average = $selectRequest->fetchAll();
+	$average = $average[0]['MAX(timePlayed)'];
+	$updateRequestString = "UPDATE games SET estimatedDuration = :time WHERE gameId = :gId";
 	$updateRequest = $pdo->prepare($updateRequestString);
+	$updateRequest->bindParam(":time", $average);
 	$updateRequest->bindParam(":gId", $gameId);
 	$updateRequest->execute();
-	$result = $updateRequest->fetch();
-	return $result;
+	$affectedRows = $updateRequest->rowCount();
+	if ($affectedRows == 1) {
+		return $average;
+	} else {
+		trigger_error("Could not update estimated duration of game ".$gameId." in database.", E_WARNING);
+		return null;
+	}
+}
+
+/**
+ * Estimates the winning team of a game based on the individual win values of summoners
+ * in that game.
+ * 
+ * @param  resource $pdo    Opened PDO connection
+ * @param  int 		$gameId id of the game to (re-)estimate the duration.
+ * @return int The estimated winning team of that game, or null if there is an error.
+ */
+function estimateWinningTeam(&$pdo, $gameId) {
+	$selectRequestString = "SELECT teamId, win FROM players INNER JOIN data WHERE players.gameId = data.gameId AND data.gameId = :gId";
+	$selectRequest = $pdo->prepare($selectRequestString);
+	$selectRequest->bindParam("gId", $gameId);
+	$selectRequest->execute();
+	$reference = $selectRequest->fetchAll();
+	$reference = $reference[0];
+	if ($reference['win'] == 1) {
+		$winningTeam = $reference['teamId'];
+	} else {
+		$winningTeam = 300 - $reference['teamId'];
+	}
+	$updateRequestString = "UPDATE games SET estimatedWinningTeam = :winTeam WHERE gameId = :gId";
+	$updateRequest = $pdo->prepare($updateRequestString);
+	$updateRequest->bindParam(":gId", $gameId);
+	$updateRequest->bindParam(":winTeam", $winningTeam);
+	$updateRequest->execute();
+	$affectedRows = $updateRequest->rowCount();
+	if ($affectedRows == 1) {
+		return $average;
+	} else {
+		trigger_error("Could not update estimated winning team of game ".$gameId." in database.", E_WARNING);
+		return null;
+	}
 }
 
 /**
