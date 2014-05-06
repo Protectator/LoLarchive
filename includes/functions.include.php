@@ -386,13 +386,13 @@ function estimateDuration(&$pdo, $gameId) {
  * @return int The estimated winning team of that game, or null if there is an error.
  */
 function estimateWinningTeam(&$pdo, $gameId) {
-	$selectRequestString = "SELECT teamId, win FROM players INNER JOIN data WHERE players.gameId = data.gameId AND data.gameId = :gId";
+	$selectRequestString = "SELECT DISTINCT teamId, win FROM players p, data d WHERE d.summonerId = p.summonerId AND p.gameId=d.gameId AND d.gameId=:gId";
 	$selectRequest = $pdo->prepare($selectRequestString);
 	$selectRequest->bindParam("gId", $gameId);
 	$selectRequest->execute();
 	$reference = $selectRequest->fetchAll();
 	$reference = $reference[0];
-	if ($reference['win'] == 1) {
+	if (ord($reference['win']) == 1) {
 		$winningTeam = $reference['teamId'];
 	} else {
 		$winningTeam = 300 - $reference['teamId'];

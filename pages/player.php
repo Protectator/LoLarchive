@@ -464,6 +464,8 @@
 
 					if ($row['timePlayed'] == 0 AND $row['estimatedDuration'] == 0) {
 						$duration = estimateDuration($pdo, $row['gameId'][0]);
+					}
+					if ($row['estimatedWinningTeam'] == 0) {
 						$win = (estimateWinningTeam($pdo, $row['gameId'][0]) == $row['teamId']);
 					}
 
