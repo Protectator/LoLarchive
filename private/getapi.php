@@ -36,21 +36,33 @@ if (count($query) > 0) {
 		$region = strtolower($row['region']);
 		$sId = $row['summonerId'];
 		$c = curl_init();
-		$json = apiGame($c, $region, $sId);
+		$array = apiGame($c, $region, $sId);
 		curl_close($c);
 		// Transform json in an Array
-		$array = json_decode($json, true);
 
 		if (isset($array['status']) && $array['status']!= "") {
 			logError($array['error']);
+			echo "<br>Error in API call '".API_URL.$region."/v".SUMMONER_API_VERSION."/game/by-summoner/".$sId."/recent?api_key=".API_KEY."': <br><pre>";
+			print_r($array);
+			echo "</pre>";
+
 		} else {
 			$matches = $array['games'];
+
+			if (isset($_GET['debug'])) {
+				echo "json : <br><pre>";
+				print_r($matches);
+				echo "</pre>";
+			}
 
 			foreach ($matches as $match) {
 			
 				// Converting the epoch to Datetime
 				$epochCreateDate = $match['createDate']/1000;
 				$finalDate = date('Y-m-d H:i:s', $epochCreateDate);
+
+				$estimatedWinningTeam = ($match['stats']['win']) ? $match['stats']['team'] : 300-$match['stats']['team'];
+				$estimatedDuration = $match['stats']['timePlayed'];
 			
 				/*
 				First we need to match every stat in the json file to a column in the database.
@@ -75,8 +87,10 @@ if (count($query) > 0) {
 					"duration" => '0',
 					"mapId" => null,
 					"invalid" => null,
-					"dataVersion" => DATAVERSION, 
-					"dataIp" => $ip
+					"estimatedDuration" => $estimatedDuration,
+					"estimatedWinningTeam" => $estimatedWinningTeam,
+					"gamesVersion" => DATAVERSION, 
+					"gamesIp" => $ip
 				);
 				foreach ($games as $key => $value) {
 					if (!isset($value)) {
@@ -107,7 +121,6 @@ if (count($query) > 0) {
 					"largestKillingSpree" => null, 
 					"turretsKilled" => null, 
 					"totalHeal" => null, 
-					"invalid" => null, 
 					"totalDamageDealtToChampions" => null, 
 					"physicalDamageDealtToChampions" => null, 
 					"magicDamageDealtToChampions" => null, 
@@ -184,17 +197,17 @@ if (count($query) > 0) {
 						"summonerId" => $player['summonerId'],
 						"teamId" => $player['teamId'],
 						"championId" => $player['championId'], 
-						"dataVersion" => DATAVERSION, 
-						"dataIp" => $ip
+						"playersVersion" => DATAVERSION, 
+						"playersIp" => $ip
 					);
-				} // Now we nees to add the player that we're checking (he isn't in the json array)
+				} // Now we need to add the player that we're checking (he isn't in the json array)
 				$players[] = array (
 					"gameId" => $match['gameId'],
 					"summonerId" => $sId,
 					"teamId" => $match['teamId'],
 					"championId" => $match['championId'],
-					"dataVersion" => DATAVERSION, 
-					"dataIp" => $ip
+					"playersVersion" => DATAVERSION, 
+					"playersIp" => $ip
 				);
 				
 				$req = array(); // Will contain requests to do			
@@ -220,10 +233,12 @@ if (count($query) > 0) {
 			} // END foreach match
 			$text = ($countNewMatches > 0) ? "[".$region."] Summoner ".$sId." \"".$row['name']."\" : ".$countNewMatches." added games".PHP_EOL : "";
 			echo $text;
-			logAccess($text);
+			if (!isset($_GET['debug'])) {
+				logAccess($text);
+			}
 		}
 		if (!PROD_KEY) {
-			sleep(0.9);
+			sleep(1);
 		}
 	} // END foreach player
 

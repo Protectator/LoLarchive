@@ -3,9 +3,9 @@
 -- http://www.phpmyadmin.net
 --
 -- Client: localhost
--- Généré le : Sam 15 Mars 2014 à 21:54
+-- Généré le : Sam 26 Avril 2014 à 20:38
 -- Version du serveur: 5.5.31
--- Version de PHP: 5.3.10-1ubuntu3.9
+-- Version de PHP: 5.3.10-1ubuntu3.10
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -61,7 +61,6 @@ CREATE TABLE IF NOT EXISTS `data` (
   `largestKillingSpree` smallint(5) unsigned NOT NULL,
   `turretsKilled` tinyint(3) unsigned NOT NULL,
   `totalHeal` mediumint(8) unsigned NOT NULL,
-  `invalid` bit(1) NOT NULL,
   `totalDamageDealtToChampions` mediumint(8) unsigned NOT NULL,
   `physicalDamageDealtToChampions` mediumint(8) unsigned NOT NULL,
   `magicDamageDealtToChampions` mediumint(8) unsigned NOT NULL,
@@ -138,11 +137,13 @@ CREATE TABLE IF NOT EXISTS `games` (
   `duration` int(8) NOT NULL,
   `mapId` tinyint(3) unsigned NOT NULL,
   `invalid` bit(1) NOT NULL,
-  `dataVersion` tinyint(3) unsigned NOT NULL,
-  `dataIp` varchar(16) COLLATE utf8_bin NOT NULL,
-  `dataStamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `estimatedDuration` int(10) unsigned NOT NULL,
+  `estimatedWinningTeam` tinyint(3) unsigned NOT NULL,
+  `gamesVersion` tinyint(3) unsigned NOT NULL,
+  `gamesIp` varchar(16) COLLATE utf8_bin NOT NULL,
+  `gamesStamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`gameId`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1374279066 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1388458393 ;
 
 -- --------------------------------------------------------
 
@@ -155,9 +156,9 @@ CREATE TABLE IF NOT EXISTS `players` (
   `summonerId` int(10) unsigned NOT NULL,
   `teamId` tinyint(3) unsigned NOT NULL,
   `championId` smallint(5) unsigned NOT NULL,
-  `dataVersion` tinyint(3) unsigned NOT NULL,
-  `dataIp` varchar(16) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `dataStamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `playersVersion` tinyint(3) unsigned NOT NULL,
+  `playersIp` varchar(16) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `playersStamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`gameId`,`summonerId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

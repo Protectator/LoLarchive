@@ -2,6 +2,9 @@
 
 // Useful variables
 
+// Date format accepted when passed in a filter
+$validDateFormat = "/^\d+-\d+-\d+$/";
+
 // Number to name of month and reverse
 $months = array (
 		"Jan" => '01',
@@ -18,29 +21,22 @@ $months = array (
 		"Dec" => '12'
 );
 
-function echoHeader($title = "LoLarchive"){
-	require_once(LOCAL.'includes/header.php');
-}
-
-function echoFooter(){
-	require_once(LOCAL.'includes/footer.php');
-}
-
 foreach($months as $key => $value) { // "Reverse" the array so it can be accessed by numbers of months too
 	$months[intval($value)] = $key;
 }
 
 // Full name of regions
-	$rName = array();
-	$rName['euw'] = "Europe West";
-	$rName['na'] = "North America";
-	$rName['eune'] = 'Europe Nordic &amp; East';
-	$rName['br'] = "Brazil";
-	$rName['tr'] = "Turkey";
-	$rName['ru'] = "Russia";
-	$rName['lan'] = "Latin America North";
-	$rName['las'] = "Latin America South";
-	$rName['oce'] = "Oceania";
+$regionName = array(
+		"euw" => "Europe West",
+		"na" => "North America",
+		"eune" => "Europe Nordic &amp, East",
+		"br" => "Brazil",
+		"tr" => "Turkey",
+		"ru" => "Russia",
+		"lan" => "Latin America North",
+		"las" => "Latin America South",
+		"oce" => "Oceania"
+);
 
 // Display text of game modes
 $modes = array (
@@ -58,10 +54,30 @@ $modes = array (
 		"FIRSTBLOOD_2x2" => "Snowdown 2v2",
 		"FIRSTBLOOD_1x1" => "Snowdown 1v1",
 		"SR_6x6" => "Hexakill",
+		"URF" => "U.R.F.",
 		"CAP_5x5" => "Team Builder 5v5",
-		"URF" => "Ultra Rapid Fire",
-		"URF_BOT" => "Ultra Rapid Fire vs AI"
+		"URF_BOT" => "U.R.F. vs AI"
 );
+
+/*
+ HEADER AND FOOTER
+ */
+
+/**
+ * Prints the header of the page
+ * 
+ * @param  string $title Title of the page (display in the tab)
+ */
+function echoHeader($title = "LoLarchive"){
+	require_once(LOCAL.'includes/header.php');
+}
+
+/**
+ * Prints the footer of the page
+ */
+function echoFooter(){
+	require_once(LOCAL.'includes/footer.php');
+}
 
 /*
  DATABASE CONNECTION FUNCTIONS
@@ -255,40 +271,8 @@ function secureArray(&$pdo, &$array) {
 }
 
 /*
-API FUNCTIONS
+ API FUNCTIONS
  */
-	
-/**
- * Gets summoner infos by name
- *
- * @param resource $c opened cURL session
- * @param string $region abbreviated server's name
- * @param string $name summoner's name to look for
- * @return string json containing the request
- */
-function getSummonerByName(&$c, $region, $name) {
-	$url = "https://community-league-of-legends.p.mashape.com/api/v1.0/".$region."/summoner/getSummonerByName/".$name;
-	curl_setopt($c, CURLOPT_URL, $url);
-	curl_setopt($c, CURLOPT_HTTPHEADER, array('authentication: '.API_KEY));
-	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-	return trim(curl_exec($c));
-}
-
-/**
- * Gets most recent games of a summoner
- *
- * @param resource $c opened cURL session
- * @param string $region abbreviated server's name
- * @param string $aId account Id to look for
- * @return string json containing the request
- */
-function getRecentGames(&$c, $region, $aId) {
-	$url = "https://community-league-of-legends.p.mashape.com/api/v1.0/".$region."/summoner/getRecentGames/".$aId;
-	curl_setopt($c, CURLOPT_URL, $url);
-	curl_setopt($c, CURLOPT_HTTPHEADER, array('X-Mashape-Authorization: '.API_KEY));
-	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-	return trim(curl_exec($c));
-}
 
 /**
  * Gets most recent games by summoner id
@@ -296,29 +280,44 @@ function getRecentGames(&$c, $region, $aId) {
  * @param resource $c opened cURL session
  * @param string $region abbreviated server's name
  * @param string $sId account Id to look for
- * @return string json containing the request
+ * @return string array of result
  */
 function apiGame(&$c, $region, $sId) {
-	$url = API_URL.$region."/v1.3/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
+	$url = API_URL.$region."/v".GAME_API_VERSION."/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-	return trim(curl_exec($c));
+	return json_decode(trim(curl_exec($c)), true);
 }
 
 /**
- * Gets all public data of a summoner
+ * Gets summoner infos by its name
  *
  * @param resource $c opened cURL session
  * @param string $region abbreviated server's name
- * @param string $aId account Id to look for
- * @return string json containing the request
+ * @param string $sName summoner name to look for
+ * @return string array of result
  */
-function getPublicData(&$c, $region, $aId) {
-	$url = "https://community-league-of-legends.p.mashape.com/api/v1.0/".$region."/summoner/getAllPublicSummonerDataByAccount/".$aId;
+function apiSummonerByName(&$c, $region, $sName) {
+	$url = API_URL.$region."/v".SUMMONER_API_VERSION."/summoner/by-name/".$sName."?api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
-	curl_setopt($c, CURLOPT_HTTPHEADER, array('authentication: '.API_KEY));
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-	return trim(curl_exec($c));
+	return json_decode(trim(curl_exec($c)), true);
+}
+
+/**
+ * Gets summoner infos by its id
+ *
+ * @param resource $c opened cURL session
+ * @param string $region abbreviated server's name
+ * @param string $sName summoner name to look for
+ * @return string array of result
+ */
+function apiSummonerNames(&$c, $region, $sIds) {
+	if (is_array($sIds)) {$sIds = implode(",", array_slice($sIds, 0, 40));}
+	$url = API_URL.$region."/v".SUMMONER_API_VERSION."/summoner/".$sIds."/name?api_key=".API_KEY;
+	curl_setopt($c, CURLOPT_URL, $url);
+	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+	return json_decode(trim(curl_exec($c)), true);
 }
 
 /*
@@ -330,7 +329,7 @@ function getPublicData(&$c, $region, $aId) {
  *
  * @param resource $pdo Opened PDO connection
  * @param resource $c Opened cURL conneciton
- * @param string $region Region of the summoner account
+ * @param string $region Region of the summoner
  * @param string $name Summoner name
  * @return int Should return "1" if the request was executed correctly.
  * Does not guarantee the summoner has effectively been tracked, though.
@@ -347,6 +346,99 @@ function trackNewPlayer(&$pdo, &$c, $region, $name) {
 	);
 	$request = "INSERT INTO usersToTrack "/*chelou*/.buildInsert($infos)." ON DUPLICATE KEY UPDATE name = '".$name."';";
 	return securedInsert($pdo, $request); // Returns the number of affected rows
+}
+
+/**
+ * Estimates the total duration of a game based on the playing time
+ * of the participating summoners.
+ * 
+ * @param  resource $pdo    Opened PDO connection
+ * @param  int 		$gameId id of the game to (re-)estimate the duration.
+ * @return int The estimated duration of that game, or null if there is an error.
+ */
+function estimateDuration(&$pdo, $gameId) {
+	$selectRequestString = "SELECT MAX(timePlayed) FROM data WHERE gameId = :gId";
+	$selectRequest = $pdo->prepare($selectRequestString);
+	$selectRequest->bindParam("gId", $gameId);
+	$selectRequest->execute();
+	$average = $selectRequest->fetchAll();
+	$average = $average[0]['MAX(timePlayed)'];
+	$updateRequestString = "UPDATE games SET estimatedDuration = :time WHERE gameId = :gId";
+	$updateRequest = $pdo->prepare($updateRequestString);
+	$updateRequest->bindParam(":time", $average);
+	$updateRequest->bindParam(":gId", $gameId);
+	$updateRequest->execute();
+	$affectedRows = $updateRequest->rowCount();
+	if ($affectedRows == 1) {
+		return $average;
+	} else {
+		trigger_error("Could not update estimated duration of game ".$gameId." in database.", E_WARNING);
+		return null;
+	}
+}
+
+/**
+ * Estimates the winning team of a game based on the individual win values of summoners
+ * in that game.
+ * 
+ * @param  resource $pdo    Opened PDO connection
+ * @param  int 		$gameId id of the game to (re-)estimate the duration.
+ * @return int The estimated winning team of that game, or null if there is an error.
+ */
+function estimateWinningTeam(&$pdo, $gameId) {
+	$selectRequestString = "SELECT teamId, win FROM players INNER JOIN data WHERE players.gameId = data.gameId AND data.gameId = :gId";
+	$selectRequest = $pdo->prepare($selectRequestString);
+	$selectRequest->bindParam("gId", $gameId);
+	$selectRequest->execute();
+	$reference = $selectRequest->fetchAll();
+	$reference = $reference[0];
+	if ($reference['win'] == 1) {
+		$winningTeam = $reference['teamId'];
+	} else {
+		$winningTeam = 300 - $reference['teamId'];
+	}
+	$updateRequestString = "UPDATE games SET estimatedWinningTeam = :winTeam WHERE gameId = :gId";
+	$updateRequest = $pdo->prepare($updateRequestString);
+	$updateRequest->bindParam(":gId", $gameId);
+	$updateRequest->bindParam(":winTeam", $winningTeam);
+	$updateRequest->execute();
+	$affectedRows = $updateRequest->rowCount();
+	if ($affectedRows == 1) {
+		return $reference;
+	} else {
+		trigger_error("Could not update estimated winning team of game ".$gameId." in database.", E_WARNING);
+		return null;
+	}
+}
+
+/**
+ * Saves the informations about a summoner by querying the API.
+ * 
+ * @param  resource	$pdo	Opened PDO connection
+ * @param  resource	$c		Opened cURL conneciton
+ * @param  string	$region	Region of the summoner
+ * @param  int		$id		id of the summoner
+ * @return string			Name of the summoner, or null if none was found.
+ */
+function saveSummonerInfosById(&$pdo, &$c, $region, $id) {
+	$summoner = apiSummonerNames($c, $region, $id);
+	if (!is_null($summoner)) { // If we found someone in the API
+		$summonerName = current($summoner);
+		$usersFields = array(
+			"id" => $id,
+			"user" => $summonerName,
+			"region" => $region
+			);
+		$addUserRequestString = "INSERT IGNORE INTO users ".buildInsert($usersFields);
+		$result = securedInsert($pdo, $addUserRequestString);
+		if (!($result == array(1, 1))) {
+			trigger_error("Tried to save informations about an already existing in database
+				summoner.", E_WARNING);
+		}
+		return $summonerName;
+	} else { // If we didn't find anything in the API either
+		return null;
+	}
 }
 
 /**
@@ -384,8 +476,12 @@ function champImg($champId, $champsName) {
 	return PATH."img/champions/".$champsName[$champId].".png";
 }
 
+/**
+ * Returns the HTML code to display items
+ * @param  array $row  The row to take infos from
+ * @return string      HTML code
+ */
 function items($row) {
-	$result = "";
 	$result = "<tr><td class=\"singleitemcell\">".item($row, 0)."<td>";
 	$result.= "<td class=\"singleitemcell\">".item($row, 1)."<td>";
 	$result.= "<td class=\"singleitemcell\">".item($row, 2)."<td>";
@@ -395,182 +491,6 @@ function items($row) {
 	$result.= "<td class=\"singleitemcell\">".item($row, 5)."<td></tr>";
 	return $result;
 }
-
-/**
- * Estimates the duration of a game
- *
- * I insist on the word ESTIMATION.
- * Made from the rules listed on http://leagueoflegends.wikia.com/wiki/Influence_Points
- *
- * @param int $map ID of the map played on
- * @param string $mode Mode played
- * @param int $ip amount of won ip
- * @param int $win 1 if game was won, 0 otherwise
- * @param $fwotd
- * @param string $difficulty Level of difficulty if played against bots
- * @param int $level Summoner's level that played the game
- * @return int Estimated duration of the game
- */
-function timeOf($map, $mode, $ip, $win, $fwotd, $difficulty = "", $level = 30) {
-	if ($fwotd) {
-		$ip -= 150;
-	}
-	$dominion = 0.;
-	$modifier = 1.;
-	switch ($map) { // IP/minute gains depends mainly on the map played on
-		case '1': // Summoner's rift
-			if ($win) {$ipminute = 2.312;} else {$ipminute = 1.405;}
-			break;
-		case '8': // Dominion
-			if ($win) {$ipminute = 2.312;} else {$ipminute = 1.405;}
-			$dominion = 1.;
-			break;
-		case '10': // Twisted Treeline
-			if ($win) {$ipminute = 2.;} else {$ipminute = 1.;}
-			break;
-		case "12": // ARAM
-			if ($win) {$ipminute = 2.312;} else {$ipminute = 1.405;}
-			break;
-	}
-	
-	switch ($mode) { // Base IP gain depends on the mode played
-		case 'ODIN_UNRANKED': // Dominion
-			if ($win) {$base = 20.;} else {$base = 12.5;}
-			break;
-		case 'NONE': // Custom game
-			if ($win) {$base = 18.;} else {$base = 16;}
-			$modifier = 0.75;
-		case 'RANKED_TEAM_3x3': // TODO : Lots of things to do here
-		case 'NORMAL_3x3';
-		case 'RANKED_SOLO_5x5':
-		case 'RANKED_TEAM_5x5':
-		case 'NORMAL': // Normal
-			if ($win) {$base = 18.;} else {$base = 16;}
-			break;
-		case 'BOT_3x3':
-		case 'BOT': // Coop vs Migros AI 5v5
-			switch ($difficulty) {
-				case 'EASY': // Beginner
-					if ($win) {$base = 7.;} else {$base = 6.;}
-					if ($level == 30) {$ipminute *= 0.55;}
-					else if (20 <= $level) {$ipminute *= 0.7;}
-					else if (10 <= $level) {$ipminute *= 0.85;}
-				case 'MEDIUM': // Intermediate
-					if ($win) {$base = 5.;} else {$base = 2.5;}
-					if ($level == 30) {$ipminute *= 0.8;}
-					else if (20 <= $level) {$ipminute *= 0.9;}
-			}
-			break;
-		case 'ARAM_UNRANKED_5x5':
-			if ($win) {$base = 15.;} else {$base = 14.;}
-			break;
-		case 'ONEFORALL_5x5':
-			if ($win) {$base = 15.;} else {$base = 14.;}
-			break;
-	}
-	return ($ip - $dominion - $base) / ($ipminute * $modifier);
-}
-
-/**
- * Estimates the duration of a game
- *
- * I insist on the word ESTIMATION.
- * Made from the rules listed on http://leagueoflegends.wikia.com/wiki/Influence_Points
- *
- * @param int $map ID of the map played on
- * @param string $mode Mode played
- * @param int $ip amount of won ip
- * @param int $win 1 if game was won, 0 otherwise
- * @param $fwotd
- * @param string $difficulty Level of difficulty if played against bots
- * @param int $level Summoner's level that played the game
- * @return int Estimated duration of the game
- */
-function superEstimation($map, $mode, $ip, $win, $fwotd, $difficulty = "", $level = 30, $balanced = true) {
-	if ($fwotd) { // First Win Of The Day
-		$ip -= 150;
-	}
-	$dominion = 0.; // Dominion bonus
-	$modifier = 1.; // Custom games modifier
-
-	//////////////
-	// IP / minute
-
-	// General case : Summoner's Rift
-	$ipminute = ($win) ? 2.312 : 1.405;
-
-	switch ($map) {
-		case '8': // The Crystal Scar
-			$dominion = 1.;
-		case '1': // Summoner's rift
-		case '2': // Summoner's rift (autumn)
-		case '3': // Proving grounds
-		case '12': // ARAM
-			$ipminute = ($win) ? 2.312 : 1.405;
-			break;
-
-		case '4':  // Twisted Treeline (old)
-		case '10': // Twisted Treeline
-			$ipminute = ($win) ? 2. : 1.;
-			break;
-	}
-
-	//////////
-	// Base IP
-	// by mode
-
-	switch ($mode) { // Base IP gain depends on the mode played
-
-		case 'NONE': // Custom game
-			if (!$balanced) {return 0;}
-			$base = ($win) ? 18. : 16.;
-			$modifier = 0.75;
-			break;
-
-		case 'ODIN_UNRANKED': // Dominion
-			$base = ($win) ? 20. : 12.5;
-			break;
-
-		case 'RANKED_TEAM_3x3': // TODO : Lots of things to do here OK
-
-		case 'NORMAL_3x3';
-
-		case 'RANKED_SOLO_5x5':
-
-		case 'RANKED_TEAM_5x5':
-
-		case 'NORMAL': // Normal
-			if ($win) {$base = 18.;} else {$base = 16;}
-			break;
-
-		case 'BOT_3x3':
-		
-		case 'BOT': // Coop vs AI 5v5
-			switch ($difficulty) {
-				case 'EASY': // Beginner
-					if ($win) {$base = 7.;} else {$base = 6.;}
-					if ($level == 30) {$ipminute *= 0.55;}
-					else if (20 <= $level) {$ipminute *= 0.7;}
-					else if (10 <= $level) {$ipminute *= 0.85;}
-				case 'MEDIUM': // Intermediate
-					if ($win) {$base = 5.;} else {$base = 2.5;}
-					if ($level == 30) {$ipminute *= 0.8;}
-					else if (20 <= $level) {$ipminute *= 0.9;}
-			}
-			break;
-		case 'ARAM_UNRANKED_5x5':
-			if ($win) {$base = 15.;} else {$base = 14.;}
-			break;
-		case 'ONEFORALL_5x5':
-			if ($win) {$base = 15.;} else {$base = 14.;}
-			break;
-	}
-	
-
-	// Return the final result
-	return ($ip - $dominion - $base) / ($ipminute * $modifier);
-}
-
 
 /**
  * Writes text at the end of the access log file
@@ -592,9 +512,57 @@ function logError($text) {
 	file_put_contents($file, file_get_contents($file).$text);
 }
 
+/**
+ * Transforms a certainly formatted date to SQL's TIMESTAMP format.
+ * 
+ * @param  string $date date in format "yyyy-mm-dd" to convert
+ * @param  string $time time in format "hh:mm:ss"
+ * @return string DATETIME (format "dd-mm-yyyy hh:mm:ss")
+ */
+function dateToSQL($date, $time) {
+	return implode("-", array_reverse( explode("-", $date)))." ".$time;
+}
+
+/**
+ * Transforms a DATETIME SQL to he wanted format to be printed.
+ * 
+ * @param  string $datetime SQL DATETIME to print
+ * @return string	Date and time formatted to be printed
+ */
+function printableSQLDate($datetime) {
+	$year = substr($datetime, 0, 4);
+	$month = substr($datetime, 5, 2);
+	$day = substr($datetime, 8, 2);
+	$hour = substr($datetime, 11, 2);
+	$min = substr($datetime, 14, 2);
+	return $day.".".$month.".".$year." ".$hour.":".$min;
+}
+
 /*
 PRINT FUNCTIONS
  */
+
+/**
+ * Generates the HTML code to display a Error well.
+ * 
+ * @param string $title		Title of the Error
+ * @param string $content	Content of the Error
+ */
+function HTMLerror($title, $content) {
+	return "<div class='alert alert-error alert-block'><h4>".$title."</h4>".$content."</div>";
+}
+
+/**
+ * Generates the HTML code to display a Warning well (with an close button).
+ * 
+ * @param string $title		Title of the Warning
+ * @param string $content	Content of the Warning
+ */
+function HTMLwarning($title, $content) {
+	return "<div class='alert alert-warning alert-block'>
+		<button type='button' class='close' data-dismiss='alert'>&times;</button>
+		<h4>".$title."</h4>".$content."</div>";	
+}
 
 /**
  * Generates the HTML code to display the name of a summoner and its champion's icon.
@@ -603,7 +571,7 @@ PRINT FUNCTIONS
  * @param int championId id of the champion played
  * @param string summonerName Display name of the summoner
  * @param int summonerId id of the summoner
- * @champsName array Name of all champions
+ * @param array champsName Name of all champions
  * @return string HTML code
  */
 function HTMLparticipant($region, $championId, $summonerName, $summonerId, $champsName) {
