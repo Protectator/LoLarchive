@@ -404,7 +404,7 @@ function estimateWinningTeam(&$pdo, $gameId) {
 	$updateRequest->execute();
 	$affectedRows = $updateRequest->rowCount();
 	if ($affectedRows == 1) {
-		return $reference;
+		return $winningTeam;
 	} else {
 		trigger_error("Could not update estimated winning team of game ".$gameId." in database.", E_WARNING);
 		return null;
