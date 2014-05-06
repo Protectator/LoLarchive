@@ -69,8 +69,14 @@ define('SUMMONER_API_VERSION', '1.4');
 // API_URL is the url pointing to the API you're using.
 define('API_URL', "https://prod.api.pvp.net/api/lol/");
 
-// It is strongly recommended to not touch the following configuration if you have
-// set PROD_KEY to FALSE
+/*                    _
+                     / \
+                    / ! \
+                   /_____\
+	
+	It is strongly recommended to not touch the following configuration if you have
+	set PROD_KEY to FALSE
+*/
 
 // QUERY_FOREIGN_SUMMONER_NAME_WHEN_PLAYER_ACCESSED tells if the database should ask
 // the API about the name of an unknown summoner when his player page is accessed.

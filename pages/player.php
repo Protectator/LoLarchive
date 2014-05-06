@@ -2,6 +2,8 @@
 	
 	$champsFolder = PATH."img/champions/";
 
+	// Check which of the important parameters are set
+
 	if (isset($_GET["name"])) {
 		if ($_GET["name"] != "") {$Iname = $_GET["name"];}
 	}
@@ -11,6 +13,15 @@
 	if (isset($_GET["region"])) { 
 		if ($_GET["region"] != "") {$Iregion = strtolower($_GET["region"]);}
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// Decide which query to execute based on which parameters are provided //
+	//////////////////////////////////////////////////////////////////////////
+	//
+	// This part will try to get a summoner id by any means. Either this id
+	// is directly provided by the client, or it needs to be looked for in the
+	// database or also asked for using Riot Games' API by giving the name
+	// provided. If neither the name or id is provided, a search isn't possible.
 
 	if (isset($Iregion)) {
 		if (array_key_exists($Iregion, $regionName)) {
@@ -114,16 +125,23 @@
 				echo HTMLerror("Bad search", "Please provide either a summoner name or id.");
 			}
 
-
-			// Done with treating user input, now we'll display all of this
 			if (isset($summonerId)) {
 
-				///
-				/// START NEW
-				/// 
-				
+				////////////////////////////////////////////////////
+				// Query user's games and statistics with filters //
+				////////////////////////////////////////////////////
+				// 
+				// Now that we have an id to look for, we'll ask the database for all
+				// the games that this user took part in, filtered by the provided
+				// conditions.
 
-				// START FILTERS
+				//// Filters ////
+				// There are 4 filters
+				// - fChampion	Games in which the user played that champion
+				// - fMode		Games played in that mode
+				// - fStart		Games more recent than this date
+				// - fEnd		Games more ancient than this date
+
 				$filtersStr = array(); // sexy String of all filters conditions	
 				$filters = array( // Array of activated filters
 							'fChampion' => false,
@@ -132,23 +150,25 @@
 							'fEnd' => false
 				);
 				
-				// filter games by Champion
+				// Add filter fChampion if it is given
 				if (isset($_GET['fChampion']) AND $_GET['fChampion'] != '') {
 					$filters['fChampion'] = $_GET['fChampion'];
 					$championFilterStr = " AND players.championId = :championId";
 					$filtersStr[] = $championFilterStr;
 				}
 				
-				// filter games by Game Mode
+				// Add filter fMode if it is given
 				if (isset($_GET['fMode']) AND $_GET['fMode'] != '') {
 					$filters['fMode'] = $_GET['fMode'];
 					$modeFilterStr = " AND games.subType = :typeStr";
 					$filtersStr[] = $modeFilterStr;
 				}
 
-				$validDateFormat = "/^\d+-\d+-\d+$/";
-
-				// filter games by Date
+				// Filters fStart and fEnd are a little more tricky :
+				// If only one of them is given, we add it as a comparison between the
+				// provided filter's date and the games' date.
+				// If they are both given, the filter is added as a date between two
+				// boundaries (date BETWEEN fStart and fEnd)
 				if ((isset($_GET['fStart']) AND $_GET['fStart'] != '') AND (isset($_GET['fEnd']) AND $_GET['fEnd'] != '')) {
 					if (preg_match($validDateFormat, $_GET['fStart']) AND preg_match($validDateFormat, $_GET['fEnd'])) {
 						$nextStart = $_GET['fStart'];
@@ -176,15 +196,21 @@
 					}
 				}
 				
+				//// Main SQL ////
+				// This is the main SQL call. It joins all the needed tables to display games with its data about
+				// the corresponding participating summoners and stats about the current summoner
 				$conditions = "
 				FROM (games 
 				INNER JOIN players ON games.gameId = players.gameId)
 				LEFT JOIN data ON games.gameId = data.gameId AND players.summonerId = data.summonerId AND data.gameId = games.gameId
 				WHERE players.summonerId = :sId".implode($filtersStr);
 				
+				// This SQL calculated the stats that are going to be displayed just below summoner's informations. They are statistics
+				// about all the asked games
 				$statsString = "SELECT count(*) AS nbGames, avg(data.championsKilled) AS k, avg(data.numDeaths) AS d, avg(data.assists) AS a,
 				avg(data.minionsKilled+data.neutralMinionsKilled) AS minions, avg(data.goldEarned) AS gold, avg(data.timePlayed) AS duration".$conditions;
 				
+				// This SQL counts the number of won games in the search.
 				$wonGamesString = "SELECT count(*) AS nb".$conditions." AND (data.win = (1) OR (games.estimatedWinningTeam = players.teamId));";
 				
 				$requestString = array();
@@ -224,22 +250,25 @@
 					$stats->bindParam(":to", $filters['fEnd']);
 					$wonGames->bindParam(":to", $filters['fEnd']);
 				}
-
-				if (isset($_GET['debug'])) {
-					echo "<div class='well'>".$requestString[1]."</div>";
-				}
 				
-				$summonerGames->execute(); // Execute the request
-				$stats->execute();         // Execute the request
-				$wonGames->execute();      // Execute the request
+				// Execute all SQL requests.
+				$summonerGames->execute();
+				$stats->execute();
+				$wonGames->execute();
 
 				$finalStats = $stats->fetch();
-				$nbWon = $wonGames->fetch();
 
 				if ($finalStats['nbGames'] != 0) {
 					$potentiallyInexistantSummoner = false;
 				}
 
+				// Bizarre case that happens when :
+				// - The client has provided only the id
+				// - The id has no corresponding summoner in the database
+				// - The server has disabled calls to Riot Games' API about summoner names
+				// - No game have been found for this id
+				// Then there's no way to know if that summoner actually exists or not.
+				// In that case, we display a warning message.
 				if (isset($potentiallyInexistantSummoner)) {
 					if ($potentiallyInexistantSummoner) {
 						echo HTMLwarning("Warning",
@@ -249,10 +278,10 @@
 					}
 				}
 
-				// We want infos about all champions. This request will never change
+				// Requests informations about all champions.
 				$requestString[2] = "SELECT * FROM champions ORDER BY name ASC;";
 				$championsRequest = $pdo->prepare($requestString[2]);
-				$championsRequest->execute(); // Execute the request
+				$championsRequest->execute();
 				
 				$champsId = array();
 				$champsDisplay = array();
@@ -261,14 +290,16 @@
 					$champsDisplay[$champ['id']] = $champ['display'];
 					$champsName[$champ['id']] = $champ['name'];
 				}
-				///
-				/// END NEW
-				/// 
+
+				$nbWon = $wonGames->fetch();
+
+				//// Write summoner HTML ////
+				// This part writes the HTML that displays informations about the summoner,
+				// such as name, statistics and filters form.
 
 				if (isset($summonerName)) {
+					// Display infos about that summoner, if we have its name
 					echoHeader($summonerName." [".strtoupper($Iregion)."] - LoLarchive");
-					// Display infos about that summoner
-					// 
 					?>
 					<div class="row">
 						<div class="span12">
@@ -284,9 +315,8 @@
 
 
 				} else {
+					// Display infos about that summoner, if we don't have its name
 					echoHeader($summonerId." [".strtoupper($Iregion)."] - LoLarchive");
-
-
 					?>
 					<div class="row">
 						<div class="span12">
@@ -300,9 +330,7 @@
 					</div>
 					<?
 				}
-				// Display infos about summoner games
-				// 
-
+				// Display statistics about the asked games
 				?>
 				<div class="row">
 					<div class="span12">
@@ -392,25 +420,20 @@
 					</div>
 				</div>
 				<?
-				/*
-					FOR EACH GAME
-				*/
+				
 				while ($row = $summonerGames->fetch(PDO::FETCH_NAMED)) {
 
-					//   START Debug
-					if (isset($_GET['debug'])) {
-						echo "<br>ARRAY:<pre>";
-						print_r($row);
-						echo "</pre>";
-					} // END Debug
+					//// Each game ////
+					// This will treat each game and display it.
 
+					// Check if data are present for this game
 					$hasData = isset($row['spell1']);
 					
 					// Handles all bit(1) data
 					$win = ($hasData) ? ord($row['win']) : ($row['teamId'] == $row['estimatedWinningTeam']);
 					$invalid = ord($row['invalid']);
 					
-					/* Request to find all summoners in a game */
+					// Request to find all summoners in the game
 					$requestString[3] = "
 					SELECT * FROM players
 					LEFT JOIN users ON users.id = players.summonerId
@@ -418,7 +441,6 @@
 					$playersRequest = $pdo->prepare($requestString[3]);
 					$playersRequest->bindParam(":gId", $row['gameId'][0]);
 					$playersRequest->execute(); // Execute the request
-
 					
 					// Put each player on the right team
 					$summonersTeam = $row['teamId'];
@@ -435,12 +457,7 @@
 
 					$duration = ($hasData) ? $row['timePlayed'] : $row['estimatedDuration'];
 					
-					$year = substr($row['createDate'], 0, 4);
-					$month = substr($row['createDate'], 5, 2);
-					$day = substr($row['createDate'], 8, 2);
-					$hour = substr($row['createDate'], 11, 2);
-					$min = substr($row['createDate'], 14, 2);
-					$time = $day.".".$month.".".$year." ".$hour.":".$min;
+					$time = printableSQLDate($row['createDate']);
 					
 					$inventory = array($row['item0'], $row['item1'], $row['item2'], 
 						$row['item3'], $row['item4'], $row['item5'], $row['item6']);

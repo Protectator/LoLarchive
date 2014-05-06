@@ -2,6 +2,9 @@
 
 // Useful variables
 
+// Date format accepted when passed in a filter
+$validDateFormat = "/^\d+-\d+-\d+$/";
+
 // Number to name of month and reverse
 $months = array (
 		"Jan" => '01',
@@ -18,29 +21,22 @@ $months = array (
 		"Dec" => '12'
 );
 
-function echoHeader($title = "LoLarchive"){
-	require_once(LOCAL.'includes/header.php');
-}
-
-function echoFooter(){
-	require_once(LOCAL.'includes/footer.php');
-}
-
 foreach($months as $key => $value) { // "Reverse" the array so it can be accessed by numbers of months too
 	$months[intval($value)] = $key;
 }
 
 // Full name of regions
-$regionName = array();
-$regionName['euw'] = "Europe West";
-$regionName['na'] = "North America";
-$regionName['eune'] = 'Europe Nordic &amp; East';
-$regionName['br'] = "Brazil";
-$regionName['tr'] = "Turkey";
-$regionName['ru'] = "Russia";
-$regionName['lan'] = "Latin America North";
-$regionName['las'] = "Latin America South";
-$regionName['oce'] = "Oceania";
+$regionName = array(
+		"euw" => "Europe West",
+		"na" => "North America",
+		"eune" => "Europe Nordic &amp, East",
+		"br" => "Brazil",
+		"tr" => "Turkey",
+		"ru" => "Russia",
+		"lan" => "Latin America North",
+		"las" => "Latin America South",
+		"oce" => "Oceania"
+);
 
 // Display text of game modes
 $modes = array (
@@ -62,6 +58,26 @@ $modes = array (
 		"CAP_5x5" => "Team Builder 5v5",
 		"URF_BOT" => "U.R.F. vs AI"
 );
+
+/*
+ HEADER AND FOOTER
+ */
+
+/**
+ * Prints the header of the page
+ * 
+ * @param  string $title Title of the page (display in the tab)
+ */
+function echoHeader($title = "LoLarchive"){
+	require_once(LOCAL.'includes/header.php');
+}
+
+/**
+ * Prints the footer of the page
+ */
+function echoFooter(){
+	require_once(LOCAL.'includes/footer.php');
+}
 
 /*
  DATABASE CONNECTION FUNCTIONS
@@ -501,10 +517,25 @@ function logError($text) {
  * 
  * @param  string $date date in format "yyyy-mm-dd" to convert
  * @param  string $time time in format "hh:mm:ss"
- * @return string 	DATETIME (format "dd-mm-yyyy hh:mm:ss")
+ * @return string DATETIME (format "dd-mm-yyyy hh:mm:ss")
  */
 function dateToSQL($date, $time) {
 	return implode("-", array_reverse( explode("-", $date)))." ".$time;
+}
+
+/**
+ * Transforms a DATETIME SQL to he wanted format to be printed.
+ * 
+ * @param  string $datetime SQL DATETIME to print
+ * @return string	Date and time formatted to be printed
+ */
+function printableSQLDate($datetime) {
+	$year = substr($datetime, 0, 4);
+	$month = substr($datetime, 5, 2);
+	$day = substr($datetime, 8, 2);
+	$hour = substr($datetime, 11, 2);
+	$min = substr($datetime, 14, 2);
+	return $day.".".$month.".".$year." ".$hour.":".$min;
 }
 
 /*
@@ -540,7 +571,7 @@ function HTMLwarning($title, $content) {
  * @param int championId id of the champion played
  * @param string summonerName Display name of the summoner
  * @param int summonerId id of the summoner
- * @champsName array Name of all champions
+ * @param array champsName Name of all champions
  * @return string HTML code
  */
 function HTMLparticipant($region, $championId, $summonerName, $summonerId, $champsName) {
