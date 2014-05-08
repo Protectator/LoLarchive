@@ -84,7 +84,6 @@ if (count($query) > 0) {
 					"gameMode" => null,
 					"gameType" => null,
 					"subType" => null,
-					"duration" => '0',
 					"mapId" => null,
 					"invalid" => null,
 					"estimatedDuration" => $estimatedDuration,
@@ -209,6 +208,28 @@ if (count($query) > 0) {
 					"playersVersion" => DATAVERSION, 
 					"playersIp" => $ip
 				);
+
+				// Requests all names of the present summoners
+				if (IMMEDIATE_QUERY_SUMMONER_NAMES) {
+					$players = array_map(function($a){return $a['summonerId'];}, $players); // Array containing only summonerIds
+					$c = curl_init();
+					$names = apiSummonerNames($c, $region, $players);
+					curl_close($c);
+					$query = "INSERT IGNORE into users ";
+					$toAdd = array();
+					foreach($names as $key => $val) {
+						$toAdd[] = array(
+							"summonerId" => $key,
+							"user" => $val['name'],
+							"region" => $region
+						);
+					}
+					$query .= buildMultInsert($toAdd);
+					$addedSummoners = securedInsert($pdo, $query);
+					if ($addedSummoners != 0) {
+						echo $addedSummoners." names saved.";
+					}
+				}
 				
 				$req = array(); // Will contain requests to do			
 

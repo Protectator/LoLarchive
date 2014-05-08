@@ -499,7 +499,7 @@ function items($row) {
  */
 function logAccess($text) {
 	$file = LOCAL.'private/logs/access.log';
-	file_put_contents($file, file_get_contents($file).$text);
+	addToFile($file, $text);
 }
 
 /**
@@ -509,7 +509,33 @@ function logAccess($text) {
  */
 function logError($text) {
 	$file = LOCAL.'private/logs/error.log';
-	file_put_contents($file, file_get_contents($file).$text);
+	addToFile($file, Text);
+}
+
+/**
+ * Adds text to the end of a file.
+ * 
+ * @param string $file    Absolute path of the file
+ * @param string $content Text to add at the end of the file.
+ */
+function addToFile($file, $content) {
+	$errorString = "Tried to write in file '".$file."' ;".PHP_EOL;
+	if (file_exists($file)) {
+		if (is_readable($file)) {
+			if (is_writable($file)) {
+				file_put_contents($file, $content, FILE_APPEND); 
+			} else {
+				$errorString .= "File is not writable";
+				trigger_error($errorString, E_USER_ERROR);
+			}
+		} else {
+			$errorString .= "File is not readable";
+			trigger_error($errorString, E_USER_ERROR);
+		}
+	} else {
+		$errorString .= "File does not exist";
+		trigger_error($errorString, E_USER_ERROR);
+	}
 }
 
 /**
