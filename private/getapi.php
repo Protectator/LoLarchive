@@ -211,21 +211,26 @@ if (count($query) > 0) {
 
 				// Requests all names of the present summoners
 				if (IMMEDIATE_QUERY_SUMMONER_NAMES) {
-					$players = array_map(function($a){return $a['summonerId'];}, $players); // Array containing only summonerIds
+					$sIds = array_map(function($a){return $a['summonerId'];}, $players); // Array containing only summonerIds
 					$c = curl_init();
-					$names = apiSummonerNames($c, $region, $players);
+					$names = apiSummonerNames($c, $region, $sIds);
 					curl_close($c);
-					$query = "INSERT IGNORE into users ";
+					$usersQuery = "INSERT IGNORE into users ";
 					$toAdd = array();
 					foreach($names as $key => $val) {
 						$toAdd[] = array(
-							"summonerId" => $key,
-							"user" => $val['name'],
+							"id" => $key,
+							"user" => $val,
 							"region" => $region
 						);
+						if (!PROD_KEY) {
+							sleep(1);
+						}
 					}
-					$query .= buildMultInsert($toAdd);
-					$addedSummoners = securedInsert($pdo, $query);
+					// TODO : Optimize. Request 10 per 10 summoners isn't optimal when it's possible to do them 40 per 40.
+					// Plus, the same user might be researched multiple times.
+					$usersQuery .= buildMultInsert($toAdd);
+					$addedSummoners = securedInsert($pdo, $usersQuery);
 					if ($addedSummoners != 0) {
 						echo $addedSummoners." names saved.";
 					}
