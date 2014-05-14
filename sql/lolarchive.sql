@@ -134,7 +134,6 @@ CREATE TABLE IF NOT EXISTS `games` (
   `gameMode` varchar(32) COLLATE utf8_bin NOT NULL,
   `gameType` varchar(32) COLLATE utf8_bin NOT NULL,
   `subType` varchar(32) COLLATE utf8_bin NOT NULL,
-  `duration` int(8) NOT NULL,
   `mapId` tinyint(3) unsigned NOT NULL,
   `invalid` bit(1) NOT NULL,
   `estimatedDuration` int(10) unsigned NOT NULL,

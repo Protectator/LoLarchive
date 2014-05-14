@@ -84,7 +84,6 @@ if (count($query) > 0) {
 					"gameMode" => null,
 					"gameType" => null,
 					"subType" => null,
-					"duration" => '0',
 					"mapId" => null,
 					"invalid" => null,
 					"estimatedDuration" => $estimatedDuration,
