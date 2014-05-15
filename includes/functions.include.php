@@ -473,7 +473,12 @@ function item($row, $int) {
  * @return string Link to the image 
  */
 function champImg($champId, $champsName) {
-	return PATH."img/champions/".$champsName[$champId].".png";
+	if (array_key_exists($champId, $champsName)) {
+		return PATH."img/champions/".$champsName[$champId].".png";
+	} else {
+		logError("Missing champion informations for champion id ".$champId);
+		return PATH."img/championPlaceholder.png";
+	}
 }
 
 /**
@@ -509,7 +514,8 @@ function logAccess($text) {
  */
 function logError($text) {
 	$file = LOCAL.'private/logs/error.log';
-	file_put_contents($file, file_get_contents($file).$text);
+	$toWrite = "[".date(DateTime::RSS, time())."] ".$text.PHP_EOL;
+	file_put_contents($file, file_get_contents($file).$toWrite);
 }
 
 /**
