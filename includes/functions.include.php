@@ -542,7 +542,8 @@ function items($row) {
  */
 function logAccess($text) {
 	$file = LOCAL.'private/logs/access.log';
-	addToFile($file, $text);
+	$toWrite = "[".date(DateTime::RSS, time())."] [".$_SERVER['REMOTE_ADDR']."] ".$text.PHP_EOL;
+	addToFile($file, $toWrite);
 }
 
 /**
@@ -552,7 +553,8 @@ function logAccess($text) {
  */
 function logError($text) {
 	$file = LOCAL.'private/logs/error.log';
-	addToFile($file, $text);
+	$toWrite = "[".date(DateTime::RSS, time())."] [".$_SERVER['REMOTE_ADDR']."] ".$text.PHP_EOL;
+	addToFile($file, $toWrite);
 }
 
 /**
