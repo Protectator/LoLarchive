@@ -640,10 +640,10 @@ function HTMLwarning($title, $content) {
  * @param int championId id of the champion played
  * @param string summonerName Display name of the summoner
  * @param int summonerId id of the summoner
- * @param array champsName Name of all champions
  * @return string HTML code
  */
-function HTMLparticipant($region, $championId, $summonerName, $summonerId, $champsName) {
+function HTMLparticipant($region, $championId, $summonerName, $summonerId) {
+	global $champsName;
 	if ($summonerName != "") {
 		$displayText = $summonerName;
 		$displayClass = "littleSummonerLinkName";
@@ -677,7 +677,8 @@ function HTMLchampionImg($championId, $size = "small") {
  * @param array team2 List of players in team 2
  * @return string HTML code
  */
-function HTMLparticipants($region, $team1, $team2, $champsName) {
+function HTMLparticipants($region, $team1, $team2) {
+	global $champsName;
 	$result = "<table class=\"players\">";
 	$nbLines = max (5, count($team1), count($team2));
 	// Line per line
