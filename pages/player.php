@@ -282,14 +282,6 @@
 				$requestString[2] = "SELECT * FROM champions ORDER BY name ASC;";
 				$championsRequest = $pdo->prepare($requestString[2]);
 				$championsRequest->execute();
-				
-				$champsId = array();
-				$champsDisplay = array();
-				while ($champ = $championsRequest->fetch()) {
-					$champsId[$champ['id']] = $champ['id'];
-					$champsDisplay[$champ['id']] = $champ['display'];
-					$champsName[$champ['id']] = $champ['name'];
-				}
 
 				$nbWon = $wonGames->fetch();
 
@@ -369,10 +361,10 @@
 									<div class="controls">
 										<select id="champFilterChoice" name="fChampion" class="input-medium">
 											<?php
-											foreach ($champsId as $value) {
+											foreach (array_sort($champions, 'display') as $key => $value) {
 												?>
-												<option value="<?php echo $value;?>" style="background: url('<?php echo PATH;?>img/champions/<?php echo $champsName[$value];?>.png') no-repeat;" <?php echo (isset($filters['fChampion']) && $filters['fChampion'] == $value)?"selected":"";?>>
-												<?php echo $champsDisplay[$value];?>
+												<option value="<?php echo $key;?>" <?php echo (isset($filters['fChampion']) && $filters['fChampion'] == $key)?"selected":"";?>>
+												<?php echo $value['display'];?>
 												</option>
 												<?
 											}
@@ -485,7 +477,7 @@
 						
 							<div class="well<?php echo $class;?> match" id="<?php echo $row['gameId'][0];?>">
 						
-								<div class="matchcell championcell"><?php echo HTMLchampionImg($row['championId'], "big", $champsName); ?></div>
+								<div class="matchcell championcell"><?php echo HTMLchampionImg($row['championId'], "big"); ?></div>
 								
 								<div class="matchcell headcell">							
 									<?php echo HTMLgeneralStats($modes[$row['subType']], $text, $duration, $time);?>
@@ -521,7 +513,7 @@
 								}
 								?>
 								<div class="matchcell playerscell">
-									<?php echo HTMLparticipants($row['region'][0], $teamL, $teamR, $champsName); ?>
+									<?php echo HTMLparticipants($row['region'][0], $teamL, $teamR); ?>
 								</div>
 							</div>
 						</div>

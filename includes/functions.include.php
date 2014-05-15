@@ -61,11 +61,11 @@ $modes = array (
 
 $cUrl = curl_init();
 $itemsImages = apiItemsImages($cUrl, "euw");
-$championsImagesTemp = apiChampionsImages($cUrl, "euw");
+$championsAnswer = apiChampionsImages($cUrl, "euw");
 curl_close($cUrl);
-$championsImages = array();
-foreach ($championsImagesTemp['data'] as $key => $value) {
-	$championsImages[$value['id']] = $value['image']['full'];
+$champions = array();
+foreach ($championsAnswer['data'] as $key => $value) {
+	$champions[intval($value['id'])] = array("img" => $value['image']['full'], "name" => $value['key'], "display" => $value['name']);
 }
 
 /*
@@ -515,8 +515,8 @@ function item($row, $int) {
  * @return string Link to the image 
  */
 function champImg($champId) {
-	global $championsImages;
-	return STATIC_RESOURCES.STATIC_RESOURCES_VERSION."/img/champion/".$championsImages[$champId];
+	global $champions;
+	return STATIC_RESOURCES.STATIC_RESOURCES_VERSION."/img/champion/".$champions[$champId]['img'];
 }
 
 /**
@@ -643,7 +643,6 @@ function HTMLwarning($title, $content) {
  * @return string HTML code
  */
 function HTMLparticipant($region, $championId, $summonerName, $summonerId) {
-	global $champsName;
 	if ($summonerName != "") {
 		$displayText = $summonerName;
 		$displayClass = "littleSummonerLinkName";
@@ -651,7 +650,7 @@ function HTMLparticipant($region, $championId, $summonerName, $summonerId) {
 		$displayText = $summonerId;
 		$displayClass = "littleSummonerLinkId";
 	}
-	$result = "<td class=\"littleChampIcon\">".HTMLchampionImg($championId, "small", $champsName)."</td>";
+	$result = "<td class=\"littleChampIcon\">".HTMLchampionImg($championId, "small")."</td>";
 	$result .= '<td class="'.$displayClass.'"><a href="'.PATH.'index.php?page=player&amp;region='.$region.'&amp;id='.$summonerId.'">'.$displayText.'</a></td>';
 	return $result;
 }
@@ -678,7 +677,6 @@ function HTMLchampionImg($championId, $size = "small") {
  * @return string HTML code
  */
 function HTMLparticipants($region, $team1, $team2) {
-	global $champsName;
 	$result = "<table class=\"players\">";
 	$nbLines = max (5, count($team1), count($team2));
 	// Line per line
@@ -687,13 +685,13 @@ function HTMLparticipants($region, $team1, $team2) {
 		$result .= "<tr class=\"playerLine\">";
 		// Left team member
 		if (isset($team1[$i])) {
-			$result .= HTMLparticipant($region, $team1[$i]['championId'], $team1[$i]['user'], $team1[$i]['summonerId'], $champsName);
+			$result .= HTMLparticipant($region, $team1[$i]['championId'], $team1[$i]['user'], $team1[$i]['summonerId']);
 			} else {
 			$result .= "<td class=\"littleChampIcon\"></td><td class=\"littleSummonerLinkName\"></td>";
 		}
 		// Right team member
 		if (isset($team2[$i])) {
-			$result .= HTMLparticipant($region, $team2[$i]['championId'], $team2[$i]['user'], $team2[$i]['summonerId'], $champsName);
+			$result .= HTMLparticipant($region, $team2[$i]['championId'], $team2[$i]['user'], $team2[$i]['summonerId']);
 		} else {
 			$result .= "<td class=\"littleChampIcon\"></td><td class=\"littleSummonerLinkName\"></td>";
 		}
@@ -866,6 +864,48 @@ function bindParams(&$pdo, $columns) {
 /*
 UTILITY
  */
+
+/**
+ * Simple function to sort an array by a specific key. Maintains index association.
+ * @param  array $array Array to sort
+ * @param  string $on key to sort by
+ * @param  sort_flags $order sorting flas. See http://www.php.net/manual/en/function.sort.php
+ * @return array sorted array
+ */
+function array_sort($array, $on, $order=SORT_ASC)
+{
+    $new_array = array();
+    $sortable_array = array();
+
+    if (count($array) > 0) {
+        foreach ($array as $k => $v) {
+            if (is_array($v)) {
+                foreach ($v as $k2 => $v2) {
+                    if ($k2 == $on) {
+                        $sortable_array[$k] = $v2;
+                    }
+                }
+            } else {
+                $sortable_array[$k] = $v;
+            }
+        }
+
+        switch ($order) {
+            case SORT_ASC:
+                asort($sortable_array);
+            break;
+            case SORT_DESC:
+                arsort($sortable_array);
+            break;
+        }
+
+        foreach ($sortable_array as $k => $v) {
+            $new_array[$k] = $array[$k];
+        }
+    }
+
+    return $new_array;
+}
 
 // Test tooltip function
 function getToolTipOfItem(&$c, $itemId) {
