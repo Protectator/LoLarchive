@@ -61,7 +61,12 @@ $modes = array (
 
 $cUrl = curl_init();
 $itemsImages = apiItemsImages($cUrl, "euw");
+$championsImagesTemp = apiChampionsImages($cUrl, "euw");
 curl_close($cUrl);
+$championsImages = array();
+foreach ($championsImagesTemp['data'] as $key => $value) {
+	$championsImages[$value['id']] = $value['image']['full'];
+}
 
 /*
  HEADER AND FOOTER
@@ -338,6 +343,20 @@ function apiItemsImages(&$c, $region) {
 	return json_decode(trim(curl_exec($c)), true);
 }
 
+/**
+ * Gets champions images informations
+ * 
+ * @param resource $c opened cURL session
+ * @param string $region abbreviated server's name
+ * @return array of result
+ */
+function apiChampionsImages(&$c, $region) {
+	$url = API_URL."static-data/".$region."/v".STATIC_DATA_VERSION."/champion?champData=image&api_key=".API_KEY;
+	curl_setopt($c, CURLOPT_URL, $url);
+	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+	return json_decode(trim(curl_exec($c)), true);
+}
+
 /*
  HIGHER LEVEL FUNCTIONS
  */
@@ -495,8 +514,9 @@ function item($row, $int) {
  *
  * @return string Link to the image 
  */
-function champImg($champId, $champsName) {
-	return PATH."img/champions/".$champsName[$champId].".png";
+function champImg($champId) {
+	global $championsImages;
+	return STATIC_RESOURCES.STATIC_RESOURCES_VERSION."/img/champion/".$championsImages[$champId];
 }
 
 /**
@@ -588,7 +608,7 @@ function printableSQLDate($datetime) {
 }
 
 /*
-PRINT FUNCTIONS
+ PRINT FUNCTIONS
  */
 
 /**
@@ -642,11 +662,11 @@ function HTMLparticipant($region, $championId, $summonerName, $summonerId, $cham
  * @param int championId id of the champion
  * @return string HTML code
  */
-function HTMLchampionImg($championId, $size = "small", $champsName) {
+function HTMLchampionImg($championId, $size = "small") {
 	if ($size == "small") {
-		return "<img src=\"".champImg(intval($championId), $champsName)."\" class=\"littleChampIcon\" alt=\"".$championId."\">";
+		return "<img src=\"".champImg(intval($championId))."\" class=\"littleChampIcon\" alt=\"".$championId."\">";
 	} else if ($size == "big") {
-		return "<img src=\"".champImg(intval($championId), $champsName)."\" class=\"img-rounded imgChampion\" alt=\"".$championId."\">";
+		return "<img src=\"".champImg(intval($championId))."\" class=\"img-rounded imgChampion\" alt=\"".$championId."\">";
 	}
 }
 
