@@ -509,7 +509,7 @@ function logAccess($text) {
  */
 function logError($text) {
 	$file = LOCAL.'private/logs/error.log';
-	addToFile($file, Text);
+	addToFile($file, $text);
 }
 
 /**

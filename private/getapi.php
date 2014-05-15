@@ -26,6 +26,9 @@ $countTotalMatches = 0;
 // Si la requête retourne des résultats
 if (count($query) > 0) {
 	$countPlayers = 0;
+	if (IMMEDIATE_QUERY_SUMMONER_NAMES) {
+		$allIds = array();
+	}
 	// For each player
 	while ($row = $query->fetch()) {
 		// Only used to log informations
@@ -209,31 +212,10 @@ if (count($query) > 0) {
 					"playersIp" => $ip
 				);
 
-				// Requests all names of the present summoners
+				// Adds ids to query for names
 				if (IMMEDIATE_QUERY_SUMMONER_NAMES) {
 					$sIds = array_map(function($a){return $a['summonerId'];}, $players); // Array containing only summonerIds
-					$c = curl_init();
-					$names = apiSummonerNames($c, $region, $sIds);
-					curl_close($c);
-					$usersQuery = "INSERT IGNORE into users ";
-					$toAdd = array();
-					foreach($names as $key => $val) {
-						$toAdd[] = array(
-							"id" => $key,
-							"user" => $val,
-							"region" => $region
-						);
-						if (!PROD_KEY) {
-							sleep(1);
-						}
-					}
-					// TODO : Optimize. Request 10 per 10 summoners isn't optimal when it's possible to do them 40 per 40.
-					// Plus, the same user might be researched multiple times.
-					$usersQuery .= buildMultInsert($toAdd);
-					$addedSummoners = securedInsert($pdo, $usersQuery);
-					if ($addedSummoners != 0) {
-						echo $addedSummoners." names saved.";
-					}
+					$allIds = array_merge($allIds, $sIds);
 				}
 				
 				$req = array(); // Will contain requests to do			
@@ -267,6 +249,39 @@ if (count($query) > 0) {
 			sleep(1);
 		}
 	} // END foreach player
+
+	if (IMMEDIATE_QUERY_SUMMONER_NAMES) {
+		$totalNewNames = 0;
+		$allIds = array_unique($allIds);
+		while ($someIds = array_splice($allIds, 0, 40)) {
+			$c = curl_init();
+			$names = apiSummonerNames($c, $region, $someIds);
+			curl_close($c);
+			$usersQuery = "INSERT IGNORE into users ";
+			$toAdd = array();
+			foreach($names as $key => $val) {
+				$toAdd[] = array(
+					"id" => $key,
+					"user" => $val,
+					"region" => $region
+				);
+			}
+			$usersQuery .= buildMultInsert($toAdd);
+			$addedSummoners = securedInsert($pdo, $usersQuery);
+			if ($addedSummoners[0] != 1) {
+				logError("An error occured while adding names to database.".PHP_EOL);
+			} else {
+				$totalNewNames += $addedSummoners[1];
+			}
+			if (!PROD_KEY) {
+				sleep(1);
+			}
+		}
+		if ($totalNewNames != 0) {
+			logAccess($totalNewNames." names added.".PHP_EOL);
+		}
+		
+	}
 
 }
 
