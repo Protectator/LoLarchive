@@ -278,11 +278,6 @@
 					}
 				}
 
-				// Requests informations about all champions.
-				$requestString[2] = "SELECT * FROM champions ORDER BY name ASC;";
-				$championsRequest = $pdo->prepare($requestString[2]);
-				$championsRequest->execute();
-
 				$nbWon = $wonGames->fetch();
 
 				//// Write summoner HTML ////
