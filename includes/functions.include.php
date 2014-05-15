@@ -514,7 +514,7 @@ function logAccess($text) {
  */
 function logError($text) {
 	$file = LOCAL.'private/logs/error.log';
-	$toWrite = "[".date(DateTime::RSS, time())."] ".$text.PHP_EOL;
+	$toWrite = "[".date(DateTime::RSS, time())."] [".$_SERVER['REMOTE_ADDR']."] ".$text.PHP_EOL;
 	file_put_contents($file, file_get_contents($file).$toWrite);
 }
 
