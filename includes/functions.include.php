@@ -59,6 +59,10 @@ $modes = array (
 		"URF_BOT" => "U.R.F. vs AI"
 );
 
+$cUrl = curl_init();
+$itemsImages = apiItemsImages($cUrl, "euw");
+curl_close($cUrl);
+
 /*
  HEADER AND FOOTER
  */
@@ -280,7 +284,7 @@ function secureArray(&$pdo, &$array) {
  * @param resource $c opened cURL session
  * @param string $region abbreviated server's name
  * @param string $sId account Id to look for
- * @return string array of result
+ * @return array of result
  */
 function apiGame(&$c, $region, $sId) {
 	$url = API_URL.$region."/v".GAME_API_VERSION."/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
@@ -295,7 +299,7 @@ function apiGame(&$c, $region, $sId) {
  * @param resource $c opened cURL session
  * @param string $region abbreviated server's name
  * @param string $sName summoner name to look for
- * @return string array of result
+ * @return array of result
  */
 function apiSummonerByName(&$c, $region, $sName) {
 	$url = API_URL.$region."/v".SUMMONER_API_VERSION."/summoner/by-name/".$sName."?api_key=".API_KEY;
@@ -310,11 +314,25 @@ function apiSummonerByName(&$c, $region, $sName) {
  * @param resource $c opened cURL session
  * @param string $region abbreviated server's name
  * @param string $sName summoner name to look for
- * @return string array of result
+ * @return array of result
  */
 function apiSummonerNames(&$c, $region, $sIds) {
 	if (is_array($sIds)) {$sIds = implode(",", array_slice($sIds, 0, 40));}
 	$url = API_URL.$region."/v".SUMMONER_API_VERSION."/summoner/".$sIds."/name?api_key=".API_KEY;
+	curl_setopt($c, CURLOPT_URL, $url);
+	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+	return json_decode(trim(curl_exec($c)), true);
+}
+
+/**
+ * Gets items images informations
+ * 
+ * @param resource $c opened cURL session
+ * @param string $region abbreviated server's name
+ * @return array of result
+ */
+function apiItemsImages(&$c, $region) {
+	$url = API_URL."static-data/".$region."/v".STATIC_DATA_VERSION."/item?itemListData=image&api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	return json_decode(trim(curl_exec($c)), true);
@@ -463,7 +481,12 @@ function getPage(&$pdo, $region, $sId, $filters, $page) {
  */
 function item($row, $int) {
 	if ($row['item'.$int] > 0) {
-		return "<a href=\"http://www.lolking.net/items/".$row['item'.$int]."\"><img class= \"img-rounded imgitem32\" src=\"http://lkimg.zamimg.com/shared/riot/images/items/".$row['item'.$int]."_32.png\" alt=\"".$row['item'.$int]."\"></a>";
+		$href = STATIC_RESOURCES.STATIC_RESOURCES_VERSION."/img/sprite/".$itemsImages['data'][$row['item'.$int]]['image']['sprite'];
+		$x = $itemsImages['data'][$row['item'.$int]]['image']['x'];
+		$y = $itemsImages['data'][$row['item'.$int]]['image']['y'];
+		$alttext = $itemsImages['data'][$row['item'.$int]]['image']['name'];
+		$title = $itemsImages['data'][$row['item'.$int]]['image']['description'];
+		return '<div class= "img-rounded imgitem32" style="background-image:url(\''.$href.'\') '.$x.'-px '.$y.'-px -no-repeat;" title="'.$alttext.'<br>'.$title.'"></div>';
 	}
 }
 
@@ -666,7 +689,17 @@ function HTMLparticipants($region, $team1, $team2, $champsName) {
  * @return string HTML code
  */
 function HTMLitem($itemId) {
-	return ($itemId != "" && $itemId != 0) ? "<a href=\"http://www.lolking.net/items/".$itemId."\"><img class= \"img-rounded imgitem32\" src=\"http://lkimg.zamimg.com/shared/riot/images/items/".$itemId."_32.png\" alt=\"".$itemId."\"></a>" : "";
+	if ($itemId != 0) {
+		global $itemsImages;
+		$actualItem = $itemsImages['data'][$itemId];
+		$href = STATIC_RESOURCES.STATIC_RESOURCES_VERSION."/img/sprite/".$actualItem['image']['sprite'];
+		$x = $actualItem['image']['x']*2/3;
+		$y = $actualItem['image']['y']*2/3;
+		$alttext = $actualItem['name'];
+		return '<div class= "img-rounded imgitem32" style="background: url(\''.$href.'\') -'.$x.'px -'.$y.'px no-repeat; background-size: 320px;" title="'.$alttext.'"></div>';
+	} else {
+		return '<div class= "img-rounded imgitem32"></div>';
+	}
 }
 
 /**
