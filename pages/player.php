@@ -113,7 +113,6 @@
 						echo HTMLerror("Bad search", "Summoner id must not exceed ".SUMMONER_ID_MAX_LENGTH." digits.");
 					}
 
-
 				} else {
 					echoHeader("Summoner not found");
 					echo HTMLerror("Bad search", "Please provide an id containing only digits.");
@@ -121,7 +120,6 @@
 
 			} else {
 				echoHeader("Summoner not found");
-				echo "<div class='alert alert-error alert-block'><h4>Bad search</h4>";
 				echo HTMLerror("Bad search", "Please provide either a summoner name or id.");
 			}
 
@@ -412,13 +410,6 @@
 
 					//// Each game ////
 					// This will treat each game and display it.
-
-					// Check if data are present for this game
-					$hasData = isset($row['spell1']);
-					
-					// Handles all bit(1) data
-					$win = ($hasData) ? ord($row['win']) : ($row['teamId'] == $row['estimatedWinningTeam']);
-					$invalid = ord($row['invalid']);
 					
 					// Request to find all summoners in the game
 					$requestString[3] = "
@@ -430,94 +421,35 @@
 					$playersRequest->execute(); // Execute the request
 					
 					// Put each player on the right team
-					$summonersTeam = $row['teamId'];
-					$teamL = array();
-					$teamR = array();
-
+					$leftTeam = array();
+					$rightTeam = array();
 					while ($player = $playersRequest->fetch()) {
-						if ($player['teamId'] == $summonersTeam) {
-							$teamL[] = $player;
+						if ($player['teamId'] == $row['teamId']) {
+							$leftTeam[] = $player;
 						} else {
-							$teamR[] = $player;
+							$rightTeam[] = $player;
 						}
 					}
 
-					$duration = ($hasData) ? $row['timePlayed'] : $row['estimatedDuration'];
-					
-					$time = printableSQLDate($row['createDate']);
-					
-					$inventory = array($row['item0'], $row['item1'], $row['item2'], 
-						$row['item3'], $row['item4'], $row['item5'], $row['item6']);
+					$hasData = isset($row['spell1']);
 
-					if ($row['timePlayed'] == 0 AND $row['estimatedDuration'] == 0) {
-						$duration = estimateDuration($pdo, $row['gameId'][0]);
-					}
+					// If a game has no estimated winning team, estimate it.
 					if ($row['estimatedWinningTeam'] == 0) {
 						$win = (estimateWinningTeam($pdo, $row['gameId'][0]) == $row['teamId']);
-					}
-
-					if ($win == 1) {
-						$class = " winmatch";
-						$classtext = " wintext";
-						$text = "Win";
 					} else {
-						$class = " lossmatch";
-						$classtext = " losstext";
-						$text = "Loss";
+						$win = ($hasData) ? ord($row['win']) : ($row['teamId'] == $row['estimatedWinningTeam']);
+					}
+					// Do the same for an estimation of the game's duration.
+					if ($row['timePlayed'] == 0 AND $row['estimatedDuration'] == 0) {
+						$duration = estimateDuration($pdo, $row['gameId'][0]);
+					} else {
+						$duration = ($hasData) ? $row['timePlayed'] : $row['estimatedDuration'];
 					}
 
-					?>
-					<div class="row">
-						<div class="span12">
-						
-							<div class="well<?php echo $class;?> match" id="<?php echo $row['gameId'][0];?>">
-						
-								<div class="matchcell championcell"><?php echo HTMLchampionImg($row['championId'], "big"); ?></div>
-								
-								<div class="matchcell headcell">							
-									<?php echo HTMLgeneralStats($modes[$row['subType']], $text, $duration, $time);?>
-								</div>
-								
-								<?php
-								if ($hasData)
-								{
-								?>
-									<div class="matchcell kdacell">
-										<?php
-										echo HTMLkda($row['championsKilled'], $row['numDeaths'],
-											$row['assists'], $row['minionsKilled']+$row['neutralMinionsKilled'], $row['goldEarned']) ?>
-									</div>
-									
-									<div class="matchcell sscell">
-										<?php echo HTMLsummonerSpells($row['spell1'], $row['spell2']) ?>
-									</div>
-									
-									<div class="matchcell itemscell">
-										<table>
-											<?php 
-											echo HTMLinventory($inventory); ?>
-										</table>
-									</div>
-								<?php
-								} else {
-								?>
-									<div class="matchcell nodatacell">
-										No data.
-									</div>
-								<?php
-								}
-								?>
-								<div class="matchcell playerscell">
-									<?php echo HTMLparticipants($row['region'][0], $teamL, $teamR); ?>
-								</div>
-							</div>
-						</div>
-					</div>
-					<?php
+					echo HTMLplayerGame($row, $win, $duration, $leftTeam, $rightTeam);
+
 				}
-
 			}
-
 		} else {
 			echoHeader("Summoner not found");
 			echo HTMLerror("Bad search", "Please provide a valid region.");

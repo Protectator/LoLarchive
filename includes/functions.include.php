@@ -733,13 +733,13 @@ function HTMLitem($itemId) {
  */
 function HTMLinventory($itemsId) {
 	array_pad($itemsId, 7, ""); // Completes array with empty Strings
-	$result = "<tr><td class=\"singleitemcell\">".HTMLitem($itemsId[0])."<td>".
+	$result = "<table><tr><td class=\"singleitemcell\">".HTMLitem($itemsId[0])."<td>".
 	"<td class=\"singleitemcell\">".HTMLitem($itemsId[1])."<td>".
 	"<td class=\"singleitemcell\">".HTMLitem($itemsId[2])."<td>".
 	"<td class=\"singleitemcell\" rowspan=\"2\">".HTMLitem($itemsId[6])."<td></tr>".
 	"<tr><td class=\"singleitemcell\">".HTMLitem($itemsId[3])."<td>".
 	"<td class=\"singleitemcell\">".HTMLitem($itemsId[4])."<td>".
-	"<td class=\"singleitemcell\">".HTMLitem($itemsId[5])."<td></tr>";
+	"<td class=\"singleitemcell\">".HTMLitem($itemsId[5])."<td></tr></table>";
 	return $result;
 }
 
@@ -794,20 +794,60 @@ function HTMLkda($k, $d, $a, $minions, $gold) {
  * @return string HTML code
  */
 function HTMLgeneralStats($type, $text, $duration, $date) {
-	$result = $type."<br><span class=\"resultText\">".$text."</span><br>~".round($duration/60)." min.<br>".$date;
+	$result = $type."<br><span class=\"resultText\">".$text."</span><br>~".round($duration/60)." min.<br>".printableSQLDate($date);
+	return $result;
+}
+
+/**
+ * Generated the HTML code to display data of a game.
+ * 
+ * @param array $row All data about a game
+ * @return  string HTML code
+ */
+function HTMLdata($row) {
+	$hasData = isset($row['spell1']);
+	if ($hasData) {
+		$inventory = array($row['item0'], $row['item1'], $row['item2'], 
+						$row['item3'], $row['item4'], $row['item5'], $row['item6']);
+		$result =	"<div class=\"matchcell kdacell\">".HTMLkda($row['championsKilled'], $row['numDeaths'],
+							$row['assists'], $row['minionsKilled']+$row['neutralMinionsKilled'], $row['goldEarned'])."</div>".
+					"<div class=\"matchcell sscell\">".HTMLsummonerSpells($row['spell1'], $row['spell2'])."</div>".
+					"<div class=\"matchcell itemscell\">".HTMLinventory($inventory)."</div>";
+	} else {
+		$result = "<div class=\"matchcell nodatacell\">No data.</div>";
+	}
 	return $result;
 }
 
 /**
  * Generates the HTML code to display a player's game small view
  *
- * @param 
- * @param
+ * @param array $row All data about a game
  * @return string HTML code
  */
+function HTMLplayerGame($row, $win, $duration, $lTeam, $rTeam) {
+	global $modes;
+	if ($win == 1) {
+		$class = "winmatch";
+		$text = "Win";
+	} else {
+		$class = "lossmatch";
+		$text = "Loss";
+	}
 
-function HTMLplayerGame() {
-	return ;
+	$result =
+		"<div class=\"row\">".
+		"	<div class=\"span12\">".
+		"		<div class=\"well ".$class." match\" id=\"".$row['gameId'][0]."\">".
+		"			<div class=\"matchcell championcell\">".HTMLchampionImg($row['championId'], 'big')."</div>".
+		"			<div class=\"matchcell headcell\">".HTMLgeneralStats($modes[$row['subType']], $text, $duration, $row['createDate'])."</div>".
+		HTMLdata($row).
+		"			<div class=\"matchcell playerscell\">".HTMLparticipants($row['region'][0], $lTeam, $rTeam)."</div>".
+		"		</div>".
+		"	</div>".
+		"</div>";
+
+	return $result;
 }
 
 /*
