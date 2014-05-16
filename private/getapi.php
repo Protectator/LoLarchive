@@ -12,7 +12,7 @@ foreach ($_GET as &$thing) {
 	$thing = secure($pdo, $thing);
 }
 // Get users to track
-$query = rawSelect($pdo, "SELECT * FROM usersToTrack ORDER BY region, summonerId");
+$query = rawSelect($pdo, "SELECT summonerId, region FROM usersToTrack ORDER BY region, summonerId");
 
 // If REMOTE_ADDR ain't set, it's that we're doing this request locally
 $ip = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : "127.0.0.1";
@@ -26,11 +26,25 @@ $countTotalMatches = 0;
 // Si la requête retourne des résultats
 if (count($query) > 0) {
 	$countPlayers = 0;
+	$mode = "PRIMARY";
 	if (IMMEDIATE_QUERY_SUMMONER_NAMES) {
 		$allIds = array();
 	}
+	$secondaryIds = array();
+	$rowSecondary = array();
 	// For each player
-	while ($row = $query->fetch()) {
+	while (($row = $query->fetch(PDO::FETCH_ASSOC)) || ($rowSecondary = array_pop($secondaryIds))) {
+
+		// If IMMEDIATE_QUERY_PARTICIPANTS_DATA is true, this changes to mode SECONDARY when the query has been entirely seen.
+		if (empty($row) && !empty($rowSecondary) && IMMEDIATE_QUERY_PARTICIPANTS_DATA && $mode == "PRIMARY") {
+			$mode = "SECONDARY";
+			$secondaryIds = array_unique($secondaryIds);
+		} elseif (empty($row) && !empty($rowSecondary) && IMMEDIATE_QUERY_PARTICIPANTS_DATA) {
+			$row = $rowSecondary;
+		} elseif (empty($row) && !empty($rowSecondary)) {
+			break;
+		}
+
 		// Only used to log informations
 		$countPlayers += 1;
 		$countNewMatches = 0;
@@ -44,7 +58,9 @@ if (count($query) > 0) {
 		// Transform json in an Array
 
 		if (isset($array['status']) && $array['status']!= "") {
-			logError($array['error']);
+			$errorText = "Error in API call ; ";
+			$errorText = $errorText."API sent : Error ".$array['status']['status_code']." : ".$array['status']['message'];
+			logError($errorText);
 			echo "<br>Error in API call '".API_URL.$region."/v".SUMMONER_API_VERSION."/game/by-summoner/".$sId."/recent?api_key=".API_KEY."': <br><pre>";
 			print_r($array);
 			echo "</pre>";
@@ -202,6 +218,9 @@ if (count($query) > 0) {
 						"playersVersion" => DATAVERSION, 
 						"playersIp" => $ip
 					);
+					if (IMMEDIATE_QUERY_PARTICIPANTS_DATA && $mode == "PRIMARY") {
+						$secondaryIds[] = array("summonerId" => $player['summonerId'], "region" => $region);
+					}
 				} // Now we need to add the player that we're checking (he isn't in the json array)
 				$players[] = array (
 					"gameId" => $match['gameId'],

@@ -66,6 +66,11 @@ define('GAME_API_VERSION', '1.3');
 // http://developer.riotgames.com/api/methods#!/620
 define('SUMMONER_API_VERSION', '1.4');
 
+// STATIC_DATA_VERSION should be the value of the latest version of the
+// summoner method of Riot Games' API. To be sure it is correct, check it out at
+// http://developer.riotgames.com/api/methods#!/710
+define('STATIC_DATA_VERSION', '1.2');
+
 // API_URL is the url pointing to the API you're using.
 define('API_URL', "https://prod.api.pvp.net/api/lol/");
 
@@ -87,6 +92,11 @@ define('QUERY_FOREIGN_SUMMONER_NAME_WHEN_PLAYER_ACCESSED', FALSE);
 // when that game is registered.
 define('IMMEDIATE_QUERY_SUMMONER_NAMES', FALSE);
 
+// IMMEDIATE_QUERY_PARTICIPANTS_DATA defines if the databse should ask the API for
+// the data of all participants of a game in which at least one of the tracked summoners
+// took part in, at the moment it is registered.
+define('IMMEDIATE_QUERY_PARTICIPANTS_DATA', FALSE);
+
 /*
 	Constants
 
@@ -95,5 +105,6 @@ define('IMMEDIATE_QUERY_SUMMONER_NAMES', FALSE);
 
 define('SUMMONER_NAME_MAX_LENGTH', 16);
 define('SUMMONER_ID_MAX_LENGTH', 16);
-
+define('STATIC_RESOURCES', "http://ddragon.leagueoflegends.com/cdn/");
+define('STATIC_RESOURCES_VERSION', "4.7.8");
 ?>
