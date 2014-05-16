@@ -799,7 +799,7 @@ function HTMLgeneralStats($type, $text, $duration, $date) {
 }
 
 /**
- * Generated the HTML code to display data of a game.
+ * Generates the HTML code to display data of a game.
  * 
  * @param array $row All data about a game
  * @return  string HTML code
@@ -817,6 +817,20 @@ function HTMLdata($row) {
 		$result = "<div class=\"matchcell nodatacell\">No data.</div>";
 	}
 	return $result;
+}
+
+/**
+ * Generates the HTML code for the dominion part of a game (replaceing the usual kda+minions)
+ * @param [type] $row All data about a game
+ */
+function HTMLdominion($row) {
+	$result = "<div class=\"kdaNumber\">".$k."<img class=\"icon\" src=\"".PATH."img/kill.png\" alt=\"kills\"></div>".
+	"<div class=\"kdaNumber\">".$d."<img class=\"icon\" src=\"".PATH."img/death.png\" alt=\"deaths\"></div>".
+	"<div class=\"kdaNumber\">".$a."<img class=\"icon\" src=\"".PATH."img/assist.png\" alt=\"assists\"></div>".
+	
+	"<br><div class=\"minion\">".$minions."<img class=\"icon\" src=\"".PATH."img/minion.png\" alt=\"minions\"></div>".
+	"<br><div class=\"gold\">".$gold."<img class=\"icon\" src=\"".PATH."img/gold.png\" alt=\"gold\"></div>";
+	return $result; // TODO : Change it from kda to dominion
 }
 
 /**

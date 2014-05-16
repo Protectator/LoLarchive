@@ -38,10 +38,12 @@ if (count($query) > 0) {
 		// If IMMEDIATE_QUERY_PARTICIPANTS_DATA is true, this changes to mode SECONDARY when the query has been entirely seen.
 		if (empty($row) && !empty($rowSecondary) && IMMEDIATE_QUERY_PARTICIPANTS_DATA && $mode == "PRIMARY") {
 			$mode = "SECONDARY";
-			$secondaryIds = array_unique($secondaryIds);
+			$secondaryIds = array_map('unserialize', array_unique(array_map('serialize', $secondaryIds)));
+			$row = $rowSecondary;
 		} elseif (empty($row) && !empty($rowSecondary) && IMMEDIATE_QUERY_PARTICIPANTS_DATA) {
 			$row = $rowSecondary;
 		} elseif (empty($row) && !empty($rowSecondary)) {
+			echo "break ?";
 			break;
 		}
 
@@ -220,6 +222,7 @@ if (count($query) > 0) {
 					);
 					if (IMMEDIATE_QUERY_PARTICIPANTS_DATA && $mode == "PRIMARY") {
 						$secondaryIds[] = array("summonerId" => $player['summonerId'], "region" => $region);
+						echo "PLAYER ".$player['summonerId']." ADDED<br>";
 					}
 				} // Now we need to add the player that we're checking (he isn't in the json array)
 				$players[] = array (
@@ -236,6 +239,7 @@ if (count($query) > 0) {
 					$sIds = array_map(function($a){return $a['summonerId'];}, $players); // Array containing only summonerIds
 					$allIds = array_merge($allIds, $sIds);
 				}
+
 				
 				$req = array(); // Will contain requests to do			
 
@@ -258,7 +262,7 @@ if (count($query) > 0) {
 				}
 				
 			} // END foreach match
-			$text = ($countNewMatches > 0) ? "[".$region."] Summoner ".$sId." \"".$row['name']."\" : ".$countNewMatches." added games".PHP_EOL : "";
+			$text = ($countNewMatches > 0) ? "[".$region."] Summoner ".$sId." \"".(array_key_exists('name', $row)?$row['name']:"?")."\" : ".$countNewMatches." added games".PHP_EOL : "";
 			echo $text;
 			if (!isset($_GET['debug'])) {
 				logAccess($text);
