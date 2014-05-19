@@ -92,11 +92,6 @@ define('QUERY_FOREIGN_SUMMONER_NAME_WHEN_PLAYER_ACCESSED', FALSE);
 // when that game is registered.
 define('IMMEDIATE_QUERY_SUMMONER_NAMES', FALSE);
 
-// IMMEDIATE_QUERY_PARTICIPANTS_DATA defines if the databse should ask the API for
-// the data of all participants of a game in which at least one of the tracked summoners
-// took part in, at the moment it is registered.
-define('IMMEDIATE_QUERY_PARTICIPANTS_DATA', FALSE);
-
 /*
 	Constants
 
@@ -107,4 +102,20 @@ define('SUMMONER_NAME_MAX_LENGTH', 16);
 define('SUMMONER_ID_MAX_LENGTH', 16);
 define('STATIC_RESOURCES', "http://ddragon.leagueoflegends.com/cdn/");
 define('STATIC_RESOURCES_VERSION', "4.7.8");
+
+// IMMEDIATE_QUERY_PARTICIPANTS_DATA defines if the databse should ask the API for
+// the data of all participants of a game in which at least one of the tracked 
+// summoners took part in, at the moment it is registered.
+// 
+// Special case for this constant.
+// As said in commit 48ae3b69ce529aee502152c0c5434837e2244a18
+// and on GitHub issue https://github.com/Protectator/LoLarchive/issues/44 ,
+// this is
+// ----> UNSTABLE <----
+// It does TONS of API requests and SQL executions for not that much usefulness.
+// I REALLY don't recommand turning that option on. I'm just keeping it here
+// because it is implemented and it would be stupid to erase it all. But really
+// be aware of what this option does before enabling it. Do it at your own risks
+// :)
+define('IMMEDIATE_QUERY_PARTICIPANTS_DATA', FALSE);
 ?>
