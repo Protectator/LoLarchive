@@ -132,6 +132,23 @@
 				// Now that we have an id to look for, we'll ask the database for all
 				// the games that this user took part in, filtered by the provided
 				// conditions.
+				
+				//// Option : Ask for summoner data ////
+				if (QUERY_FOREIGN_SUMMONER_DATA_WHEN_PLAYER_ACCESSED) {
+					$trackedUsersString = "SELECT summonerId FROM usersToTrack";
+					$trackedUsersRequest = $pdo->prepare($trackedUsersString);
+					$trackedUsersRequest->execute();
+					$trackedUsers = array_values($trackedUsersRequest->fetchAll());
+					if (!in_array($summonerId, $trackedUsers)) {
+						// TODO : Take the 10 recent games of that summoner...
+						// Not really possible now, as it is a complete file execution,
+						// not "just" a funciton. Might implement this later.
+						// 
+						// $cUrl = curl_init();
+						// $summoner = apiSummonerByName($cUrl, $Iregion, $Iname);
+						// curl_close($cUrl);
+					}
+				}
 
 				//// Filters ////
 				// There are 4 filters

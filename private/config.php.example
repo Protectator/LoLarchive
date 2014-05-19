@@ -87,6 +87,11 @@ define('API_URL', "https://prod.api.pvp.net/api/lol/");
 // the API about the name of an unknown summoner when his player page is accessed.
 define('QUERY_FOREIGN_SUMMONER_NAME_WHEN_PLAYER_ACCESSED', FALSE);
 
+// QUERY_FOREIGN_SUMMONER_DATA_WHEN_PLAYER_ACCESSED tells if the database should ask
+// the API about the data of recent games of an unknown summoner when his player
+// page is accessed.
+define('QUERY_FOREIGN_SUMMONER_DATA_WHEN_PLAYER_ACCESSED', FALSE);
+
 // IMMEDIATE_QUERY_SUMMONER_NAMES defines if the databse should ask the API for
 // the summoner names of all the foreign summoners participating in a game directly
 // when that game is registered.
