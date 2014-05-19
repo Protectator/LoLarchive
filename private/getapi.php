@@ -43,7 +43,6 @@ if (count($query) > 0) {
 		} elseif (empty($row) && !empty($rowSecondary) && IMMEDIATE_QUERY_PARTICIPANTS_DATA) {
 			$row = $rowSecondary;
 		} elseif (empty($row) && !empty($rowSecondary)) {
-			echo "break ?";
 			break;
 		}
 
