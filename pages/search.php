@@ -32,7 +32,7 @@ echoHeader();
 				<div class="form-actions">
 					<div class="controls">
 						<button type="submit" class="btn btn-primary">Search</button>
-						<button type="submit" class="btn disabled" disabled>LolKing</button>
+						<?php if (LINKTO_LOLKING) { echo "<button type=\"submit\" class=\"btn disabled\" disabled>LolKing</button>";} ?>
 					</div>
 				</div>
 			</fieldset>
