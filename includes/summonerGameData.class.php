@@ -59,6 +59,27 @@ class summonerGameData
 		return $result;
 	}
 
+	/**
+	 * Returns the value of one of the main attributes of the game
+	 * @param  string $key Attribute name
+	 * @return string      Value of the attribute
+	 */
+	public function attribute($key)
+	{
+		if (!is_string($key)) {
+			trigger_error("Stat key should be a string, received a ".gettype($gameData)." instead.", E_USER_WARNING);
+			return;
+		} elseif (empty($key)) {
+			trigger_error("Stat key is empty.", E_USER_WARNING);
+			return;
+		} elseif ($key == "stats") {
+			trigger_error("To access stats, use stats() instead of attribute()", E_USER_WARNING);
+		} elseif ($key == "fellowPlayers") {
+			trigger_error("To access participants, use fellowPlayers() instead of attribute()", E_USER_WARNING);
+		}
+		return $this->_data[$key];
+	}
+
 }
 
 ?>
