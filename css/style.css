@@ -230,3 +230,11 @@ input[disabled] {
 .alert-error {
   border-color: #D8040B;
 }
+
+#stats-table tr {
+	width: 1px;
+}
+
+#stats-table td {
+	width: 1px;
+}
