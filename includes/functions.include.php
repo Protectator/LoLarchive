@@ -1,5 +1,7 @@
 <?php
 
+require 'summonerGameData.class.php';
+
 // Useful variables
 
 // Date format accepted when passed in a filter
