@@ -206,7 +206,8 @@
 				// This SQL calculated the stats that are going to be displayed just below summoner's informations. They are statistics
 				// about all the asked games
 				$statsString = "SELECT count(*) AS nbGames, avg(data.championsKilled) AS k, avg(data.numDeaths) AS d, avg(data.assists) AS a,
-				avg(data.minionsKilled+data.neutralMinionsKilled) AS minions, avg(data.goldEarned) AS gold, avg(data.timePlayed) AS duration".$conditions;
+				avg(data.minionsKilled+data.neutralMinionsKilled) AS minions, avg(data.goldEarned) AS gold, avg(data.timePlayed) AS duration,
+				avg(data.totalDamageDealtToChampions) as dmgToChamps, avg(data.wardPlaced) as wards".$conditions;
 				
 				// This SQL counts the number of won games in the search.
 				$wonGamesString = "SELECT count(*) AS nb".$conditions." AND (data.win = (1) OR (games.estimatedWinningTeam = players.teamId));";

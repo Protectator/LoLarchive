@@ -616,13 +616,15 @@ function printableSQLDate($datetime) {
 function HTMLstats($finalStats, $nbWon) {
 	if ($finalStats['nbGames'] != 0) {
 		$kdaRatio = ($finalStats['d'] != 0) ? round(($finalStats['k']+$finalStats['a'])/$finalStats['d'], 2) : $finalStats['k'] + $finalStats['a'];
-		$result = "<table class=\"table table-condensed\" id=\"stats-table\">";
-		$result .= "<tr><td>Wins</td><td class='right'><span class='number'>".$nbWon['nb']."</span> / <span class='number'>".$finalStats['nbGames']."</span> games (<span class='number'>".round($nbWon['nb']/$finalStats['nbGames']*100, 2)."%</span>)</td>";
-		$result .= "<td>Average gold/min</td><td><span class='number'>".round(60*$finalStats['gold']/$finalStats['duration'], 0)."</span></td></tr>";
-		$result .= "<tr><td>KDA</td><td class='right'><span class='number'>".round($finalStats['k'], 1)."</span> / <span class='number'>".round($finalStats['d'], 1)."</span> / <span class='number'>".round($finalStats['a'], 1)."</span></td>";
-		$result .= "<td>Average cs/min</td><td><span class='number'>".round(60*$finalStats['minions']/$finalStats['duration'], 2)."</span></td></tr>";
-		$result .= "<tr><td>Ratio</td><td class='right'><span class='number'>".$kdaRatio."</span></td>";
-		$result .= "<td>Average duration</td><td><span class='number'>".round($finalStats['duration']/60, 0)."</span> min.</td></tr>";
+		$result  = "<table class=\"table table-condensed\" id=\"stats-table\">";
+		$result .= "<tr><td><i class='icon-thumbs-up icon-white'></i> Wins</td><td class='right'><span class='number'>".$nbWon['nb']."</span> / <span class='number'>".$finalStats['nbGames']."</span> games (<span class='number'>".round($nbWon['nb']/$finalStats['nbGames']*100, 2)."%</span>)</td>";
+		$result .= "<td class='left'><i class='icon-briefcase icon-white'></i> Average gold/min</td><td class='right'><span class='number'>".round(60*$finalStats['gold']/$finalStats['duration'], 0)."</span></td>";
+		$result .= "<td class='left'><i class='icon-certificate icon-white'></i> Dmg on champions/min</td><td class='right'><span class='number'>".number_format($finalStats['dmgToChamps']*60/$finalStats['duration'], 0, '', '\'')."</span></td></tr>";
+		$result .= "<tr><td><i class='icon-signal icon-white'></i> KDA</td><td class='right'><span class='number'>".round($finalStats['k'], 1)."</span> / <span class='number'>".round($finalStats['d'], 1)."</span> / <span class='number'>".round($finalStats['a'], 1)."</span></td>";
+		$result .= "<td class='left'><i class='icon-screenshot icon-white'></i> Average cs/min</td><td class='right'><span class='number'>".round(60*$finalStats['minions']/$finalStats['duration'], 2)."</span></td>";
+		$result .= "<td class='left'><i class='icon-eye-open icon-white'></i> Average ward/min</td><td class='right'><span class='number'>".round(60*$finalStats['wards']/$finalStats['duration'], 2)."</span></td></tr>";
+		$result .= "<tr><td><i class='icon-indent-left icon-white'></i> Ratio</td><td class='right'><span class='number'>".$kdaRatio."</span></td>";
+		$result .= "<td class='left'><i class='icon-time icon-white'></i> Average duration</td><td class='right'><span class='number'>".round($finalStats['duration']/60, 0)."</span> min.</td></tr>";
 		$result .= "</table>";
 	} else {
 		$result = "No game found.";

@@ -241,8 +241,11 @@ input[disabled] {
 }
 
 #stats-table td.right {
-	border-right: 1px solid #c6c6c6;
-	padding-right: 16px;
+	padding-right: 12px;
+}
+
+#stats-table td.left {
+	padding-left: 12px;
 }
 
 #stats-table .number {
