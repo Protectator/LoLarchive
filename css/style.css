@@ -189,7 +189,7 @@ input[disabled] {
 
 [class^="icon-"],
 [class*=" icon-"] {
-  background-image: url("/libs/bootstrap/img/glyphicons-halflings-white.png");
+	background-image: url("/libs/bootstrap/img/glyphicons-halflings-white.png");
 }
 
 .icon-white,
@@ -205,7 +205,7 @@ input[disabled] {
 .dropdown-menu > .active > a > [class*=" icon-"],
 .dropdown-submenu:hover > a > [class^="icon-"],
 .dropdown-submenu:hover > a > [class*=" icon-"] {
-  background-image: url("/libs/bootstrap/img/glyphicons-halflings-white.png");
+	background-image: url("/libs/bootstrap/img/glyphicons-halflings-white.png");
 }
 
 .datepicker.dropdown-menu {
@@ -213,28 +213,39 @@ input[disabled] {
 }
 
 .add-on {
-  background-color: #404040 !important;
-  color: #c6c6c6 !important;
-  border: 1px solid #101010 !important;
-  text-shadow: 0 1px 0 black  !important;
+	background-color: #404040 !important;
+	color: #c6c6c6 !important;
+	border: 1px solid #101010 !important;
+	text-shadow: 0 1px 0 black  !important;
 }
 
 .disabled > .add-on {
-  color: #333333 !important;
+	color: #333333 !important;
 }
 
 .alert-error h1, .alert-error h2, .alert-error h3, .alert-error h4, .alert-error h5, .alert-error h6 {
-  color: #D8040B;
+	color: #D8040B;
 }
 
 .alert-error {
-  border-color: #D8040B;
+	border-color: #D8040B;
 }
 
-#stats-table tr {
-	width: 1px;
+#stats-table {
+	width: auto;
+	margin-bottom: 0px;
 }
 
 #stats-table td {
-	width: 1px;
+	border: 0;
+}
+
+#stats-table td.right {
+	border-right: 1px solid #c6c6c6;
+	padding-right: 16px;
+}
+
+#stats-table .number {
+	color: #FFFFFF;
+	font-weight: bold;
 }

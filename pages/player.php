@@ -322,19 +322,7 @@
 						<div class="well">
 							<legend>Statistics</legend>
 							<?php
-							if ($finalStats['nbGames'] != 0) {
-								$kdaRatio = ($finalStats['d'] != 0) ? round(($finalStats['k']+$finalStats['a'])/$finalStats['d'], 2) : $finalStats['k'] + $finalStats['a'];
-								echo "<table class=\"table table-condensed\" id=\"stats-table\">";
-								echo "<tr><td>".$nbWon['nb']." wins</td><td>".$finalStats['nbGames']." games</td><td>(".round($nbWon['nb']/$finalStats['nbGames']*100, 2)."% win)</td></tr>";
-								echo "<tr><td>Average KD</td><td>".round($finalStats['k'], 1)." / ".round($finalStats['d'], 1)." / ".round($finalStats['a'], 1)."</td></tr>";
-								echo "<tr><td>Ratio</td><td>".$kdaRatio."</td></tr>";
-								echo "<tr><td>Average gold/min</td><td>".round(60*$finalStats['gold']/$finalStats['duration'], 0)."</td></tr>";
-								echo "<tr><td>Average cs/min</td><td>".round(60*$finalStats['minions']/$finalStats['duration'], 2)."</td></tr>";
-								echo "<tr><td>Average duration</td><td>".round($finalStats['duration']/60, 0)." min"."</td></tr>";
-								echo "</table>";
-							} else {
-								echo "No game found.";
-							}
+								echo HTMLstats($finalStats, $nbWon);
 							?>
 						</div>
 					</div>

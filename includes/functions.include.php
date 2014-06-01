@@ -613,6 +613,23 @@ function printableSQLDate($datetime) {
  PRINT FUNCTIONS
  */
 
+function HTMLstats($finalStats, $nbWon) {
+	if ($finalStats['nbGames'] != 0) {
+		$kdaRatio = ($finalStats['d'] != 0) ? round(($finalStats['k']+$finalStats['a'])/$finalStats['d'], 2) : $finalStats['k'] + $finalStats['a'];
+		$result = "<table class=\"table table-condensed\" id=\"stats-table\">";
+		$result .= "<tr><td>Wins</td><td class='right'><span class='number'>".$nbWon['nb']."</span> / <span class='number'>".$finalStats['nbGames']."</span> games (<span class='number'>".round($nbWon['nb']/$finalStats['nbGames']*100, 2)."%</span>)</td>";
+		$result .= "<td>Average gold/min</td><td><span class='number'>".round(60*$finalStats['gold']/$finalStats['duration'], 0)."</span></td></tr>";
+		$result .= "<tr><td>KDA</td><td class='right'><span class='number'>".round($finalStats['k'], 1)."</span> / <span class='number'>".round($finalStats['d'], 1)."</span> / <span class='number'>".round($finalStats['a'], 1)."</span></td>";
+		$result .= "<td>Average cs/min</td><td><span class='number'>".round(60*$finalStats['minions']/$finalStats['duration'], 2)."</span></td></tr>";
+		$result .= "<tr><td>Ratio</td><td class='right'><span class='number'>".$kdaRatio."</span></td>";
+		$result .= "<td>Average duration</td><td><span class='number'>".round($finalStats['duration']/60, 0)."</span> min.</td></tr>";
+		$result .= "</table>";
+	} else {
+		$result = "No game found.";
+	}
+	return $result;
+}
+
 /**
  * Generates the HTML code to display a Error well.
  * 
