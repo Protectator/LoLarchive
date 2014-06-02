@@ -27,6 +27,16 @@ echoHeader();
 					<label class="control-label">Summoner name</label>
 					<div class="controls">
 						<input type="text" id="name" name="name" class="input-medium">
+						<?php
+						if (SHOW_TRACKED_SUMMONERS) {
+							echo ' or <select id="predefId" name="predefId" class="input-medium"><option></option>';
+							$players = getTrackedPlayers($pdo);
+							foreach ($players as $key => $value) {
+								echo '<option value="'.$value['summonerId'].'">'.$value['name'].'</option>';
+							}
+							echo '</select>';
+						} 
+						?>
 					</div>
 				</div>
 				<div class="form-actions">

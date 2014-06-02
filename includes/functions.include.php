@@ -362,6 +362,17 @@ function apiChampionsImages(&$c, $region) {
  */
 
 /**
+ * Gets all tracked players
+ * @param  resource $pdo opened PDO connection
+ * @return array of result
+ */
+function getTrackedPlayers(&$pdo) {
+	$requestString = "SELECT region, name, summonerId FROM usersToTrack ORDER BY name ASC";
+	$result = rawSelect($pdo, $requestString);
+	return $result->fetchAll();
+}
+
+/**
  * Adds a summoner to track games
  *
  * @param resource $pdo Opened PDO connection
@@ -621,8 +632,8 @@ function HTMLstats($finalStats, $nbWon) {
 		$result .= "<td class='left'><i class='icon-briefcase icon-white'></i> Average gold/min</td><td class='right'><span class='number'>".round(60*$finalStats['gold']/$finalStats['duration'], 0)."</span></td>";
 		$result .= "<td class='left'><i class='icon-certificate icon-white'></i> Dmg on champions/min</td><td class='right'><span class='number'>".number_format($finalStats['dmgToChamps']*60/$finalStats['duration'], 0, '', '\'')."</span></td></tr>";
 		$result .= "<tr><td><i class='icon-signal icon-white'></i> KDA</td><td class='right'><span class='number'>".round($finalStats['k'], 1)."</span> / <span class='number'>".round($finalStats['d'], 1)."</span> / <span class='number'>".round($finalStats['a'], 1)."</span></td>";
-		$result .= "<td class='left'><i class='icon-screenshot icon-white'></i> Average cs/min</td><td class='right'><span class='number'>".round(60*$finalStats['minions']/$finalStats['duration'], 2)."</span></td>";
-		$result .= "<td class='left'><i class='icon-eye-open icon-white'></i> Average ward/min</td><td class='right'><span class='number'>".round(60*$finalStats['wards']/$finalStats['duration'], 2)."</span></td></tr>";
+		$result .= "<td class='left'><i class='icon-screenshot icon-white'></i> cs/min</td><td class='right'><span class='number'>".round(60*$finalStats['minions']/$finalStats['duration'], 2)."</span></td>";
+		$result .= "<td class='left'><i class='icon-eye-open icon-white'></i> ward/min</td><td class='right'><span class='number'>".round(60*$finalStats['wards']/$finalStats['duration'], 2)."</span></td></tr>";
 		$result .= "<tr><td><i class='icon-indent-left icon-white'></i> Ratio</td><td class='right'><span class='number'>".$kdaRatio."</span></td>";
 		$result .= "<td class='left'><i class='icon-time icon-white'></i> Average duration</td><td class='right'><span class='number'>".round($finalStats['duration']/60, 0)."</span> min.</td></tr>";
 		$result .= "</table>";

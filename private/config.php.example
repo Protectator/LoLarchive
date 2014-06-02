@@ -52,6 +52,10 @@ define('PROD_KEY', FALSE);
 // on their page.
 define('LINKTO_LOLKING', FALSE);
 
+// SHOW_TRACKED_SUMMONERS tells if the search page should show a list of tracked
+// summoners for easier searches.
+define('SHOW_TRACKED_SUMMONERS', TRUE);
+
 /* 
 	Advanced configuration 
 */
