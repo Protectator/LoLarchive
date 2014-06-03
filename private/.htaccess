@@ -3,4 +3,4 @@ AuthGroupFile /dev/null
 AuthName "Protected config folder"
 AuthType Basic
 
-require user protectator
+require valid-user

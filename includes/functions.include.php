@@ -369,7 +369,7 @@ function apiChampionsImages(&$c, $region) {
 function getTrackedPlayers(&$pdo) {
 	$requestString = "SELECT region, name, summonerId FROM usersToTrack ORDER BY name ASC";
 	$result = rawSelect($pdo, $requestString);
-	return $result->fetchAll();
+	return $result->fetchAll(PDO::FETCH_NAMED);
 }
 
 /**
@@ -624,6 +624,55 @@ function printableSQLDate($datetime) {
  PRINT FUNCTIONS
  */
 
+/**
+ * Puts an array in an HTML table
+ * @param  $array Array to be printed
+ * @param  string $classes added classes to the table
+ * @param  array  $titles  array of titles
+ * @return string HTML code
+ */
+function arrayToTable($array, $classes = "", $titles = array()) {
+	$result = "<table class=\"table ".$classes."\">";
+	if (!empty($titles)) {
+		$result .= "<thead><tr>";
+		foreach ($titles as $key => $value) {
+			$result .= "<th>$value</th>";
+		}
+		$result .= "</tr></thead>";
+	}
+	$result .= "<tbody>";
+	foreach ($array as $key => $value) {
+		$result .= "<tr>";
+			foreach ($value as $metaKey => $metaValue) {
+				$result .= "<td>".$metaValue."</td>";
+			}
+		$result .= "</tr>";
+	}
+	$result .= "</tbody></table>";
+	return $result;
+}
+
+/**
+ * Transforms an array into HTML <td> cells
+ * @param  array $array mono-dimensional array to put in cells
+ * @return string       HTML <td>s
+ */
+function arrayToCells($array, $th = False) {
+	if (!empty($array)) {
+		($th) ? $tag = "th" : $tag = "td";
+		return "<".$tag.">".implode("</".$tag."><".$tag.">", $array)."</".$tag.">";
+	}
+	return "";
+}
+
+
+
+/**
+ * Generates the HTML code to display the stats header
+ * @param array $finalStats Array containing the stats of a search
+ * @param int $nbWon      Number of won games
+ * @return string HTML code
+ */
 function HTMLstats($finalStats, $nbWon) {
 	if ($finalStats['nbGames'] != 0) {
 		$kdaRatio = ($finalStats['d'] != 0) ? round(($finalStats['k']+$finalStats['a'])/$finalStats['d'], 2) : $finalStats['k'] + $finalStats['a'];
@@ -648,6 +697,7 @@ function HTMLstats($finalStats, $nbWon) {
  * 
  * @param string $title		Title of the Error
  * @param string $content	Content of the Error
+ * @return string HTML code
  */
 function HTMLerror($title, $content) {
 	return "<div class='alert alert-error alert-block'><h4>".$title."</h4>".$content."</div>";
@@ -658,6 +708,7 @@ function HTMLerror($title, $content) {
  * 
  * @param string $title		Title of the Warning
  * @param string $content	Content of the Warning
+ * @return string HTML code
  */
 function HTMLwarning($title, $content) {
 	return "<div class='alert alert-warning alert-block'>
