@@ -604,6 +604,17 @@ function logError($text) {
 }
 
 /**
+ * Writes text at the end of the error log file
+ *
+ * @param string $text Text to log
+ */
+function logAdmin($text) {
+	$file = LOCAL.'private/logs/admin.log';
+	$toWrite = "[".date(DateTime::RSS, time())."] [".$_SERVER['REMOTE_ADDR']."] ".$text.PHP_EOL;
+	addToFile($file, $toWrite);
+}
+
+/**
  * Adds text to the end of a file.
  * 
  * @param string $file    Absolute path of the file

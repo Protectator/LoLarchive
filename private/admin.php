@@ -11,16 +11,17 @@ $startTime = $mtime;
 require_once('config.php');
 
 // Then all the useful functions
-require_once('../includes/functions.include.php');
+require_once(LOCAL.'includes/functions.include.php');
 
 // Open the database connection
 $pdo = newDBConnection();
 
 echoHeader("Admin - LoLarchive");
+logAdmin($_SERVER['PHP_AUTH_USER']." accessed the Admin panel.");
 ?>
 <div class="row-fluid">
 	<div class="span12 well">
-		<h1>Admin page</h1>
+		<h1>Admin panel</h1>
 		Authenticated as <?php echo $_SERVER['PHP_AUTH_USER']." with IP adress ".$_SERVER['REMOTE_ADDR'];?>
 	</div>
 </div>
@@ -60,9 +61,19 @@ echoHeader("Admin - LoLarchive");
 	<div class="span6 well">
 		<h3>Change admin password</h3>
 		<form class="form-inline" method="post">
-			New password <input type="password" id="newPass" name="newPass" class="input-medium" maxlength="32">
-			<button type="submit" class="btn btn-primary">Change</button>
+			New password <input type="password" id="newPass" name="newPass" class="input-medium" maxlength="32" disabled>
+			<button type="submit" class="btn btn-primary" disabled>Change</button>
 		</form>
+	</div>
+	<div class="span6 well">
+		<h3>Database</h3>
+		<?php
+			$dbStatsRequestString = "SELECT COUNT(*) as nbGames FROM games;";
+			$dbStats = $pdo->prepare($dbStatsRequestString);
+			$dbStats->execute();
+			$stats = $dbStats->fetchAll(PDO::FETCH_NAMED);
+			echo $stats[0]['nbGames']." games.";
+		?>
 	</div>
 </div>
 <div class="row-fluid">
@@ -71,21 +82,23 @@ echoHeader("Admin - LoLarchive");
 		<ul id="logsTab" class="nav nav-tabs" data-tabs="logsTab">
 			<li class="active"><a href="#access" data-toggle="tab">Access</a></li>
 			<li><a href="#errors" data-toggle="tab">Errors</a></li>
+			<li><a href="#admin" data-toggle="tab">Admin</a></li>
 		</ul>
 		<div class="tab-content">
 			<div class="tab-pane active" id="access">
-				<pre class="pre-scrollable">
-					<?php
-						echo read_backward_line(LOCAL."private/logs/access.log", 100, True);
-					?>
-				</pre>
+				<pre class="pre-scrollable"><?php
+						echo read_backward_line(LOCAL."private/logs/access.log", 50);
+					?></pre>
 			</div>
 			<div class="tab-pane" id="errors">
-				<pre class="pre-scrollable">
-					<?php
-						echo read_backward_line(LOCAL."private/logs/error.log", 100, True);
-					?>
-				</pre>
+				<pre class="pre-scrollable"><?php
+						echo read_backward_line(LOCAL."private/logs/error.log", 50);
+					?></pre>
+			</div>
+			<div class="tab-pane" id="admin">
+				<pre class="pre-scrollable"><?php
+						echo read_backward_line(LOCAL."private/logs/admin.log", 50);
+					?></pre>
 			</div>
 		</div>
 	</div>
