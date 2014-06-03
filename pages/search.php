@@ -26,7 +26,7 @@ echoHeader();
 				<div class="control-group">
 					<label class="control-label">Summoner name</label>
 					<div class="controls">
-						<input type="text" id="name" name="name" class="input-medium">
+						<input type="text" id="name" name="name" class="input-medium" maxlength="16">
 					</div>
 				</div>
 				<div class="form-actions">
