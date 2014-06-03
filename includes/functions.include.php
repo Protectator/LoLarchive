@@ -547,6 +547,41 @@ function items($row) {
 }
 
 /**
+ * Reads a file backwards
+ * Found this code on http://stackoverflow.com/questions/2961618/how-to-read-only-5-last-line-of-the-text-file-in-php
+ * written by Kevin Duke
+ */
+function read_backward_line($filename, $lines, $revers = false)
+{
+    $offset = -1;
+    $c = '';
+    $read = '';
+    $i = 0;
+    $fp = @fopen($filename, "r");
+    while( $lines && fseek($fp, $offset, SEEK_END) >= 0 ) {
+        $c = fgetc($fp);
+        if($c == "\n" || $c == "\r"){
+            $lines--;
+            if( $revers ){
+                $read[$i] = strrev($read[$i]);
+                $i++;
+            }
+        }
+        if( $revers ) $read[$i] .= $c;
+        else $read .= $c;
+        $offset--;
+    }
+    fclose ($fp);
+    if( $revers ){
+        if($read[$i] == "\n" || $read[$i] == "\r")
+            array_pop($read);
+        else $read[$i] = strrev($read[$i]);
+        return implode('',$read);
+    }
+    return strrev(rtrim($read,"\n\r"));
+}
+
+/**
  * Writes text at the end of the access log file
  *
  * @param string $text Text to log

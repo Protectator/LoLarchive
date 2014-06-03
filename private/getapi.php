@@ -18,7 +18,7 @@ $query = rawSelect($pdo, "SELECT summonerId, region FROM usersToTrack ORDER BY r
 $ip = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : "127.0.0.1";
 
 date_default_timezone_set('Europe/Berlin');
-$header = "> ".date('d/m/Y H:i:s', time())." - Request by ".$ip.PHP_EOL/*IDE*/;
+$header = "> ".date('d/m/Y H:i:s', time())." - Request by ".$ip/*IDE*/;
 logAccess($header);/*;3*/
 echo $header;
 
@@ -261,7 +261,7 @@ if (count($query) > 0) {
 				}
 				
 			} // END foreach match
-			$text = ($countNewMatches > 0) ? "[".$region."] Summoner ".$sId." \"".(array_key_exists('name', $row)?$row['name']:"?")."\" : ".$countNewMatches." added games".PHP_EOL : "";
+			$text = ($countNewMatches > 0) ? "[".$region."] Summoner ".$sId." \"".(array_key_exists('name', $row)?$row['name']:"?")."\" : ".$countNewMatches." added games" : "";
 			echo $text;
 			if (!isset($_GET['debug'])) {
 				logAccess($text);
@@ -291,7 +291,7 @@ if (count($query) > 0) {
 			$usersQuery .= buildMultInsert($toAdd);
 			$addedSummoners = securedInsert($pdo, $usersQuery);
 			if ($addedSummoners[0] != 1) {
-				logError("An error occured while adding names to database.".PHP_EOL);
+				logError("An error occured while adding names to database.");
 			} else {
 				$totalNewNames += $addedSummoners[1];
 			}
@@ -300,7 +300,7 @@ if (count($query) > 0) {
 			}
 		}
 		if ($totalNewNames != 0) {
-			logAccess($totalNewNames." names added.".PHP_EOL);
+			logAccess($totalNewNames." names added.");
 		}
 		
 	}

@@ -65,6 +65,31 @@ echoHeader("Admin - LoLarchive");
 		</form>
 	</div>
 </div>
+<div class="row-fluid">
+	<div class="span12 well">
+		<h3>Logs</h3>
+		<ul id="logsTab" class="nav nav-tabs" data-tabs="logsTab">
+			<li class="active"><a href="#access" data-toggle="tab">Access</a></li>
+			<li><a href="#errors" data-toggle="tab">Errors</a></li>
+		</ul>
+		<div class="tab-content">
+			<div class="tab-pane active" id="access">
+				<pre class="pre-scrollable">
+					<?php
+						echo read_backward_line(LOCAL."private/logs/access.log", 100, True);
+					?>
+				</pre>
+			</div>
+			<div class="tab-pane" id="errors">
+				<pre class="pre-scrollable">
+					<?php
+						echo read_backward_line(LOCAL."private/logs/error.log", 100, True);
+					?>
+				</pre>
+			</div>
+		</div>
+	</div>
+</div>
 
 <?
 echoFooter();

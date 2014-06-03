@@ -69,3 +69,7 @@ $('.input-daterange').datepicker({
     todayBtn: "linked",
     todayHighlight: true
 });
+
+jQuery(document).ready(function ($) {
+        $("#logsTab").tabs();
+    });
