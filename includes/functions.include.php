@@ -373,27 +373,76 @@ function getTrackedPlayers(&$pdo) {
 }
 
 /**
- * Adds a summoner to track games
+ * Adds a summoner to track games.
  *
  * @param resource $pdo Opened PDO connection
  * @param resource $c Opened cURL conneciton
  * @param string $region Region of the summoner
  * @param string $name Summoner name
+ * @param boolean $isId If set to True, then the $name passed is an id.
  * @return int Should return "1" if the request was executed correctly.
+ * returns "2" if the summoner is already tracked.
  * Does not guarantee the summoner has effectively been tracked, though.
  */
-function trackNewPlayer(&$pdo, &$c, $region, $name) {
-	$json = getSummonerByName($c, $region, $name);
-	$jsonArray = json_decode($json, true);
-	$aId = $jsonArray['acctId'];
+function trackNewPlayer(&$pdo, &$c, $region, $name, $isId = False) {
+	if ($isId) {
+		$summoner = apiSummonerNames($c, $region, $name);
+	} else {
+		$summoner = apiSummonerByName($c, $region, $name);
+	}
+	if (empty($summoner)) {
+		return 0;
+	}
+	$summoner = current($summoner);
 	$infos = array (
 		"region" => $region,
-		"summonerId" => $sId,
-		"accountId" => $aId,
-		"name" => $name
+		"summonerId" => $summoner['id'],
+		"name" => $summoner['name']
 	);
 	$request = "INSERT INTO usersToTrack "/*chelou*/.buildInsert($infos)." ON DUPLICATE KEY UPDATE name = '".$name."';";
-	return securedInsert($pdo, $request); // Returns the number of affected rows
+	$result = securedInsert($pdo, $request); // Returns the number of affected rows
+	if ($result[0] == 1) {
+		if ($result[1] == 1) {
+			return 1;
+		} else {
+			return 2;
+		}
+	}
+	return 0;
+}
+
+/**
+ * No longer tracks a summoner.
+ *
+ * @param resource $pdo Opened PDO connection
+ * @param resource $c Opened cURL conneciton
+ * @param string $region Region of the summoner
+ * @param string $name Summoner name
+ * @param boolean $isId If set to True, then the $name passed is an id.
+ * @return int Should return "1" if the request was executed correctly.
+ * returns "2" if the summoner is already untracked.
+ * Does not guarantee the summoner has effectively been tracked, though.
+ */
+function untrackPlayer(&$pdo, &$c, $region, $name, $isId = False) {
+	if ($isId) {
+		$summoner = array('id' => $name);
+	} else {
+		$summoner = apiSummonerByName($c, $region, $name);
+	}
+	if (empty($summoner)) {
+		return 0;
+	}
+	$summoner = current($summoner);
+	$request = "DELETE FROM usersToTrack WHERE summonerId = ".$summoner['id']." AND region = ".$region.";";
+	$result = securedInsert($pdo, $request); // Returns the number of affected rows
+	if ($result[0] == 1) {
+		if ($result[1] == 1) {
+			return 1;
+		} else {
+			return 2;
+		}
+	}
+	return 0;
 }
 
 /**
@@ -758,6 +807,32 @@ function HTMLerror($title, $content) {
  */
 function HTMLwarning($title, $content) {
 	return "<div class='alert alert-warning alert-block'>
+		<button type='button' class='close' data-dismiss='alert'>&times;</button>
+		<h4>".$title."</h4>".$content."</div>";	
+}
+
+/**
+ * Generates the HTML code to display a Success well (with an close button).
+ * 
+ * @param string $title		Title of the Warning
+ * @param string $content	Content of the Warning
+ * @return string HTML code
+ */
+function HTMLsuccess($title, $content) {
+	return "<div class='alert alert-success alert-block'>
+		<button type='button' class='close' data-dismiss='alert'>&times;</button>
+		<h4>".$title."</h4>".$content."</div>";	
+}
+
+/**
+ * Generates the HTML code to display a Info well (with an close button).
+ * 
+ * @param string $title		Title of the Warning
+ * @param string $content	Content of the Warning
+ * @return string HTML code
+ */
+function HTMLinfo($title, $content) {
+	return "<div class='alert alert-info alert-block'>
 		<button type='button' class='close' data-dismiss='alert'>&times;</button>
 		<h4>".$title."</h4>".$content."</div>";	
 }

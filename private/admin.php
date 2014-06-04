@@ -25,11 +25,35 @@ logAdmin($_SERVER['PHP_AUTH_USER']." accessed the Admin panel.");
 		Authenticated as <?php echo $_SERVER['PHP_AUTH_USER']." with IP adress ".$_SERVER['REMOTE_ADDR'];?>
 	</div>
 </div>
+<?
+// Treating any request
+// Add summoner to track
+if (isset($_POST["nameToTrack"]) AND $_POST["nameToTrack"] != "" AND isset($_POST["regionToTrack"]) AND $_POST["regionToTrack"] != "") {
+	$nameToTrack = $_POST["nameToTrack"];
+	$regionToTrack = strtolower($_POST["regionToTrack"]);
+	$c = curl_init();
+	$result = trackNewPlayer($pdo, $c, $regionToTrack, $nameToTrack);
+	curl_close($c);
+	if ($result == 1) {
+		$message = "Summoner ".$nameToTrack." has been added to the tracked summoners.";
+		logAdmin($message);
+		echo HTMLsuccess("Added", $message);
+	} elseif ($result == 2) {
+		$message = "Summoner ".$nameToTrack." is already tracked.";
+		echo HTMLinfo("Already tracked", $message);
+	} elseif ($result == 0) {
+		$message = "Summoner with name ".$nameToTrack." has not been found.";
+		echo HTMLerror("Not found", $message);
+	}
+}
+
+?>
+
 <div class="row-fluid">
 	<div class="span6 well">
 		<h3>Track a new summoner</h3>
 		<form class="form-inline" method="post">
-			<select id="region" name="region" class="input-small">
+			<select id="region" name="regionToTrack" class="input-small">
 				<option>EUW</option>
 				<option>EUNE</option>
 				<option>NA</option>
@@ -40,7 +64,7 @@ logAdmin($_SERVER['PHP_AUTH_USER']." accessed the Admin panel.");
 				<option>LAS</option>
 				<option>OCE</option>
 			</select>
-			<input type="text" id="name" name="name" class="input-medium" placeholder="Name" maxlength="16">
+			<input type="text" id="name" name="nameToTrack" class="input-medium" placeholder="Name" maxlength="16">
 			<button type="submit" class="btn btn-primary">Add</button>
 		</form>
 		<h3>Tracked summoners</h3>
