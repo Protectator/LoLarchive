@@ -330,66 +330,70 @@
 				</div>
 
 				<div class="row">
-					<div class="span12">
-						<form class="form-horizontal well" action="index.php" method="get">
+					<div id="filterAccordion" class="span12 accordion">
+						<form class="form-horizontal well accordion-group" action="index.php" method="get">
 							<fieldset>
-								<legend>Filter games</legend>
-								<input type="hidden" name="page" value="player"/>
-								<input type="hidden" name="region" value="<?php echo $Iregion?>"/>
-								<?
-								if (isset($summonerName)) { ?>
-								<input type="hidden" name="name" value="<?php echo $summonerName?>"/>
-								<? } ?>
-								<input type="hidden" name="id" value="<?php echo $summonerId?>"/> 
-								<div class="control-group">
-									<label class="control-label">
-										<label class="checkbox inline"><input type="checkbox" id="champFilterBox" <?php echo (isset($filters['fChampion']) && $filters['fChampion'])?'checked="yes"':''?>> Champion</label>
-									</label>
-									<div class="controls">
-										<select id="champFilterChoice" name="fChampion" class="input-medium">
-											<?php
-											foreach (array_sort($champions, 'display') as $key => $value) {
+								<legend id="filter-legend" class="accordion-heading">
+									<a class="accordion-toggle" data-toggle="collapse" data-parent="#filterAccordion" href=".collapseFilters">Filter games</a>
+								</legend>
+								<div class="accordion-body collapse collapseFilters">
+									<input type="hidden" name="page" value="player"/>
+									<input type="hidden" name="region" value="<?php echo $Iregion?>"/>
+									<?php
+										if (isset($summonerName)) { ?>
+										<input type="hidden" name="name" value="<?php echo $summonerName?>"/>
+									<?php } ?>
+									<input type="hidden" name="id" value="<?php echo $summonerId?>"/> 
+									<div class="control-group">
+										<label class="control-label">
+											<label class="checkbox inline"><input type="checkbox" id="champFilterBox" <?php echo (isset($filters['fChampion']) && $filters['fChampion'])?'checked="yes"':''?>> Champion</label>
+										</label>
+										<div class="controls">
+											<select id="champFilterChoice" name="fChampion" class="input-medium">
+												<?php
+												foreach (array_sort($champions, 'display') as $key => $value) {
+													?>
+													<option value="<?php echo $key;?>" <?php echo (isset($filters['fChampion']) && $filters['fChampion'] == $key)?"selected":"";?>>
+													<?php echo $value['display'];?>
+													</option>
+													<?
+												}
 												?>
-												<option value="<?php echo $key;?>" <?php echo (isset($filters['fChampion']) && $filters['fChampion'] == $key)?"selected":"";?>>
-												<?php echo $value['display'];?>
-												</option>
-												<?
-											}
-											?>
-										</select>
+											</select>
+										</div>
 									</div>
-								</div>
-								<div class="control-group">
-									<label class="control-label">
-										<label class="checkbox inline"><input type="checkbox" id="modeFilterBox" <?php echo ($filters['fMode'])?'checked="yes"':''?>> Game mode</label>
-									</label>
-									<div class="controls">
-										<select id="modeFilterChoice" name="fMode" class="input-medium">
-											<?
-											foreach ($modes as $key => $value) {
+									<div class="control-group">
+										<label class="control-label">
+											<label class="checkbox inline"><input type="checkbox" id="modeFilterBox" <?php echo ($filters['fMode'])?'checked="yes"':''?>> Game mode</label>
+										</label>
+										<div class="controls">
+											<select id="modeFilterChoice" name="fMode" class="input-medium">
+												<?
+												foreach ($modes as $key => $value) {
+													?>
+													<option value="<?php echo $key;?>" <?php echo ($filters['fMode'] == $key)?"selected":"";?>>
+													<? echo $value;?>
+													</option>
+													<?
+												}
 												?>
-												<option value="<?php echo $key;?>" <?php echo ($filters['fMode'] == $key)?"selected":"";?>>
-												<? echo $value;?>
-												</option>
-												<?
-											}
-											?>
-										</select>
+											</select>
+										</div>
 									</div>
-								</div>
-								<div class="control-group">
-									<label class="control-label">
-										<label class="checkbox inline"><input type="checkbox" id="dateFilterBox" <?php echo ($filters['fStart'] OR $filters['fEnd'])?'checked="yes"':''?>> Date range</label>
-									</label>
-									<div class="controls">
-										<div class="input-daterange" id="datepicker">
-											<input type="text" class="input-small" name="fStart" id="date1" <?php echo (isset($nextStart))?'value="'.$nextStart.'"':'' ?> />
-											<span class="add-on">to</span>
-											<input type="text" class="input-small" name="fEnd" id="date2" value="<?php echo (isset($nextEnd))?$nextEnd:date('j-n-Y') ?>" />
+									<div class="control-group">
+										<label class="control-label">
+											<label class="checkbox inline"><input type="checkbox" id="dateFilterBox" <?php echo ($filters['fStart'] OR $filters['fEnd'])?'checked="yes"':''?>> Date range</label>
+										</label>
+										<div class="controls">
+											<div class="input-daterange" id="datepicker">
+												<input type="text" class="input-small" name="fStart" id="date1" <?php echo (isset($nextStart))?'value="'.$nextStart.'"':'' ?> />
+												<span class="add-on">to</span>
+												<input type="text" class="input-small" name="fEnd" id="date2" value="<?php echo (isset($nextEnd))?$nextEnd:date('j-n-Y') ?>" />
+											</div>
 										</div>
 									</div>
 								</div>
-								<div class="form-actions">
+								<div id="filter-button" class="accordion-body collapse collapseFilters form-actions">
 									<div class="controls">
 										<button type="submit" class="btn btn-primary"><i class="icon-filter icon-white"></i> Filter</button>
 									</div>

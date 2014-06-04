@@ -267,6 +267,33 @@ input[disabled] {
 	padding: 0px;
 }
 
+#filter-button {
+	padding-top: 10px;
+	padding-bottom: 0px;
+	margin-top: 0px;
+}
+
+#filter-button :first-child {
+	height: 30px;
+	max-height: 30px;
+	padding-bottom: 10px;
+}
+
+#filter-legend {
+	border-bottom: 1px solid #121212;
+}
+
+#filter-legend :first-child {
+	padding: 0px;
+}
+
+#filter-legend :first-child:hover {
+	padding: 0px;
+	color: #ffdb4c;
+}
+
+.collapse {  transition: height 3s; }
+
 /* Scrollable table */
 /* CSS found on http://www.imaputz.com/cssStuff/bigFourVersion.html */
 
