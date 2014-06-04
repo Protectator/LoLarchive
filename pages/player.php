@@ -391,7 +391,7 @@
 								</div>
 								<div class="form-actions">
 									<div class="controls">
-										<button type="submit" class="btn btn-primary">Filter</button>
+										<button type="submit" class="btn btn-primary"><i class="icon-filter icon-white"></i> Filter</button>
 									</div>
 								</div>
 							</fieldset>
