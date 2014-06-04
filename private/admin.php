@@ -149,20 +149,21 @@ if ($nbActions == 0) {
 			<li><a href="#errors" data-toggle="tab">Errors</a></li>
 			<li><a href="#admin" data-toggle="tab">Admin</a></li>
 		</ul>
+		<p>Last <?php echo ADMIN_PAGE_LOGS_NB_LINES_DISPLAYED; ?> lines of the logs :</p>
 		<div class="tab-content">
 			<div class="tab-pane active" id="access">
 				<pre class="pre-scrollable"><?php
-						echo read_backward_line(LOCAL."private/logs/access.log", 50);
+						echo read_backward_line(LOCAL."private/logs/access.log", ADMIN_PAGE_LOGS_NB_LINES_DISPLAYED);
 					?></pre>
 			</div>
 			<div class="tab-pane" id="errors">
 				<pre class="pre-scrollable"><?php
-						echo read_backward_line(LOCAL."private/logs/error.log", 50);
+						echo read_backward_line(LOCAL."private/logs/error.log", ADMIN_PAGE_LOGS_NB_LINES_DISPLAYED);
 					?></pre>
 			</div>
 			<div class="tab-pane" id="admin">
 				<pre class="pre-scrollable"><?php
-						echo read_backward_line(LOCAL."private/logs/admin.log", 50);
+						echo read_backward_line(LOCAL."private/logs/admin.log", ADMIN_PAGE_LOGS_NB_LINES_DISPLAYED);
 					?></pre>
 			</div>
 		</div>

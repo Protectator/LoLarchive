@@ -112,6 +112,7 @@ define('SUMMONER_NAME_MAX_LENGTH', 16);
 define('SUMMONER_ID_MAX_LENGTH', 16);
 define('STATIC_RESOURCES', "http://ddragon.leagueoflegends.com/cdn/");
 define('STATIC_RESOURCES_VERSION', "4.7.8");
+define('ADMIN_PAGE_LOGS_NB_LINES_DISPLAYED', 50);
 
 // IMMEDIATE_QUERY_PARTICIPANTS_DATA defines if the databse should ask the API for
 // the data of all participants of a game in which at least one of the tracked 
