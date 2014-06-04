@@ -29,7 +29,7 @@ echoHeader();
 						<input type="text" id="name" name="name" class="input-medium">
 						<?php
 						if (SHOW_TRACKED_SUMMONERS) {
-							echo ' or <select id="predefId" name="predefId" class="input-medium"><option></option>';
+							echo ' or <select id="id" name="id" class="input-medium"><option></option>';
 							$players = getTrackedPlayers($pdo);
 							foreach ($players as $key => $value) {
 								echo '<option value="'.$value['summonerId'].'">'.$value['name'].'</option>';

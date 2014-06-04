@@ -10,9 +10,6 @@
 	if (isset($_GET["id"])) {
 		if ($_GET["id"] != "") {$Iid = $_GET/*27*/["id"];}
 	}
-	if (isset($_GET["predefId"])) {
-		if ($_GET["predefId"] != "") {$Iid = $_GET["predefId"];}
-	}
 	if (isset($_GET["region"])) { 
 		if ($_GET["region"] != "") {$Iregion = strtolower($_GET["region"]);}
 	}
