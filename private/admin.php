@@ -36,15 +36,15 @@ if (isset($_POST["nameToTrack"]) AND $_POST["nameToTrack"] != "" AND isset($_POS
 	$result = trackNewPlayer($pdo, $c, $regionToTrack, $nameToTrack);
 	curl_close($c);
 	if ($result == 1) {
-		$message = "Summoner ".$nameToTrack." has been added to the tracked summoners.";
+		$message = "Summoner ".purify($nameToTrack)." has been added to tracked summoners.";
 		logAdmin($user." : ".$message);
 		$nbActions += 1;
 		echo HTMLsuccess("Added", $message);
 	} elseif ($result == 2) {
-		$message = "Summoner ".$nameToTrack." is already tracked.";
+		$message = "Summoner ".purify($nameToTrack)." is already tracked.";
 		echo HTMLinfo("Already tracked", $message);
 	} elseif ($result == 0) {
-		$message = "Summoner with name ".$nameToTrack." has not been found.";
+		$message = "Summoner with name ".purify($nameToTrack)." has not been found.";
 		echo HTMLerror("Not found", $message);
 	}
 }
@@ -58,15 +58,15 @@ if (isset($_POST["idToUntrack"]) AND $_POST["idToUntrack"] != "" AND isset($_POS
 	$result = untrackPlayer($pdo, $c, $regionToUntrack, $idToUntrack, True);
 	curl_close($c);
 	if ($result == 1) {
-		$message = "Summoner ".$untrackName." has been removed from the tracked summoners.";
+		$message = "Summoner ".purify($untrackName)." has been removed from tracked summoners.";
 		$nbActions += 1;
 		logAdmin($user." : ".$message);
 		echo HTMLsuccess("Removed", $message);
 	} elseif ($result == 2) {
-		$message = "Summoner ".$untrackName." isn't tracked already.";
+		$message = "Summoner ".purify($untrackName)." isn't tracked already.";
 		echo HTMLinfo("Already not tracked", $message);
 	} elseif ($result == 0) {
-		$message = "Summoner with name ".$untrackName." has not been found.";
+		$message = "Summoner with name ".purify($untrackName)." has not been found.";
 		echo HTMLerror("Not found", $message);
 	}
 }
