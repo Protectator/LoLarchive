@@ -275,7 +275,7 @@ div.scrollableTableContainer {
 	clear: both;
 	border: 1px solid #000;
 	border-radius: 4px;
-	height: 250px;
+	height: 300px;
 	overflow: auto;
 	width: 422px
 }
@@ -338,7 +338,7 @@ thead.fixedHeader a:hover {
 /* induced side effect is that child TDs no longer accept width: auto                     */
 html>body tbody.scrollContent {
 	display: block;
-	height: 214px;
+	height: 264px;
 	overflow: auto;
 	width: 100%
 }

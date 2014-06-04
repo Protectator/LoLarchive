@@ -63,7 +63,7 @@ if (isset($_POST["idToUntrack"]) AND $_POST["idToUntrack"] != "" AND isset($_POS
 		logAdmin($user." : ".$message);
 		echo HTMLsuccess("Removed", $message);
 	} elseif ($result == 2) {
-		$message = "Summoner ".purify($untrackName)." isn't tracked already.";
+		$message = "Summoner ".purify($untrackName)." is already not tracked.";
 		echo HTMLinfo("Already not tracked", $message);
 	} elseif ($result == 0) {
 		$message = "Summoner with name ".purify($untrackName)." has not been found.";
@@ -89,7 +89,7 @@ if (isset($_POST["idToUntrack"]) AND $_POST["idToUntrack"] != "" AND isset($_POS
 				<option>OCE</option>
 			</select>
 			<input type="text" id="name" name="nameToTrack" class="input-medium" placeholder="Name" maxlength="16">
-			<button type="submit" class="btn btn-primary">Add</button>
+			<button type="submit" class="btn btn-success btn-small"><i class="icon-plus icon-white"></i> Add</button>
 		</form>
 		<h3>Tracked summoners</h3>
 		<div class="scrollableTableContainer">
@@ -103,7 +103,7 @@ if (isset($_POST["idToUntrack"]) AND $_POST["idToUntrack"] != "" AND isset($_POS
 				<input type='hidden' name='regionToUntrack' value='".$player['region']."'>
 				<input type='hidden' name='untrackName' value='".$realName."'>
 				<button type='submit' class='button btn-danger btn-mini'>
-				<i class='icon-remove'></button></form></td></tr>";
+				<i class='icon-remove'></i> Remove</button></form></td></tr>";
 			}
 			echo "</table>";
 			?>
@@ -118,6 +118,16 @@ if (isset($_POST["idToUntrack"]) AND $_POST["idToUntrack"] != "" AND isset($_POS
 		</form>
 	</div>
 	<div class="span6 well">
+		<h3>Configuration</h3>
+		<?php
+			$configInfos = array (
+				"Database host" => HOST,
+				"Database name" => DBNAME,
+				"API key used" => preg_replace('/(\w{4})\w{4}-\w{4}-\w{4}-\w{4}-\w{8}(\w{4})/', '${1}****-****-****-****-********${2}', API_KEY),
+				"Used as prod key" => (PROD_KEY) ? "<i class='icon-ok icon-white'></i>" : "<i class='icon-remove icon-white'></i>"
+				);
+			echo arrayToVerticalList($configInfos, "table-condensed");
+		?>
 		<h3>Database</h3>
 		<?php
 			$dbStatsRequestString = "SELECT COUNT(*) as nbGames FROM games;";

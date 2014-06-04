@@ -754,6 +754,22 @@ function arrayToTable($array, $classes = "", $titles = array()) {
 }
 
 /**
+ * Puts an array in an HTML table formatted as a vertical list.
+ * @param  $array Array to be printed
+ * @param  string $classes added classes to the table
+ * @return string HTML code
+ */
+function arrayToVerticalList($array, $classes = "") {
+	$result = "<table class=\"table ".$classes."\">";
+	$result .= "<tbody>";
+	foreach ($array as $key => $value) {
+		$result .= "<tr><th>".$key."</th><td>".$value."</td></tr>";
+	}
+	$result .= "</tbody></table>";
+	return $result;
+}
+
+/**
  * Transforms an array into HTML <td> cells
  * @param  array $array mono-dimensional array to put in cells
  * @return string       HTML <td>s
