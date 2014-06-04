@@ -425,7 +425,7 @@ function trackNewPlayer(&$pdo, &$c, $region, $name, $isId = False) {
  */
 function untrackPlayer(&$pdo, &$c, $region, $name, $isId = False) {
 	if ($isId) {
-		$summoner = array('id' => $name);
+		$summoner = array(array('id' => $name));
 	} else {
 		$summoner = apiSummonerByName($c, $region, $name);
 	}
@@ -433,7 +433,7 @@ function untrackPlayer(&$pdo, &$c, $region, $name, $isId = False) {
 		return 0;
 	}
 	$summoner = current($summoner);
-	$request = "DELETE FROM usersToTrack WHERE summonerId = ".$summoner['id']." AND region = ".$region.";";
+	$request = "DELETE FROM usersToTrack WHERE summonerId = '".$summoner['id']."' AND region = '".$region."';";
 	$result = securedInsert($pdo, $request); // Returns the number of affected rows
 	if ($result[0] == 1) {
 		if ($result[1] == 1) {
