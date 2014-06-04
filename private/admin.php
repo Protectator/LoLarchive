@@ -108,15 +108,8 @@ if (isset($_POST["idToUntrack"]) AND $_POST["idToUntrack"] != "" AND isset($_POS
 			echo "</table>";
 			?>
 		</div>
+	</div>
 
-	</div>
-	<div class="span6 well">
-		<h3>Change admin password</h3>
-		<form class="form-inline" method="post">
-			New password <input type="password" id="newPass" name="newPass" class="input-medium" maxlength="32" disabled>
-			<button type="submit" class="btn btn-primary" disabled>Change</button>
-		</form>
-	</div>
 	<div class="span6 well">
 		<h3>Configuration</h3>
 		<?php
@@ -130,11 +123,16 @@ if (isset($_POST["idToUntrack"]) AND $_POST["idToUntrack"] != "" AND isset($_POS
 		?>
 		<h3>Database</h3>
 		<?php
-			$dbStatsRequestString = "SELECT COUNT(*) as nbGames FROM games;";
-			$dbStats = $pdo->prepare($dbStatsRequestString);
-			$dbStats->execute();
-			$stats = $dbStats->fetchAll(PDO::FETCH_NAMED);
-			echo $stats[0]['nbGames']." games.";
+			$gamesStatsRequestString = "SELECT COUNT(*) as nbGames FROM games;";
+			$trackedStatsRequestString = "SELECT COUNT(*) as nbTracked FROM usersToTrack;";
+			$gamesStats = $pdo->prepare($gamesStatsRequestString);
+			$trackedStats = $pdo->prepare($trackedStatsRequestString);
+			$gamesStats->execute();
+			$trackedStats->execute();
+			$stats[0] = current($gamesStats->fetchAll(PDO::FETCH_NAMED));
+			$stats[1] = current($trackedStats->fetchAll(PDO::FETCH_NAMED));
+			echo $stats[1]['nbTracked']." tracked summoners<br>";
+			echo number_format($stats[0]['nbGames'], 0, "", "'")." games<br>";
 		?>
 	</div>
 </div>
