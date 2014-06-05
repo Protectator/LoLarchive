@@ -561,20 +561,6 @@ function getPage(&$pdo, $region, $sId, $filters, $page) {
  undocumented part
  */
 
-/*
- * Returns the HTML showing an item
- */
-function item($row, $int) {
-	if ($row['item'.$int] > 0) {
-		$href = STATIC_RESOURCES.STATIC_RESOURCES_VERSION."/img/sprite/".$itemsImages['data'][$row['item'.$int]]['image']['sprite'];
-		$x = $itemsImages['data'][$row['item'.$int]]['image']['x'];
-		$y = $itemsImages['data'][$row['item'.$int]]['image']['y'];
-		$alttext = $itemsImages['data'][$row['item'.$int]]['image']['name'];
-		$title = $itemsImages['data'][$row['item'.$int]]['image']['description'];
-		return '<div class= "img-rounded imgitem32" style="background-image:url(\''.$href.'\') '.$x.'-px '.$y.'-px -no-repeat;" title="'.$alttext.'<br>'.$title.'"></div>';
-	}
-}
-
 /**
  * Returns the image link of a champion
  *
@@ -583,22 +569,6 @@ function item($row, $int) {
 function champImg($champId) {
 	global $champions;
 	return STATIC_RESOURCES.STATIC_RESOURCES_VERSION."/img/champion/".$champions[$champId]['img'];
-}
-
-/**
- * Returns the HTML code to display items
- * @param  array $row  The row to take infos from
- * @return string      HTML code
- */
-function items($row) {
-	$result = "<tr><td class=\"singleitemcell\">".item($row, 0)."<td>";
-	$result.= "<td class=\"singleitemcell\">".item($row, 1)."<td>";
-	$result.= "<td class=\"singleitemcell\">".item($row, 2)."<td>";
-	$result.= "<td class=\"singleitemcell\" rowspan=\"2\">".item($row, 6)."<td></tr>";
-	$result.= "<tr><td class=\"singleitemcell\">".item($row, 3)."<td>";
-	$result.= "<td class=\"singleitemcell\">".item($row, 4)."<td>";
-	$result.= "<td class=\"singleitemcell\">".item($row, 5)."<td></tr>";
-	return $result;
 }
 
 /**
