@@ -59,15 +59,6 @@ $modes = array (
 		"URF_BOT" => "U.R.F. vs AI"
 );
 
-$cUrl = curl_init();
-$itemsImages = apiItemsImages($cUrl, "euw");
-$championsAnswer = apiChampionsImages($cUrl, "euw");
-curl_close($cUrl);
-$champions = array();
-foreach ($championsAnswer['data'] as $key => $value) {
-	$champions[intval($value['id'])] = array("img" => $value['image']['full'], "name" => $value['key'], "display" => $value['name']);
-}
-
 /*
  HEADER AND FOOTER
  */
@@ -568,6 +559,15 @@ function getPage(&$pdo, $region, $sId, $filters, $page) {
  */
 function champImg($champId) {
 	global $champions;
+	if (!isset($champions)) {
+		$cUrl = curl_init();
+		$championsAnswer = apiChampionsImages($cUrl, "euw");
+		curl_close($cUrl);
+		$champions = array();
+		foreach ($championsAnswer['data'] as $key => $value) {
+			$champions[intval($value['id'])] = array("img" => $value['image']['full'], "name" => $value['key'], "display" => $value['name']);
+		}
+	}
 	return STATIC_RESOURCES.STATIC_RESOURCES_VERSION."/img/champion/".$champions[$champId]['img'];
 }
 
@@ -906,6 +906,11 @@ function HTMLparticipants($region, $team1, $team2) {
 function HTMLitem($itemId) {
 	if ($itemId != 0) {
 		global $itemsImages;
+		if (!isset($itemsImages)) {
+			$cUrl = curl_init();
+			$itemsImages = apiItemsImages($cUrl, "euw");
+			curl_close($cUrl);
+		}
 		$actualItem = $itemsImages['data'][$itemId];
 		$href = STATIC_RESOURCES.STATIC_RESOURCES_VERSION."/img/sprite/".$actualItem['image']['sprite'];
 		$x = $actualItem['image']['x']*2/3;
