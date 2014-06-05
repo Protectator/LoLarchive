@@ -271,6 +271,7 @@ input[disabled] {
 	padding-top: 10px;
 	padding-bottom: 0px;
 	margin-top: 0px;
+	max-height: 40px;
 }
 
 #filter-button :first-child {
@@ -291,8 +292,6 @@ input[disabled] {
 	padding: 0px;
 	color: #ffdb4c;
 }
-
-.collapse {  transition: height 3s; }
 
 /* Scrollable table */
 /* CSS found on http://www.imaputz.com/cssStuff/bigFourVersion.html */
