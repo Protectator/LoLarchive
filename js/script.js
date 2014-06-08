@@ -80,4 +80,4 @@ $("#admin").addClass("active");
 $("#admin :first-child").scrollTop($("#admin :first-child")[0].scrollHeight);
 $("#admin").removeClass("active");
 
-$("#logsTab").tabs();
+$("#logsTab").tab();
