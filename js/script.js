@@ -92,14 +92,17 @@ $('.input-daterange').datepicker({
     todayHighlight: true
 });
 
-$("#access :first-child").scrollTop($("#access :first-child")[0].scrollHeight);
-// Yeah, because I can't touch the scroll of hidden divs, I have to first activate them,
-// then change the scroll and finally desactivate them...
-$("#errors").addClass("active");
-$("#errors :first-child").scrollTop($("#errors :first-child")[0].scrollHeight);
-$("#errors").removeClass("active");
-$("#admin").addClass("active");
-$("#admin :first-child").scrollTop($("#admin :first-child")[0].scrollHeight);
-$("#admin").removeClass("active");
+var scrolls = $("#access :first-child");
+if (scrolls.length > 0) {
+	scrolls.scrollTop(scrolls[0].scrollHeight);
+	// Yeah, because I can't touch the scroll of hidden divs, I have to first activate them,
+	// then change the scroll and finally desactivate them...
+	$("#errors").addClass("active");
+	$("#errors :first-child").scrollTop($("#errors :first-child")[0].scrollHeight);
+	$("#errors").removeClass("active");
+	$("#admin").addClass("active");
+	$("#admin :first-child").scrollTop($("#admin :first-child")[0].scrollHeight);
+	$("#admin").removeClass("active");
 
-$("#logsTab").tab();
+	$("#logsTab").tab();
+}
