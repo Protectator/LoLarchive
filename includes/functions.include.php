@@ -343,31 +343,51 @@ function apiSummonerNames(&$c, $region, $sIds) {
 }
 
 /**
- * Gets items images informations
+ * Caches items images informations
  * 
  * @param resource $c opened cURL session
  * @param string $region abbreviated server's name
- * @return array of result
  */
 function apiItemsImages(&$c, $region) {
 	$url = API_URL."static-data/".$region."/v".STATIC_DATA_VERSION."/item?itemListData=image&api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-	return json_decode(trim(curl_exec($c)), true);
+	$content = trim(curl_exec($c));
+	addToFile(LOCAL."private/cache/items.json", $content, true);
 }
 
 /**
- * Gets champions images informations
+ * Gets items images informations
+ * 
+ * @return array of result
+ */
+function cachedItemsImages() {
+	$content = file_get_contents(LOCAL."private/cache/items.json");
+	return json_decode($content, true);
+}
+
+/**
+ * Caches champions images informations
  * 
  * @param resource $c opened cURL session
  * @param string $region abbreviated server's name
- * @return array of result
  */
 function apiChampionsImages(&$c, $region) {
 	$url = API_URL."static-data/".$region."/v".STATIC_DATA_VERSION."/champion?champData=image&api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-	return json_decode(trim(curl_exec($c)), true);
+	$content = trim(curl_exec($c));
+	addToFile(LOCAL."private/cache/champions.json", $content, true);
+}
+
+/**
+ * Gets champions images informations
+ * 
+ * @return array of result
+ */
+function cachedChampionsImages() {
+	$content = file_get_contents(LOCAL."private/cache/champions.json");
+	return json_decode($content, true);
 }
 
 /*
@@ -582,9 +602,7 @@ function getPage(&$pdo, $region, $sId, $filters, $page) {
 function champImg($champId) {
 	global $champions;
 	if (!isset($champions)) {
-		$cUrl = curl_init();
-		$championsAnswer = apiChampionsImages($cUrl, "euw");
-		curl_close($cUrl);
+		$championsAnswer = cachedChampionsImages();
 		$champions = array();
 		foreach ($championsAnswer['data'] as $key => $value) {
 			$champions[intval($value['id'])] = array("img" => $value['image']['full'], "name" => $value['key'], "display" => $value['name']);
@@ -666,13 +684,18 @@ function logAdmin($text) {
  * 
  * @param string $file    Absolute path of the file
  * @param string $content Text to add at the end of the file.
+ * @param boolean $replace Overwrite file completely
  */
-function addToFile($file, $content) {
+function addToFile($file, $content, $replace = False) {
 	$errorString = "Tried to write in file '".$file."' ;".PHP_EOL;
 	if (file_exists($file)) {
 		if (is_readable($file)) {
 			if (is_writable($file)) {
-				file_put_contents($file, $content, FILE_APPEND); 
+				if ($replace) {
+					file_put_contents($file, $content);
+				} else {
+					file_put_contents($file, $content, FILE_APPEND);
+				} 
 			} else {
 				$errorString .= "File is not writable";
 				trigger_error($errorString, E_USER_ERROR);
@@ -929,9 +952,7 @@ function HTMLitem($itemId) {
 	if ($itemId != 0) {
 		global $itemsImages;
 		if (!isset($itemsImages)) {
-			$cUrl = curl_init();
-			$itemsImages = apiItemsImages($cUrl, "euw");
-			curl_close($cUrl);
+			$itemsImages = cachedItemsImages();
 		}
 		$actualItem = $itemsImages['data'][$itemId];
 		$href = STATIC_RESOURCES.STATIC_RESOURCES_VERSION."/img/sprite/".$actualItem['image']['sprite'];

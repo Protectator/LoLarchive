@@ -44,6 +44,12 @@ $header = "> ".date('d/m/Y H:i:s', time())." - Request by ".$ip/*IDE*/;
 logAccess($header);/*;3*/
 echo $header;
 
+// Update caches
+$c = curl_init();
+apiItemsImages($c, "euw");
+apiChampionsImages($c, "euw");
+curl_close($c);
+
 $countTotalMatches = 0;
 // Si la requête retourne des résultats
 if (count($query) > 0) {
