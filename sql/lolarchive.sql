@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Client: localhost
--- Généré le : Sam 26 Avril 2014 à 20:38
+-- Généré le : Mer 11 Juin 2014 à 13:25
 -- Version du serveur: 5.5.31
 -- Version de PHP: 5.3.10-1ubuntu3.10
 
@@ -19,19 +19,6 @@ SET time_zone = "+00:00";
 --
 -- Base de données: `lolarchivedev`
 --
-
--- --------------------------------------------------------
-
---
--- Structure de la table `champions`
---
-
-CREATE TABLE IF NOT EXISTS `champions` (
-  `id` int(11) NOT NULL DEFAULT '0',
-  `name` varchar(32) NOT NULL,
-  `display` varchar(32) NOT NULL,
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -142,7 +129,7 @@ CREATE TABLE IF NOT EXISTS `games` (
   `gamesIp` varchar(16) COLLATE utf8_bin NOT NULL,
   `gamesStamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`gameId`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1388458393 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1518620844 ;
 
 -- --------------------------------------------------------
 
@@ -185,9 +172,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 CREATE TABLE IF NOT EXISTS `usersToTrack` (
   `region` varchar(6) NOT NULL,
   `summonerId` int(10) unsigned NOT NULL,
-  `accountId` int(10) unsigned NOT NULL,
   `name` varchar(32) NOT NULL,
-  PRIMARY KEY (`summonerId`,`accountId`)
+  PRIMARY KEY (`summonerId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

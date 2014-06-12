@@ -373,6 +373,13 @@
 										<div class="controls">
 											<select id="champFilterChoice" name="fChampion" class="input-medium">
 												<?php
+												if (!isset($champions)) {
+													$championsAnswer = cachedChampionsImages();
+													$champions = array();
+													foreach ($championsAnswer['data'] as $key => $value) {
+														$champions[intval($value['id'])] = array("img" => $value['image']['full'], "name" => $value['key'], "display" => $value['name']);
+													}
+												}
 												foreach (array_sort($champions, 'display') as $key => $value) {
 													?>
 													<option value="<?php echo $key;?>" <?php echo (isset($filters['fChampion']) && $filters['fChampion'] == $key)?"selected":"";?>>

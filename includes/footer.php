@@ -1,6 +1,6 @@
 		<footer id="foot">
-			<p class="pull-right"><a href="https://github.com/Protectator/LoLarchive">LoLarchive</a> 2013 - 2014</p>
-			<p><a href="http://twitter.com/Protectator">Protectator</a></p>
+			<p class="pull-right"></p>
+			<p><a href="https://github.com/Protectator/LoLarchive">LoLarchive</a> © 2013-2014 <a href="http://twitter.com/Protectator">Kewin Dousse</a></p>
 		</footer>
     </div>
 		<script src="<?echo PATH;?>libs/jQuery/jquery-2.1.1.min.js"></script>

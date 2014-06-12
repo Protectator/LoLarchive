@@ -183,6 +183,19 @@ input[disabled] {
 	text-decoration: none !important;
 }
 
+footer {
+	padding-left: 1px;
+	font-size: 70%;
+}
+
+footer a {
+	color: #FFFFFF;
+}
+
+footer p {
+	margin-bottom: 0px;
+}
+
 /* 
  * Changes to darkstrap
  */
