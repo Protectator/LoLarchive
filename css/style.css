@@ -186,10 +186,11 @@ input[disabled] {
 footer {
 	padding-left: 1px;
 	font-size: 70%;
+	color: #c6c6c6;
 }
 
 footer a {
-	color: #FFFFFF;
+	color: #dbdbdb;
 }
 
 footer p {
