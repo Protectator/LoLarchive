@@ -305,7 +305,7 @@ function secureArray(&$pdo, &$array) {
  * @return array of result
  */
 function apiGame(&$c, $region, $sId) {
-	$url = API_URL.$region."/v".GAME_API_VERSION."/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
+	$url = REGIONAL_API_URL.$region."/v".GAME_API_VERSION."/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	return json_decode(trim(curl_exec($c)), true);
@@ -320,7 +320,7 @@ function apiGame(&$c, $region, $sId) {
  * @return array of result
  */
 function apiSummonerByName(&$c, $region, $sName) {
-	$url = API_URL.$region."/v".SUMMONER_API_VERSION."/summoner/by-name/".$sName."?api_key=".API_KEY;
+	$url = REGIONAL_API_URL.$region."/v".SUMMONER_API_VERSION."/summoner/by-name/".$sName."?api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	return json_decode(trim(curl_exec($c)), true);
@@ -336,7 +336,7 @@ function apiSummonerByName(&$c, $region, $sName) {
  */
 function apiSummonerNames(&$c, $region, $sIds) {
 	if (is_array($sIds)) {$sIds = implode(",", array_slice($sIds, 0, 40));}
-	$url = API_URL.$region."/v".SUMMONER_API_VERSION."/summoner/".$sIds."/name?api_key=".API_KEY;
+	$url = REGIONAL_API_URL.$region."/v".SUMMONER_API_VERSION."/summoner/".$sIds."/name?api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	return json_decode(trim(curl_exec($c)), true);
@@ -349,7 +349,7 @@ function apiSummonerNames(&$c, $region, $sIds) {
  * @param string $region abbreviated server's name
  */
 function apiItemsImages(&$c, $region) {
-	$url = API_URL."static-data/".$region."/v".STATIC_DATA_VERSION."/item?itemListData=image&api_key=".API_KEY;
+	$url = GLOBAL_API_URL."static-data/".$region."/v".STATIC_DATA_VERSION."/item?itemListData=image&api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	$content = trim(curl_exec($c));
@@ -373,7 +373,7 @@ function cachedItemsImages() {
  * @param string $region abbreviated server's name
  */
 function apiChampionsImages(&$c, $region) {
-	$url = API_URL."static-data/".$region."/v".STATIC_DATA_VERSION."/champion?champData=image&api_key=".API_KEY;
+	$url = REGIONAL_API_URL.$region."/v".STATIC_DATA_VERSION."/champion?champData=image&api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	$content = trim(curl_exec($c));
@@ -604,7 +604,7 @@ function champImg($champId) {
 	if (!isset($champions)) {
 		$championsAnswer = cachedChampionsImages();
 		$champions = array();
-		foreach ($championsAnswer['data'] as $key => $value) {
+		foreach ($championsAnswer['champions'] as $value) {
 			$champions[intval($value['id'])] = array("img" => $value['image']['full'], "name" => $value['key'], "display" => $value['name']);
 		}
 	}

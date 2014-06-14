@@ -90,7 +90,7 @@ if (count($query) > 0) {
 			$errorText = "Error in API call ; ";
 			$errorText = $errorText."API sent : Error ".$array['status']['status_code']." : ".$array['status']['message'];
 			logError($errorText);
-			echo "<br>Error in API call '".API_URL.$region."/v".SUMMONER_API_VERSION."/game/by-summoner/".$sId."/recent?api_key=".API_KEY."': <br><pre>";
+			echo "<br>Error in API call '".REGIONAL_API_URL.$region."/v".SUMMONER_API_VERSION."/game/by-summoner/".$sId."/recent?api_key=".API_KEY."': <br><pre>";
 			print_r($array);
 			echo "</pre>";
 
@@ -235,23 +235,25 @@ if (count($query) > 0) {
 					}
 				}
 
-
 				// Matching columns in "players" with API
 				$players = array();
-				foreach ($match['fellowPlayers'] as $player) {
-					$players[] = array (	
-						"gameId" => $match['gameId'],
-						"summonerId" => $player['summonerId'],
-						"teamId" => $player['teamId'],
-						"championId" => $player['championId'], 
-						"playersVersion" => DATAVERSION, 
-						"playersIp" => $ip
-					);
-					if (IMMEDIATE_QUERY_PARTICIPANTS_DATA && $mode == "PRIMARY") {
-						$secondaryIds[] = array("summonerId" => $player['summonerId'], "region" => $region);
-						echo "PLAYER ".$player['summonerId']." ADDED<br>";
+				if (!empty($match['fellowPlayers'])) {
+					foreach ($match['fellowPlayers'] as $player) {
+						$players[] = array (	
+							"gameId" => $match['gameId'],
+							"summonerId" => $player['summonerId'],
+							"teamId" => $player['teamId'],
+							"championId" => $player['championId'], 
+							"playersVersion" => DATAVERSION, 
+							"playersIp" => $ip
+						);
+						if (IMMEDIATE_QUERY_PARTICIPANTS_DATA && $mode == "PRIMARY") {
+							$secondaryIds[] = array("summonerId" => $player['summonerId'], "region" => $region);
+							echo "PLAYER ".$player['summonerId']." ADDED<br>";
+						}
 					}
-				} // Now we need to add the player that we're checking (he isn't in the json array)
+				}
+				// Now we need to add the player that we're checking (he isn't in the json array)
 				$players[] = array (
 					"gameId" => $match['gameId'],
 					"summonerId" => $sId,

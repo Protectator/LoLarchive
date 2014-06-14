@@ -98,8 +98,11 @@ define('SUMMONER_API_VERSION', '1.4');
 // http://developer.riotgames.com/api/methods#!/710
 define('STATIC_DATA_VERSION', '1.2');
 
-// API_URL is the url pointing to the API you're using.
-define('API_URL', "https://euw.api.pvp.net/api/lol/");
+// REGIONAL_API_URL is the url pointing to the API you're using for your region.
+define('REGIONAL_API_URL', "https://euw.api.pvp.net/api/lol/");
+
+// GLOBAL_API_URL is the url pointing to the global API (generally providing static data)
+define('GLOBAL_API_URL', "https://global.api.pvp.net/api/lol/");
 
 /*                    _
                      / \
