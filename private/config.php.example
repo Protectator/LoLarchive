@@ -99,7 +99,7 @@ define('SUMMONER_API_VERSION', '1.4');
 define('STATIC_DATA_VERSION', '1.2');
 
 // API_URL is the url pointing to the API you're using.
-define('API_URL', "https://prod.api.pvp.net/api/lol/");
+define('API_URL', "https://euw.api.pvp.net/api/lol/");
 
 /*                    _
                      / \
