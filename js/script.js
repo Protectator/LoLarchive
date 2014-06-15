@@ -20,89 +20,111 @@
     Project's repository : https://github.com/Protectator/LoLarchive
 */
 
-if ($('#champFilterBox').is (':checked'))
-	{
-		$("#champFilterChoice").prop('disabled', false);
+function updateSearchInputs() {
+	var summoner = ($("#id option:selected").text());
+	var name = summoner.substr(0, summoner.indexOf('[')-1);
+	var region = summoner.substring(summoner.indexOf('[')+1, summoner.indexOf(']'));
+	if (name != "") {
+		$("#name").val(name).attr("disabled", true);
+		$("#region").val(region.toUpperCase()).attr("disabled", true);
+		$("#hiddenRegion").removeAttr("disabled").val(region);
 	} else {
-		$("#champFilterChoice").prop('disabled', true);
+		$("#name").removeAttr("disabled");
+		$("#region").removeAttr("disabled");
+		$("#hiddenRegion").attr("disabled", true);
 	}
-
-
-if ($('#modeFilterBox').is (':checked'))
-	{
-		$("#modeFilterChoice").prop('disabled', false);
-	} else {
-		$("#modeFilterChoice").prop('disabled', true);
-	}
-
-if ($('#dateFilterBox').is (':checked'))
-	{
-		$("#date1").prop('disabled', false);
-		$("#date2").prop('disabled', false);
-		$("#datepicker").removeClass("disabled");
-	} else {
-		$("#date1").prop('disabled', true);
-		$("#date2").prop('disabled', true);
-		$("#datepicker").addClass("disabled");
-	}
-
-
-$('#champFilterBox').click (function ()
-{
-	var thisCheck = $(this);
-	if (thisCheck.is (':checked'))
-	{
-		$("#champFilterChoice").prop('disabled', false);
-	} else {
-		$("#champFilterChoice").prop('disabled', true);
-	}
-});
-
-$('#modeFilterBox').click (function ()
-{
-	var thisCheck = $(this);
-	if (thisCheck.is (':checked'))
-	{
-		$("#modeFilterChoice").prop('disabled', false);
-	} else {
-		$("#modeFilterChoice").prop('disabled', true);
-	}
-});
-
-$('#dateFilterBox').click (function ()
-{
-	var thisCheck = $(this);
-	if (thisCheck.is (':checked'))
-	{
-		$("#date1").prop('disabled', false);
-		$("#date2").prop('disabled', false);
-		$("#datepicker").removeClass("disabled");
-	} else {
-		$("#date1").prop('disabled', true);
-		$("#date2").prop('disabled', true);
-		$("#datepicker").addClass("disabled");
-	}
-});
-
-$('.input-daterange').datepicker({
-    format: "d-m-yyyy",
-    weekStart: 1,
-    endDate: today,
-    todayBtn: "linked",
-    todayHighlight: true
-});
-
-var scrolls = $("#access :first-child");
-if (scrolls.length > 0) {
-	scrolls.scrollTop(scrolls[0].scrollHeight);
-	// Yeah, because I can't touch the scroll of hidden divs, I have to first activate them,
-	// then change the scroll and finally desactivate them...
-	$("#errors").addClass("active");
-	$("#errors :first-child").scrollTop($("#errors :first-child")[0].scrollHeight);
-	$("#errors").removeClass("active");
-	$("#admin").addClass("active");
-	$("#admin :first-child").scrollTop($("#admin :first-child")[0].scrollHeight);
-	$("#admin").removeClass("active");
-
-	$("#logsTab").tab();
 }
+
+$(document).ready(function(){
+
+	if ($('#champFilterBox').is (':checked'))
+		{
+			$("#champFilterChoice").prop('disabled', false);
+		} else {
+			$("#champFilterChoice").prop('disabled', true);
+		}
+
+
+	if ($('#modeFilterBox').is (':checked'))
+		{
+			$("#modeFilterChoice").prop('disabled', false);
+		} else {
+			$("#modeFilterChoice").prop('disabled', true);
+		}
+
+	if ($('#dateFilterBox').is (':checked'))
+		{
+			$("#date1").prop('disabled', false);
+			$("#date2").prop('disabled', false);
+			$("#datepicker").removeClass("disabled");
+		} else {
+			$("#date1").prop('disabled', true);
+			$("#date2").prop('disabled', true);
+			$("#datepicker").addClass("disabled");
+		}
+
+
+	$('#champFilterBox').click (function ()
+	{
+		var thisCheck = $(this);
+		if (thisCheck.is (':checked'))
+		{
+			$("#champFilterChoice").prop('disabled', false);
+		} else {
+			$("#champFilterChoice").prop('disabled', true);
+		}
+	});
+
+	$('#modeFilterBox').click (function ()
+	{
+		var thisCheck = $(this);
+		if (thisCheck.is (':checked'))
+		{
+			$("#modeFilterChoice").prop('disabled', false);
+		} else {
+			$("#modeFilterChoice").prop('disabled', true);
+		}
+	});
+
+	$('#dateFilterBox').click (function ()
+	{
+		var thisCheck = $(this);
+		if (thisCheck.is (':checked'))
+		{
+			$("#date1").prop('disabled', false);
+			$("#date2").prop('disabled', false);
+			$("#datepicker").removeClass("disabled");
+		} else {
+			$("#date1").prop('disabled', true);
+			$("#date2").prop('disabled', true);
+			$("#datepicker").addClass("disabled");
+		}
+	});
+
+	$('.input-daterange').datepicker({
+	    format: "d-m-yyyy",
+	    weekStart: 1,
+	    endDate: today,
+	    todayBtn: "linked",
+	    todayHighlight: true
+	});
+
+	var scrolls = $("#access :first-child");
+	if (scrolls.length > 0) {
+		scrolls.scrollTop(scrolls[0].scrollHeight);
+		// Yeah, because I can't touch the scroll of hidden divs, I have to first activate them,
+		// then change the scroll and finally desactivate them...
+		$("#errors").addClass("active");
+		$("#errors :first-child").scrollTop($("#errors :first-child")[0].scrollHeight);
+		$("#errors").removeClass("active");
+		$("#admin").addClass("active");
+		$("#admin :first-child").scrollTop($("#admin :first-child")[0].scrollHeight);
+		$("#admin").removeClass("active");
+		$("#logsTab").tab();
+	}
+
+	updateSearchInputs();
+
+	$("#id").change(updateSearchInputs);
+
+});

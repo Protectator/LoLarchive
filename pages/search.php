@@ -34,15 +34,15 @@ echoHeader();
 					<label class="control-label">Region</label>
 					<div class="controls">
 						<select id="region" name="region" class="input-small">
-							<option>EUW</option>
-							<option>EUNE</option>
-							<option>NA</option>
-							<option>BR</option>
-							<option>TR</option>
-							<option>RU</option>
-							<option>LAN</option>
-							<option>LAS</option>
-							<option>OCE</option>
+							<option value="EUW">EUW</option>
+							<option value="EUNE">EUNE</option>
+							<option value="NA">NA</option>
+							<option value="BR">BR</option>
+							<option value="TR">TR</option>
+							<option value="RU">RU</option>
+							<option value="LAN">LAN</option>
+							<option value="LAS">LAS</option>
+							<option value="OCE">OCE</option>
 						</select>
 					</div>
 				</div>
@@ -52,12 +52,13 @@ echoHeader();
 						<input type="text" id="name" name="name" class="input-medium" maxlength="16">
 						<?php
 						if (SHOW_TRACKED_SUMMONERS) {
-							echo ' or <select id="id" name="id" class="input-medium"><option></option>';
+							echo ' or <select id="id" name="id" class="input-large"><option></option>';
 							$players = getTrackedPlayers($pdo);
 							foreach ($players as $key => $value) {
-								echo '<option value="'.$value['summonerId'].'">'.$value['name'].'</option>';
+								echo '<option value="'.$value['summonerId'].'">'.$value['name']." [".$value['region']."]".'</option>';
 							}
 							echo '</select>';
+							echo '<input type="hidden" id="hiddenRegion" name="region" disabled>';
 						} 
 						?>
 					</div>
