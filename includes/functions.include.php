@@ -373,7 +373,7 @@ function cachedItemsImages() {
  * @param string $region abbreviated server's name
  */
 function apiChampionsImages(&$c, $region) {
-	$url = REGIONAL_API_URL.$region."/v".STATIC_DATA_VERSION."/champion?champData=image&api_key=".API_KEY;
+	$url = GLOBAL_API_URL."static-data/".$region."/v".STATIC_DATA_VERSION."/champion?champData=image&api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	$content = trim(curl_exec($c));
@@ -604,7 +604,7 @@ function champImg($champId) {
 	if (!isset($champions)) {
 		$championsAnswer = cachedChampionsImages();
 		$champions = array();
-		foreach ($championsAnswer['champions'] as $value) {
+		foreach ($championsAnswer['data'] as $value) {
 			$champions[intval($value['id'])] = array("img" => $value['image']['full'], "name" => $value['key'], "display" => $value['name']);
 		}
 	}

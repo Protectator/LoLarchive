@@ -376,7 +376,7 @@
 												if (!isset($champions)) {
 													$championsAnswer = cachedChampionsImages();
 													$champions = array();
-													foreach ($championsAnswer['champions'] as $value) {
+													foreach ($championsAnswer['data'] as $value) {
 														$champions[intval($value['id'])] = array("img" => $value['image']['full'], "name" => $value['key'], "display" => $value['name']);
 													}
 												}
