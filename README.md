@@ -13,3 +13,8 @@ Demo
 
 You can see what it looks like on http://lolarchive.protectator.ch
 I'm only tracking a few summoners here (me and a few friends), so it's normal you aren't able to find yourself. To test it, try for example a search on EUW of "Protectator".
+
+License
+=======
+
+LoLarchive is distributed under [GNU Affero GPL License](http://www.gnu.org/licenses/agpl-3.0.en.html).

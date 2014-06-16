@@ -21,8 +21,6 @@
     Contact : kewin.d@websud.ch
     Project's repository : https://github.com/Protectator/LoLarchive
 */
-	
-	$champsFolder = PATH."img/champions/";
 
 	// Check which of the important parameters are set
 

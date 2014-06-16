@@ -43,6 +43,7 @@ $pdo = newDBConnection();
 $pages = array(
 	"player" => "pages/player.php",
 	"search" => "pages/search.php",
+	"request" => "pages/request.php",
 	"404" => "404.php"
 );
 

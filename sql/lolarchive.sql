@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Client: localhost
--- Généré le : Mer 11 Juin 2014 à 13:25
+-- Généré le : Dim 15 Juin 2014 à 17:32
 -- Version du serveur: 5.5.31
 -- Version de PHP: 5.3.10-1ubuntu3.10
 
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS `games` (
   `gamesIp` varchar(16) COLLATE utf8_bin NOT NULL,
   `gamesStamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`gameId`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1518620844 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1525122461 ;
 
 -- --------------------------------------------------------
 
@@ -173,6 +173,7 @@ CREATE TABLE IF NOT EXISTS `usersToTrack` (
   `region` varchar(6) NOT NULL,
   `summonerId` int(10) unsigned NOT NULL,
   `name` varchar(32) NOT NULL,
+  `approved` bit(1) NOT NULL,
   PRIMARY KEY (`summonerId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

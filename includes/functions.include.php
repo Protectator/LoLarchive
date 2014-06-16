@@ -221,7 +221,10 @@ function conditions($columns) {
  * @return string keys and values to be inserted
  */
 function buildInsert($columns) {
-	return "(".implode(", ", array_keys($columns)).") VALUES ('".implode("', '", array_values($columns))."')";
+	function treat($value) {
+		return is_bool($value) ? (($value) ? "b'1'" : "b'0'" ) : "'".$value."'";
+	}
+	return "(".implode(", ", array_keys($columns)).") VALUES (".implode(", ", array_map("treat", array_values($columns))).")";
 }
 
 /**
@@ -400,7 +403,7 @@ function cachedChampionsImages() {
  * @return array of result
  */
 function getTrackedPlayers(&$pdo) {
-	$requestString = "SELECT region, name, summonerId FROM usersToTrack ORDER BY name ASC";
+	$requestString = "SELECT region, name, summonerId FROM usersToTrack WHERE approved = b'1' ORDER BY name ASC";
 	$result = rawSelect($pdo, $requestString);
 	return $result->fetchAll(PDO::FETCH_NAMED);
 }
@@ -413,11 +416,12 @@ function getTrackedPlayers(&$pdo) {
  * @param string $region Region of the summoner
  * @param string $name Summoner name
  * @param boolean $isId If set to True, then the $name passed is an id.
+ * @param boolean $approved Tells if the new summoner is directly approved.
  * @return int Should return "1" if the request was executed correctly.
  * returns "2" if the summoner is already tracked.
  * Does not guarantee the summoner has effectively been tracked, though.
  */
-function trackNewPlayer(&$pdo, &$c, $region, $name, $isId = False) {
+function trackNewPlayer(&$pdo, &$c, $region, $name, $isId = False, $approved = False) {
 	if ($isId) {
 		$summoner = apiSummonerNames($c, $region, $name);
 	} else {
@@ -433,7 +437,8 @@ function trackNewPlayer(&$pdo, &$c, $region, $name, $isId = False) {
 	$infos = array (
 		"region" => $region,
 		"summonerId" => $summoner['id'],
-		"name" => $summoner['name']
+		"name" => $summoner['name'],
+		"approved" => $approved
 	);
 	$request = "INSERT INTO usersToTrack "/*chelou*/.buildInsert($infos)." ON DUPLICATE KEY UPDATE name = '".$name."';";
 	$result = securedInsert($pdo, $request); // Returns the number of affected rows

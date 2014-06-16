@@ -35,6 +35,16 @@ function updateSearchInputs() {
 	}
 }
 
+function processGet() {
+	var form = $(".toProcess");
+	var inputs = $(".toProcess input.get, .toProcess select.get");
+	var values = [];
+	inputs.each(function(i) {
+		values.push(encodeURIComponent(inputs[i].name)+"="+encodeURIComponent(inputs[i].value));
+	});
+	form[0].action += "?" + values.join("&");
+}
+
 $(document).ready(function(){
 
 	if ($('#champFilterBox').is (':checked'))

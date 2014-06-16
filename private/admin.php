@@ -56,18 +56,18 @@ if (isset($_POST["nameToTrack"]) AND $_POST["nameToTrack"] != "" AND isset($_POS
 	$nameToTrack = $_POST["nameToTrack"];
 	$regionToTrack = strtolower($_POST["regionToTrack"]);
 	$c = curl_init();
-	$result = trackNewPlayer($pdo, $c, $regionToTrack, $nameToTrack);
+	$result = trackNewPlayer($pdo, $c, $regionToTrack, $nameToTrack, False, True);
 	curl_close($c);
 	if ($result == 1) {
-		$message = "Summoner ".purify($nameToTrack)." has been added to tracked summoners.";
+		$message = "Summoner ".purify($nameToTrack)." [".purify($regionToTrack)."] has been added to tracked summoners.";
 		logAdmin($user." : ".$message);
 		$nbActions += 1;
 		echo HTMLsuccess("Added", $message);
 	} elseif ($result == 2) {
-		$message = "Summoner ".purify($nameToTrack)." is already tracked.";
+		$message = "Summoner ".purify($nameToTrack)." [".purify($regionToTrack)."] is already tracked (or requested).";
 		echo HTMLinfo("Already tracked", $message);
 	} elseif ($result == 0) {
-		$message = "Summoner with name ".purify($nameToTrack)." has not been found.";
+		$message = "Summoner with name ".purify($nameToTrack)." [".purify($regionToTrack)."] has not been found.";
 		echo HTMLerror("Not found", $message);
 	}
 }
@@ -81,15 +81,15 @@ if (isset($_POST["idToUntrack"]) AND $_POST["idToUntrack"] != "" AND isset($_POS
 	$result = untrackPlayer($pdo, $c, $regionToUntrack, $idToUntrack, True);
 	curl_close($c);
 	if ($result == 1) {
-		$message = "Summoner ".purify($untrackName)." has been removed from tracked summoners.";
+		$message = "Summoner ".purify($untrackName)." [".purify($regionToUntrack)."] has been removed from tracked summoners.";
 		$nbActions += 1;
 		logAdmin($user." : ".$message);
 		echo HTMLsuccess("Removed", $message);
 	} elseif ($result == 2) {
-		$message = "Summoner ".purify($untrackName)." is already not tracked.";
+		$message = "Summoner ".purify($untrackName)." [".purify($regionToUntrack)."] is already not tracked.";
 		echo HTMLinfo("Already not tracked", $message);
 	} elseif ($result == 0) {
-		$message = "Summoner with name ".purify($untrackName)." has not been found.";
+		$message = "Summoner with name ".purify($untrackName)." [".purify($regionToUntrack)."] has not been found.";
 		echo HTMLerror("Not found", $message);
 	}
 }

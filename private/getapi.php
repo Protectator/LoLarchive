@@ -34,7 +34,7 @@ foreach ($_GET as &$thing) {
 	$thing = secure($pdo, $thing);
 }
 // Get users to track
-$query = rawSelect($pdo, "SELECT summonerId, region FROM usersToTrack ORDER BY region, summonerId");
+$query = rawSelect($pdo, "SELECT summonerId, region FROM usersToTrack WHERE approved = b'1' ORDER BY region, summonerId");
 
 // If REMOTE_ADDR ain't set, it's that we're doing this request locally
 $ip = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : "127.0.0.1";
