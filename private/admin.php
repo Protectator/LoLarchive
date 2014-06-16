@@ -44,10 +44,37 @@ $nbActions = 0;
 $user = $_SERVER['PHP_AUTH_USER'];
 ?>
 <div class="row-fluid">
-	<div class="span12 well">
+	<div class="span6 well">
 		<h1>Admin panel</h1>
 		Authenticated as <?php echo $_SERVER['PHP_AUTH_USER']." with IP adress ".$_SERVER['REMOTE_ADDR'];?>
+		<h3>Database</h3>
+		<?php
+			$gamesStatsRequestString = "SELECT COUNT(*) as nbGames FROM games;";
+			$trackedStatsRequestString = "SELECT COUNT(*) as nbTracked FROM usersToTrack;";
+			$gamesStats = $pdo->prepare($gamesStatsRequestString);
+			$trackedStats = $pdo->prepare($trackedStatsRequestString);
+			$gamesStats->execute();
+			$trackedStats->execute();
+			$stats[0] = current($gamesStats->fetchAll(PDO::FETCH_NAMED));
+			$stats[1] = current($trackedStats->fetchAll(PDO::FETCH_NAMED));
+			echo $stats[1]['nbTracked']." tracked summoners<br>";
+			echo number_format($stats[0]['nbGames'], 0, "", "'")." games<br>";
+		?>
 	</div>
+
+	<div class="span6 well">
+		<h3>Configuration</h3>
+		<?php
+			$configInfos = array (
+				"Database host" => HOST,
+				"Database name" => DBNAME,
+				"API key used" => preg_replace('/(\w{4})\w{4}-\w{4}-\w{4}-\w{4}-\w{8}(\w{4})/', '${1}****-****-****-****-********${2}', API_KEY),
+				"Used as prod key" => (PROD_KEY) ? "<i class='icon-ok icon-white'></i>" : "<i class='icon-remove icon-white'></i>"
+				);
+			echo arrayToVerticalList($configInfos, "table-condensed");
+		?>
+	</div>
+
 </div>
 <?
 // Treating any request
@@ -94,6 +121,25 @@ if (isset($_POST["idToUntrack"]) AND $_POST["idToUntrack"] != "" AND isset($_POS
 	}
 }
 
+// Confirm tracking summoner
+if (isset($_POST["idToConfirm"]) AND $_POST["idToConfirm"] != "" AND isset($_POST["regionToConfirm"]) AND $_POST["regionToConfirm"] != "") {
+	$idToConfirm = $_POST["idToConfirm"];
+	$confirmName = (isset($_POST['confirmName']) AND $_POST['confirmName'] != "") ? $_POST['confirmName'] : "?id?".$idToConfirm ;
+	$regionToConfirm = strtolower($_POST["regionToConfirm"]);
+	$result = confirmNewPlayer($pdo, $regionToConfirm, $idToConfirm);
+	if ($result == 1) {
+		$message = "Summoner ".purify($confirmName)." [".purify($regionToConfirm)."] has been approved for tracking.";
+		logAdmin($user." : ".$message);
+		echo HTMLsuccess("Approved", $message);
+	} elseif ($result == 2) {
+		$message = "Summoner ".purify($confirmName)." [".purify($regionToConfirm)."] is already tracked.";
+		echo HTMLinfo("Already tracked", $message);
+	} elseif ($result == 0) {
+		$message = "Summoner with name ".purify($confirmName)." [".purify($regionToConfirm)."] has not been found.";
+		echo HTMLerror("Not found", $message);
+	}
+}
+
 ?>
 
 <div class="row-fluid">
@@ -134,30 +180,34 @@ if (isset($_POST["idToUntrack"]) AND $_POST["idToUntrack"] != "" AND isset($_POS
 	</div>
 
 	<div class="span6 well">
-		<h3>Configuration</h3>
+		<h3>Pending track requests</h3>
 		<?php
-			$configInfos = array (
-				"Database host" => HOST,
-				"Database name" => DBNAME,
-				"API key used" => preg_replace('/(\w{4})\w{4}-\w{4}-\w{4}-\w{4}-\w{8}(\w{4})/', '${1}****-****-****-****-********${2}', API_KEY),
-				"Used as prod key" => (PROD_KEY) ? "<i class='icon-ok icon-white'></i>" : "<i class='icon-remove icon-white'></i>"
-				);
-			echo arrayToVerticalList($configInfos, "table-condensed");
-		?>
-		<h3>Database</h3>
-		<?php
-			$gamesStatsRequestString = "SELECT COUNT(*) as nbGames FROM games;";
-			$trackedStatsRequestString = "SELECT COUNT(*) as nbTracked FROM usersToTrack;";
-			$gamesStats = $pdo->prepare($gamesStatsRequestString);
-			$trackedStats = $pdo->prepare($trackedStatsRequestString);
-			$gamesStats->execute();
-			$trackedStats->execute();
-			$stats[0] = current($gamesStats->fetchAll(PDO::FETCH_NAMED));
-			$stats[1] = current($trackedStats->fetchAll(PDO::FETCH_NAMED));
-			echo $stats[1]['nbTracked']." tracked summoners<br>";
-			echo number_format($stats[0]['nbGames'], 0, "", "'")." games<br>";
+		$pending = getPendingRequests($pdo);
+		if (!empty($pending)) {
+			echo "<div class='scrollableTableContainer'>";
+			echo "<table id='trackedSummoners' class='table scrollable-table table-hover'><thead class='fixedHeader'><tr class='info'>".arrayToCells(array("region", "name", "summonerId", "Action"), True)."</tr></thead><tbody class='scrollContent'>";
+			foreach ($pending as $player) {
+				$realName = $player['name'];
+				$player['name'] = "<a href='/index.php?page=player&region=".$player['region']."&id=".$player['summonerId']."'>".$player['name']."</a>";
+				echo "<tr>".arrayToCells($player)."<td><form method='post'><input type='hidden' name='idToConfirm' value='".$player['summonerId']."'>
+				<input type='hidden' name='regionToConfirm' value='".$player['region']."'>
+				<input type='hidden' name='confirmName' value='".$realName."'>
+				<button type='submit' class='button btn-success btn-mini'>
+				<i class='icon-ok'></i> Add</button></form>
+				<form method='post'><input type='hidden' name='idToUntrack' value='".$player['summonerId']."'>
+				<input type='hidden' name='regionToUntrack' value='".$player['region']."'>
+				<input type='hidden' name='untrackName' value='".$realName."'>
+				<button type='submit' class='button btn-danger btn-mini'>
+				<i class='icon-trash'></i> Ignore</button></form>
+				</td></tr>";
+			}
+			echo "</table></div>";
+		} else {
+			echo "No pending track request.";
+		}
 		?>
 	</div>
+
 </div>
 <?php
 if ($nbActions == 0) {

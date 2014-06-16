@@ -406,6 +406,17 @@ function getTrackedPlayers(&$pdo) {
 }
 
 /**
+ * Gets not confirmed requests for tracked players
+ * @param  resource $pdo opened PDO connection
+ * @return array of result
+ */
+function getPendingRequests(&$pdo) {
+	$requestString = "SELECT region, name, summonerId FROM usersToTrack WHERE approved = b'0' ORDER BY name ASC";
+	$result = rawSelect($pdo, $requestString);
+	return $result->fetchAll(PDO::FETCH_NAMED);
+}
+
+/**
  * Adds a summoner to track games.
  *
  * @param resource $pdo Opened PDO connection
@@ -447,6 +458,30 @@ function trackNewPlayer(&$pdo, &$c, $region, $name, $isId = False, $approved = F
 		}
 	}
 	return 0;
+}
+
+/**
+ * Confirms (by admin) the track of a new summoner.
+ *
+ * @param resource $pdo Opened PDO connection
+ * @param string $region Region of the summoner
+ * @param string $name Summoner id
+ * @return int Should return "1" if the request was executed correctly.
+ * returns "2" if the summoner is already tracked.
+ * Does not guarantee the summoner has effectively been tracked, though.
+ */
+function confirmNewPlayer(&$pdo, $region, $id) {
+	$request = "UPDATE usersToTrack SET approved=b'1' WHERE summonerId = '".$id."';";
+	$result = securedInsert($pdo, $request); // Returns the number of affected rows
+	if ($result[0] == 1) {
+		if ($result[1] == 1) {
+			return 1;
+		} else {
+			return 2;
+		}
+	}
+	return 0;
+
 }
 
 /**

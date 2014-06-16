@@ -354,7 +354,7 @@ html>body thead.fixedHeader tr {
 
 /* make the TH elements pretty */
 thead.fixedHeader th {
-	text-align: left
+	text-align: center
 }
 
 /* make the A elements pretty. makes for nice clickable headers                */
@@ -380,7 +380,8 @@ html>body tbody.scrollContent {
 	display: block;
 	height: 264px;
 	overflow: auto;
-	width: 100%
+	width: 100%;
+	text-align: center;
 }
 
 /* make TD elements pretty. Provide alternating classes for striping the table */
@@ -397,28 +398,36 @@ tbody.scrollContent tr.alternateRow td {
 /* Add 16px to last TH for scrollbar padding. All other non-IE browsers. */
 /* http://www.w3.org/TR/REC-CSS2/selector.html#adjacent-selectors        */
 html>body thead.fixedHeader th {
-	width: 200px
+	width: 60px
 }
 
 html>body thead.fixedHeader th + th {
-	width: 240px
+	width: 144px
 }
 
 html>body thead.fixedHeader th + th + th {
-	width: 316px
+	width: 80px
+}
+
+html>body thead.fixedHeader th + th + th + th {
+	width: 138px
 }
 
 /* define width of TD elements: 1st, 2nd, and 3rd respectively.          */
 /* All other non-IE browsers.                                            */
 /* http://www.w3.org/TR/REC-CSS2/selector.html#adjacent-selectors        */
 html>body tbody.scrollContent td {
-	width: 200px
+	width: 60px
 }
 
 html>body tbody.scrollContent td + td {
-	width: 240px
+	width: 144px
 }
 
 html>body tbody.scrollContent td + td + td {
-	width: 300px
+	width: 80px
+}
+
+html>body tbody.scrollContent td + td + td + td {
+	width: 138px
 }
