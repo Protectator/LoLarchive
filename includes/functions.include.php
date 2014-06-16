@@ -221,9 +221,6 @@ function conditions($columns) {
  * @return string keys and values to be inserted
  */
 function buildInsert($columns) {
-	function treat($value) {
-		return is_bool($value) ? (($value) ? "b'1'" : "b'0'" ) : "'".$value."'";
-	}
 	return "(".implode(", ", array_keys($columns)).") VALUES (".implode(", ", array_map("treat", array_values($columns))).")";
 }
 
@@ -649,6 +646,10 @@ function read_backward_line($filename, $lines, $revers = false)
         return implode('',$read);
     }
     return strrev(rtrim($read,"\n\r"));
+}
+
+function treat($value) {
+	return is_bool($value) ? (($value) ? "b'1'" : "b'0'" ) : "'".$value."'";
 }
 
 /**
