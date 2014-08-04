@@ -78,7 +78,8 @@ $modes = array (
 		"SR_6x6" => "Hexakill",
 		"URF" => "U.R.F.",
 		"CAP_5x5" => "Team Builder 5v5",
-		"URF_BOT" => "U.R.F. vs AI"
+		"URF_BOT" => "U.R.F. vs AI",
+		"NIGHTMARE_BOT" => "Doom Bots"
 );
 
 /*
