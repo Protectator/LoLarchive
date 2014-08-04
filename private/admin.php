@@ -76,7 +76,7 @@ $user = $_SERVER['PHP_AUTH_USER'];
 	</div>
 
 </div>
-<?
+<?php
 // Treating any request
 // Add summoner to track
 if (isset($_POST["nameToTrack"]) AND $_POST["nameToTrack"] != "" AND isset($_POST["regionToTrack"]) AND $_POST["regionToTrack"] != "") {
@@ -243,7 +243,7 @@ if ($nbActions == 0) {
 	</div>
 </div>
 
-<?
+<?php
 echoFooter();
 
 // Stop counting the time required and display it in comments

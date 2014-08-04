@@ -311,13 +311,13 @@
 						<div class="span12">
 							<div class="well">
 								<h2><?php echo htmlentities(utf8_decode($summonerName));?>
-								<?php if (LINKTO_LOLKING) { ?><a href="http://www.lolking.net/summoner/<? echo $Iregion."/".$summonerId; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a><? } ?></h2>
+								<?php if (LINKTO_LOLKING) { ?><a href="http://www.lolking.net/summoner/<?php echo $Iregion."/".$summonerId; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a><?php } ?></h2>
 								<?php echo htmlentities($summonerRegion);?>
 								<br><?php echo htmlentities($summonerId);?>
 							</div>
 						</div>
 					</div>
-					<?
+					<?php
 
 
 				} else {
@@ -328,13 +328,13 @@
 						<div class="span12">
 							<div class="well">
 								<h2>? 
-								<?php if (LINKTO_LOLKING) { ?><a href="http://www.lolking.net/summoner/<? echo $Iregion."/".$summonerId; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a><? } ?></h2>
+								<?php if (LINKTO_LOLKING) { ?><a href="http://www.lolking.net/summoner/<?php echo $Iregion."/".$summonerId; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a><?php } ?></h2>
 								<?php echo htmlentities($summonerRegion);?>
 								<br><?php echo htmlentities($summonerId);?>
 							</div>
 						</div>
 					</div>
-					<?
+					<?php
 				}
 				// Display statistics about the asked games
 				?>
@@ -383,7 +383,7 @@
 													<option value="<?php echo $key;?>" <?php echo (isset($filters['fChampion']) && $filters['fChampion'] == $key)?"selected":"";?>>
 													<?php echo $value['display'];?>
 													</option>
-													<?
+													<?php
 												}
 												?>
 											</select>
@@ -395,13 +395,13 @@
 										</label>
 										<div class="controls">
 											<select id="modeFilterChoice" name="fMode" class="input-medium">
-												<?
+												<?php
 												foreach ($modes as $key => $value) {
 													?>
 													<option value="<?php echo $key;?>" <?php echo ($filters['fMode'] == $key)?"selected":"";?>>
-													<? echo $value;?>
+													<?php echo $value;?>
 													</option>
-													<?
+													<?php
 												}
 												?>
 											</select>
@@ -429,7 +429,7 @@
 						</form>
 					</div>
 				</div>
-				<?
+				<?php
 				
 				while ($row = $summonerGames->fetch(PDO::FETCH_NAMED)) {
 
