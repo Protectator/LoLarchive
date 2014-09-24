@@ -34,25 +34,46 @@ foreach ($_GET as &$thing) {
 	$thing = secure($pdo, $thing);
 }
 // Get users to track
-$query = rawSelect($pdo, "SELECT * FROM usersToTrack ORDER BY region, summonerId");
+$query = rawSelect($pdo, "SELECT summonerId, region FROM usersToTrack WHERE approved = b'1' ORDER BY region, summonerId");
 
 // If REMOTE_ADDR ain't set, it's that we're doing this request locally
 $ip = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : "127.0.0.1";
 
 date_default_timezone_set('Europe/Berlin');
-$header = "> ".date('d/m/Y H:i:s', time())." - Request by ".$ip.PHP_EOL/*IDE*/;
+$header = "> ".date('d/m/Y H:i:s', time())." - Request by ".$ip/*IDE*/;
 logAccess($header);/*;3*/
 echo $header;
+
+// Update caches
+$c = curl_init();
+apiItemsImages($c, "euw");
+apiChampionsImages($c, "euw");
+curl_close($c);
 
 $countTotalMatches = 0;
 // Si la requête retourne des résultats
 if (count($query) > 0) {
 	$countPlayers = 0;
+	$mode = "PRIMARY";
 	if (IMMEDIATE_QUERY_SUMMONER_NAMES) {
 		$allIds = array();
 	}
+	$secondaryIds = array();
+	$rowSecondary = array();
 	// For each player
-	while ($row = $query->fetch()) {
+	while (($row = $query->fetch(PDO::FETCH_ASSOC)) || ($rowSecondary = array_pop($secondaryIds))) {
+
+		// If IMMEDIATE_QUERY_PARTICIPANTS_DATA is true, this changes to mode SECONDARY when the query has been entirely seen.
+		if (empty($row) && !empty($rowSecondary) && IMMEDIATE_QUERY_PARTICIPANTS_DATA && $mode == "PRIMARY") {
+			$mode = "SECONDARY";
+			$secondaryIds = array_map('unserialize', array_unique(array_map('serialize', $secondaryIds)));
+			$row = $rowSecondary;
+		} elseif (empty($row) && !empty($rowSecondary) && IMMEDIATE_QUERY_PARTICIPANTS_DATA) {
+			$row = $rowSecondary;
+		} elseif (empty($row) && !empty($rowSecondary)) {
+			break;
+		}
+
 		// Only used to log informations
 		$countPlayers += 1;
 		$countNewMatches = 0;
@@ -66,8 +87,10 @@ if (count($query) > 0) {
 		// Transform json in an Array
 
 		if (isset($array['status']) && $array['status']!= "") {
-			logError($array['error']);
-			echo "<br>Error in API call '".API_URL.$region."/v".SUMMONER_API_VERSION."/game/by-summoner/".$sId."/recent?api_key=".API_KEY."': <br><pre>";
+			$errorText = "Error in API call ; ";
+			$errorText = $errorText."API sent : Error ".$array['status']['status_code']." : ".$array['status']['message'];
+			logError($errorText);
+			echo "<br>Error in API call '".REGIONAL_API_URL.$region."/v".SUMMONER_API_VERSION."/game/by-summoner/".$sId."/recent?api_key=".API_KEY."': <br><pre>";
 			print_r($array);
 			echo "</pre>";
 
@@ -212,19 +235,25 @@ if (count($query) > 0) {
 					}
 				}
 
-
 				// Matching columns in "players" with API
 				$players = array();
-				foreach ($match['fellowPlayers'] as $player) {
-					$players[] = array (	
-						"gameId" => $match['gameId'],
-						"summonerId" => $player['summonerId'],
-						"teamId" => $player['teamId'],
-						"championId" => $player['championId'], 
-						"playersVersion" => DATAVERSION, 
-						"playersIp" => $ip
-					);
-				} // Now we need to add the player that we're checking (he isn't in the json array)
+				if (!empty($match['fellowPlayers'])) {
+					foreach ($match['fellowPlayers'] as $player) {
+						$players[] = array (	
+							"gameId" => $match['gameId'],
+							"summonerId" => $player['summonerId'],
+							"teamId" => $player['teamId'],
+							"championId" => $player['championId'], 
+							"playersVersion" => DATAVERSION, 
+							"playersIp" => $ip
+						);
+						if (IMMEDIATE_QUERY_PARTICIPANTS_DATA && $mode == "PRIMARY") {
+							$secondaryIds[] = array("summonerId" => $player['summonerId'], "region" => $region);
+							echo "PLAYER ".$player['summonerId']." ADDED<br>";
+						}
+					}
+				}
+				// Now we need to add the player that we're checking (he isn't in the json array)
 				$players[] = array (
 					"gameId" => $match['gameId'],
 					"summonerId" => $sId,
@@ -239,6 +268,7 @@ if (count($query) > 0) {
 					$sIds = array_map(function($a){return $a['summonerId'];}, $players); // Array containing only summonerIds
 					$allIds = array_merge($allIds, $sIds);
 				}
+
 				
 				$req = array(); // Will contain requests to do			
 
@@ -261,7 +291,7 @@ if (count($query) > 0) {
 				}
 				
 			} // END foreach match
-			$text = ($countNewMatches > 0) ? "[".$region."] Summoner ".$sId." \"".$row['name']."\" : ".$countNewMatches." added games".PHP_EOL : "";
+			$text = ($countNewMatches > 0) ? "[".$region."] Summoner ".$sId." \"".(array_key_exists('name', $row)?$row['name']:"?")."\" : ".$countNewMatches." added games" : "";
 			echo $text;
 			if (!isset($_GET['debug'])) {
 				logAccess($text);
@@ -291,7 +321,7 @@ if (count($query) > 0) {
 			$usersQuery .= buildMultInsert($toAdd);
 			$addedSummoners = securedInsert($pdo, $usersQuery);
 			if ($addedSummoners[0] != 1) {
-				logError("An error occured while adding names to database.".PHP_EOL);
+				logError("An error occured while adding names to database.");
 			} else {
 				$totalNewNames += $addedSummoners[1];
 			}
@@ -300,7 +330,7 @@ if (count($query) > 0) {
 			}
 		}
 		if ($totalNewNames != 0) {
-			logAccess($totalNewNames." names added.".PHP_EOL);
+			logAccess($totalNewNames." names added.");
 		}
 		
 	}

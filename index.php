@@ -43,6 +43,7 @@ $pdo = newDBConnection();
 $pages = array(
 	"player" => "pages/player.php",
 	"search" => "pages/search.php",
+	"request" => "pages/request.php",
 	"404" => "404.php"
 );
 
@@ -70,7 +71,7 @@ $mtime = explode(" ", $mtime);
 $mtime = $mtime[1] + $mtime[0];
 $endTime = $mtime;
 $totalTime = ($endTime - $startTime);
-echo "<!-- This page was created in ".$totalTime." seconds. -->";
+echo "<!-- This page was created in ".$totalTime." seconds using LoLarchive. -->";
 
 // Close the database connection
 $pdo = null;

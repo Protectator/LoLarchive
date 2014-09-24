@@ -21,19 +21,39 @@
     Contact : kewin.d@websud.ch
     Project's repository : https://github.com/Protectator/LoLarchive
 */
-
+	
 echoHeader();
+
+if (isset($_POST["nameToTrack"]) AND $_POST["nameToTrack"] != "" AND isset($_POST["regionToTrack"]) AND $_POST["regionToTrack"] != "") {
+	$nameToTrack = $_POST["nameToTrack"];
+	$regionToTrack = strtolower($_POST["regionToTrack"]);
+	$c = curl_init();
+	$result = trackNewPlayer($pdo, $c, $regionToTrack, $nameToTrack, False, False);
+	curl_close($c);
+	if ($result == 1) {
+		$message = "Summoner ".purify($nameToTrack)." [".purify($regionToTrack)."] has been requested to be tracked";
+		echo HTMLsuccess("Added", $message);
+	} elseif ($result == 2) {
+		$message = "Summoner ".purify($nameToTrack)." [".purify($regionToTrack)."] is already tracked (or requested).";
+		echo HTMLinfo("Already tracked", $message);
+	} elseif ($result == 0) {
+		$message = "Summoner with name ".purify($nameToTrack)." [".purify($regionToTrack)."] has not been found.";
+		echo HTMLerror("Not found", $message);
+	}
+}
+
 ?>
+
 <div class="row">
 	<div class="span12">
-		<form class="form-horizontal well" action="<?php echo PATH;?>index.php" method="get">
+		<form class="form-horizontal well toProcess" action="<?php echo PATH;?>index.php" method="post" onsubmit="processGet()">
 			<fieldset>
-				<legend>Find a summoner</legend>
-				<input type="hidden" name="page" value="player"/> 
+				<legend>Request to track a summoner</legend>
+				<input type="hidden" name="page" value="request" class="get"/> 
 				<div class="control-group">
 					<label class="control-label">Region</label>
 					<div class="controls">
-						<select id="region" name="region" class="input-small">
+						<select id="region" name="regionToTrack" class="input-small">
 							<option value="EUW">EUW</option>
 							<option value="EUNE">EUNE</option>
 							<option value="NA">NA</option>
@@ -49,30 +69,20 @@ echoHeader();
 				<div class="control-group">
 					<label class="control-label">Summoner name</label>
 					<div class="controls">
-						<input type="text" id="name" name="name" class="input-medium" maxlength="16">
-						<?php
-						if (SHOW_TRACKED_SUMMONERS) {
-							echo ' or <select id="id" name="id" class="input-large"><option></option>';
-							$players = getTrackedPlayers($pdo);
-							foreach ($players as $key => $value) {
-								echo '<option value="'.$value['summonerId'].'">'.$value['name']." [".$value['region']."]".'</option>';
-							}
-							echo '</select>';
-							echo '<input type="hidden" id="hiddenRegion" name="region" disabled>';
-						} 
-						?>
+						<input type="text" id="name" name="nameToTrack" class="input-medium" maxlength="16">
 					</div>
 				</div>
 				<div class="form-actions">
 					<div class="controls">
-						<button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i> Search</button>
-						<?php if (LINKTO_LOLKING) { echo "<button type=\"submit\" class=\"btn disabled\" disabled>LolKing</button>";} ?>
+						<button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i> Request</button>
 					</div>
 				</div>
 			</fieldset>
 		</form>
 	</div>
 </div>
-<?php
+
+
+<?
 echoFooter();
 ?>

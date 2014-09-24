@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <!--
-	This page was generated using LoLarchive.
-	
 	LoLarchive - Website to keep track of your games in League of Legends
     Copyright (C) 2013-2014  Kewin Dousse (Protectator)
 
@@ -29,11 +28,11 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<!-- Bootstrap -->
-		<link href="<?echo PATH;?>libs/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
-		<link href="<?echo PATH;?>libs/darkstrap/darkstrap.min.css" rel="stylesheet" media="screen">
-		<link href="<?echo PATH;?>libs/bootstrap-datepicker/css/datepicker.css" rel="stylesheet" media="screen">
-		<link href="<?echo PATH;?>css/style.css" rel="stylesheet" media="screen">
-		<link rel="icon" href="<?echo PATH;?>favicon.ico" />
+		<link href="<?php echo PATH;?>libs/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+		<link href="<?php echo PATH;?>libs/darkstrap/darkstrap.min.css" rel="stylesheet" media="screen">
+		<link href="<?php echo PATH;?>libs/bootstrap-datepicker/css/datepicker.css" rel="stylesheet" media="screen">
+		<link href="<?php echo PATH;?>css/style.css" rel="stylesheet" media="screen">
+		<link rel="icon" href="<?php echo PATH;?>favicon.ico" />
 	</head>
 	<body>
 		<?php include_once("analyticstracking.php") ?>
@@ -41,7 +40,7 @@
 			<div class="row">
 				<div class="span12">
 					<div class="hero-unit">
-						<h1 id="title"><a href="<?echo PATH;?>" style="color:inherit;">LoLarchive</a></h1>
+						<h1 id="title"><a href="<?php echo PATH;?>" style="color:inherit;">LoLarchive</a></h1>
 						<h3>League of Legends games archive</h3>
 					</div>
 				</div>

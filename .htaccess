@@ -1,9 +1,0 @@
-ErrorDocument 404 /index.php?page=404
-Options -Indexes
-IndexIgnore *
-
-#php_value auto_prepend_file "/usr/share/php5/utilities/xhprof/header.php"
-#php_value auto_append_file "/usr/share/php5/utilities/xhprof/footer.php"
-php_flag display_startup_errors on
-php_flag display_errors on
-php_flag html_errors on

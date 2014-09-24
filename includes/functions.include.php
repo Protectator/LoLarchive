@@ -79,17 +79,9 @@ $modes = array (
 		"URF" => "U.R.F.",
 		"CAP_5x5" => "Team Builder 5v5",
 		"URF_BOT" => "U.R.F. vs AI",
+		"NIGHTMARE_BOT" => "Doom Bots",
 		"ASCENSION" => "Ascension"
 );
-
-$cUrl = curl_init();
-$itemsImages = apiItemsImages($cUrl, "euw");
-$championsAnswer = apiChampionsImages($cUrl, "euw");
-curl_close($cUrl);
-$champions = array();
-foreach ($championsAnswer['data'] as $key => $value) {
-	$champions[intval($value['id'])] = array("img" => $value['image']['full'], "name" => $value['key'], "display" => $value['name']);
-}
 
 /*
  HEADER AND FOOTER
@@ -231,7 +223,7 @@ function conditions($columns) {
  * @return string keys and values to be inserted
  */
 function buildInsert($columns) {
-	return "(".implode(", ", array_keys($columns)).") VALUES ('".implode("', '", array_values($columns))."')";
+	return "(".implode(", ", array_keys($columns)).") VALUES (".implode(", ", array_map("treat", array_values($columns))).")";
 }
 
 /**
@@ -315,7 +307,7 @@ function secureArray(&$pdo, &$array) {
  * @return array of result
  */
 function apiGame(&$c, $region, $sId) {
-	$url = API_URL.$region."/v".GAME_API_VERSION."/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
+	$url = REGIONAL_API_URL.$region."/v".GAME_API_VERSION."/game/by-summoner/".$sId."/recent?api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	return json_decode(trim(curl_exec($c)), true);
@@ -330,7 +322,7 @@ function apiGame(&$c, $region, $sId) {
  * @return array of result
  */
 function apiSummonerByName(&$c, $region, $sName) {
-	$url = API_URL.$region."/v".SUMMONER_API_VERSION."/summoner/by-name/".$sName."?api_key=".API_KEY;
+	$url = REGIONAL_API_URL.$region."/v".SUMMONER_API_VERSION."/summoner/by-name/".$sName."?api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	return json_decode(trim(curl_exec($c)), true);
@@ -346,38 +338,58 @@ function apiSummonerByName(&$c, $region, $sName) {
  */
 function apiSummonerNames(&$c, $region, $sIds) {
 	if (is_array($sIds)) {$sIds = implode(",", array_slice($sIds, 0, 40));}
-	$url = API_URL.$region."/v".SUMMONER_API_VERSION."/summoner/".$sIds."/name?api_key=".API_KEY;
+	$url = REGIONAL_API_URL.$region."/v".SUMMONER_API_VERSION."/summoner/".$sIds."/name?api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 	return json_decode(trim(curl_exec($c)), true);
+}
+
+/**
+ * Caches items images informations
+ * 
+ * @param resource $c opened cURL session
+ * @param string $region abbreviated server's name
+ */
+function apiItemsImages(&$c, $region) {
+	$url = GLOBAL_API_URL."static-data/".$region."/v".STATIC_DATA_VERSION."/item?itemListData=image&api_key=".API_KEY;
+	curl_setopt($c, CURLOPT_URL, $url);
+	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+	$content = trim(curl_exec($c));
+	addToFile(LOCAL."private/cache/items.json", $content, true);
 }
 
 /**
  * Gets items images informations
  * 
- * @param resource $c opened cURL session
- * @param string $region abbreviated server's name
  * @return array of result
  */
-function apiItemsImages(&$c, $region) {
-	$url = API_URL."static-data/".$region."/v".STATIC_DATA_VERSION."/item?itemListData=image&api_key=".API_KEY;
+function cachedItemsImages() {
+	$content = file_get_contents(LOCAL."private/cache/items.json");
+	return json_decode($content, true);
+}
+
+/**
+ * Caches champions images informations
+ * 
+ * @param resource $c opened cURL session
+ * @param string $region abbreviated server's name
+ */
+function apiChampionsImages(&$c, $region) {
+	$url = GLOBAL_API_URL."static-data/".$region."/v".STATIC_DATA_VERSION."/champion?champData=image&api_key=".API_KEY;
 	curl_setopt($c, CURLOPT_URL, $url);
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-	return json_decode(trim(curl_exec($c)), true);
+	$content = trim(curl_exec($c));
+	addToFile(LOCAL."private/cache/champions.json", $content, true);
 }
 
 /**
  * Gets champions images informations
  * 
- * @param resource $c opened cURL session
- * @param string $region abbreviated server's name
  * @return array of result
  */
-function apiChampionsImages(&$c, $region) {
-	$url = API_URL."static-data/".$region."/v".STATIC_DATA_VERSION."/champion?champData=image&api_key=".API_KEY;
-	curl_setopt($c, CURLOPT_URL, $url);
-	curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-	return json_decode(trim(curl_exec($c)), true);
+function cachedChampionsImages() {
+	$content = file_get_contents(LOCAL."private/cache/champions.json");
+	return json_decode($content, true);
 }
 
 /*
@@ -385,27 +397,130 @@ function apiChampionsImages(&$c, $region) {
  */
 
 /**
- * Adds a summoner to track games
+ * Gets all tracked players
+ * @param  resource $pdo opened PDO connection
+ * @return array of result
+ */
+function getTrackedPlayers(&$pdo) {
+	$requestString = "SELECT region, name, summonerId FROM usersToTrack WHERE approved = b'1' ORDER BY name ASC";
+	$result = rawSelect($pdo, $requestString);
+	return $result->fetchAll(PDO::FETCH_NAMED);
+}
+
+/**
+ * Gets not confirmed requests for tracked players
+ * @param  resource $pdo opened PDO connection
+ * @return array of result
+ */
+function getPendingRequests(&$pdo) {
+	$requestString = "SELECT region, name, summonerId FROM usersToTrack WHERE approved = b'0' ORDER BY name ASC";
+	$result = rawSelect($pdo, $requestString);
+	return $result->fetchAll(PDO::FETCH_NAMED);
+}
+
+/**
+ * Adds a summoner to track games.
  *
  * @param resource $pdo Opened PDO connection
  * @param resource $c Opened cURL conneciton
  * @param string $region Region of the summoner
  * @param string $name Summoner name
+ * @param boolean $isId If set to True, then the $name passed is an id.
+ * @param boolean $approved Tells if the new summoner is directly approved.
  * @return int Should return "1" if the request was executed correctly.
+ * returns "2" if the summoner is already tracked.
  * Does not guarantee the summoner has effectively been tracked, though.
  */
-function trackNewPlayer(&$pdo, &$c, $region, $name) {
-	$json = getSummonerByName($c, $region, $name);
-	$jsonArray = json_decode($json, true);
-	$aId = $jsonArray['acctId'];
+function trackNewPlayer(&$pdo, &$c, $region, $name, $isId = False, $approved = False) {
+	if ($isId) {
+		$summoner = apiSummonerNames($c, $region, $name);
+	} else {
+		$summoner = apiSummonerByName($c, $region, $name);
+	}
+	if (empty($summoner)) {
+		return 0;
+	}
+	$summoner = current($summoner);
+	if (!array_key_exists('id', $summoner) OR $summoner['id'] == 0) {
+		return 0;
+	}
 	$infos = array (
 		"region" => $region,
-		"summonerId" => $sId,
-		"accountId" => $aId,
-		"name" => $name
+		"summonerId" => $summoner['id'],
+		"name" => $summoner['name'],
+		"approved" => $approved
 	);
 	$request = "INSERT INTO usersToTrack "/*chelou*/.buildInsert($infos)." ON DUPLICATE KEY UPDATE name = '".$name."';";
-	return securedInsert($pdo, $request); // Returns the number of affected rows
+	$result = securedInsert($pdo, $request); // Returns the number of affected rows
+	if ($result[0] == 1) {
+		if ($result[1] == 1) {
+			return 1;
+		} else {
+			return 2;
+		}
+	}
+	return 0;
+}
+
+/**
+ * Confirms (by admin) the track of a new summoner.
+ *
+ * @param resource $pdo Opened PDO connection
+ * @param string $region Region of the summoner
+ * @param string $name Summoner id
+ * @return int Should return "1" if the request was executed correctly.
+ * returns "2" if the summoner is already tracked.
+ * Does not guarantee the summoner has effectively been tracked, though.
+ */
+function confirmNewPlayer(&$pdo, $region, $id) {
+	$request = "UPDATE usersToTrack SET approved=b'1' WHERE summonerId = '".$id."';";
+	$result = securedInsert($pdo, $request); // Returns the number of affected rows
+	if ($result[0] == 1) {
+		if ($result[1] == 1) {
+			return 1;
+		} else {
+			return 2;
+		}
+	}
+	return 0;
+
+}
+
+/**
+ * No longer tracks a summoner.
+ *
+ * @param resource $pdo Opened PDO connection
+ * @param resource $c Opened cURL conneciton
+ * @param string $region Region of the summoner
+ * @param string $name Summoner name
+ * @param boolean $isId If set to True, then the $name passed is an id.
+ * @return int Should return "1" if the request was executed correctly.
+ * returns "2" if the summoner is already untracked.
+ * Does not guarantee the summoner has effectively been tracked, though.
+ */
+function untrackPlayer(&$pdo, &$c, $region, $name, $isId = False) {
+	if ($isId) {
+		$summoner = array(array('id' => $name));
+	} else {
+		$summoner = apiSummonerByName($c, $region, $name);
+	}
+	if (empty($summoner)) {
+		return 0;
+	}
+	$summoner = current($summoner);
+	if (!array_key_exists('id', $summoner) OR $summoner['id'] == 0) {
+		return 0;
+	}
+	$request = "DELETE FROM usersToTrack WHERE summonerId = '".$summoner['id']."' AND region = '".$region."';";
+	$result = securedInsert($pdo, $request); // Returns the number of affected rows
+	if ($result[0] == 1) {
+		if ($result[1] == 1) {
+			return 1;
+		} else {
+			return 2;
+		}
+	}
+	return 0;
 }
 
 /**
@@ -518,20 +633,6 @@ function getPage(&$pdo, $region, $sId, $filters, $page) {
  undocumented part
  */
 
-/*
- * Returns the HTML showing an item
- */
-function item($row, $int) {
-	if ($row['item'.$int] > 0) {
-		$href = STATIC_RESOURCES.STATIC_RESOURCES_VERSION."/img/sprite/".$itemsImages['data'][$row['item'.$int]]['image']['sprite'];
-		$x = $itemsImages['data'][$row['item'.$int]]['image']['x'];
-		$y = $itemsImages['data'][$row['item'.$int]]['image']['y'];
-		$alttext = $itemsImages['data'][$row['item'.$int]]['image']['name'];
-		$title = $itemsImages['data'][$row['item'.$int]]['image']['description'];
-		return '<div class= "img-rounded imgitem32" style="background-image:url(\''.$href.'\') '.$x.'-px '.$y.'-px -no-repeat;" title="'.$alttext.'<br>'.$title.'"></div>';
-	}
-}
-
 /**
  * Returns the image link of a champion
  *
@@ -539,23 +640,53 @@ function item($row, $int) {
  */
 function champImg($champId) {
 	global $champions;
+	if (!isset($champions)) {
+		$championsAnswer = cachedChampionsImages();
+		$champions = array();
+		foreach ($championsAnswer['data'] as $value) {
+			$champions[intval($value['id'])] = array("img" => $value['image']['full'], "name" => $value['key'], "display" => $value['name']);
+		}
+	}
 	return STATIC_RESOURCES.STATIC_RESOURCES_VERSION."/img/champion/".$champions[$champId]['img'];
 }
 
 /**
- * Returns the HTML code to display items
- * @param  array $row  The row to take infos from
- * @return string      HTML code
+ * Reads a file backwards
+ * Found this code on http://stackoverflow.com/questions/2961618/how-to-read-only-5-last-line-of-the-text-file-in-php
+ * written by Kevin Duke
  */
-function items($row) {
-	$result = "<tr><td class=\"singleitemcell\">".item($row, 0)."<td>";
-	$result.= "<td class=\"singleitemcell\">".item($row, 1)."<td>";
-	$result.= "<td class=\"singleitemcell\">".item($row, 2)."<td>";
-	$result.= "<td class=\"singleitemcell\" rowspan=\"2\">".item($row, 6)."<td></tr>";
-	$result.= "<tr><td class=\"singleitemcell\">".item($row, 3)."<td>";
-	$result.= "<td class=\"singleitemcell\">".item($row, 4)."<td>";
-	$result.= "<td class=\"singleitemcell\">".item($row, 5)."<td></tr>";
-	return $result;
+function read_backward_line($filename, $lines, $revers = false)
+{
+    $offset = -1;
+    $c = '';
+    $read = '';
+    $i = 0;
+    $fp = @fopen($filename, "r");
+    while( $lines && fseek($fp, $offset, SEEK_END) >= 0 ) {
+        $c = fgetc($fp);
+        if($c == "\n" || $c == "\r"){
+            $lines--;
+            if( $revers ){
+                $read[$i] = strrev($read[$i]);
+                $i++;
+            }
+        }
+        if( $revers ) $read[$i] .= $c;
+        else $read .= $c;
+        $offset--;
+    }
+    fclose ($fp);
+    if( $revers ){
+        if($read[$i] == "\n" || $read[$i] == "\r")
+            array_pop($read);
+        else $read[$i] = strrev($read[$i]);
+        return implode('',$read);
+    }
+    return strrev(rtrim($read,"\n\r"));
+}
+
+function treat($value) {
+	return is_bool($value) ? (($value) ? "b'1'" : "b'0'" ) : "'".$value."'";
 }
 
 /**
@@ -581,17 +712,33 @@ function logError($text) {
 }
 
 /**
+ * Writes text at the end of the error log file
+ *
+ * @param string $text Text to log
+ */
+function logAdmin($text) {
+	$file = LOCAL.'private/logs/admin.log';
+	$toWrite = "[".date(DateTime::RSS, time())."] [".$_SERVER['REMOTE_ADDR']."] ".$text.PHP_EOL;
+	addToFile($file, $toWrite);
+}
+
+/**
  * Adds text to the end of a file.
  * 
  * @param string $file    Absolute path of the file
  * @param string $content Text to add at the end of the file.
+ * @param boolean $replace Overwrite file completely
  */
-function addToFile($file, $content) {
+function addToFile($file, $content, $replace = False) {
 	$errorString = "Tried to write in file '".$file."' ;".PHP_EOL;
 	if (file_exists($file)) {
 		if (is_readable($file)) {
 			if (is_writable($file)) {
-				file_put_contents($file, $content, FILE_APPEND); 
+				if ($replace) {
+					file_put_contents($file, $content);
+				} else {
+					file_put_contents($file, $content, FILE_APPEND);
+				} 
 			} else {
 				$errorString .= "File is not writable";
 				trigger_error($errorString, E_USER_ERROR);
@@ -637,10 +784,95 @@ function printableSQLDate($datetime) {
  */
 
 /**
+ * Puts an array in an HTML table
+ * @param  $array Array to be printed
+ * @param  string $classes added classes to the table
+ * @param  array  $titles  array of titles
+ * @return string HTML code
+ */
+function arrayToTable($array, $classes = "", $titles = array()) {
+	$result = "<table class=\"table ".$classes."\">";
+	if (!empty($titles)) {
+		$result .= "<thead><tr>";
+		foreach ($titles as $key => $value) {
+			$result .= "<th>$value</th>";
+		}
+		$result .= "</tr></thead>";
+	}
+	$result .= "<tbody>";
+	foreach ($array as $key => $value) {
+		$result .= "<tr>";
+			foreach ($value as $metaKey => $metaValue) {
+				$result .= "<td>".$metaValue."</td>";
+			}
+		$result .= "</tr>";
+	}
+	$result .= "</tbody></table>";
+	return $result;
+}
+
+/**
+ * Puts an array in an HTML table formatted as a vertical list.
+ * @param  $array Array to be printed
+ * @param  string $classes added classes to the table
+ * @return string HTML code
+ */
+function arrayToVerticalList($array, $classes = "") {
+	$result = "<table class=\"table ".$classes."\">";
+	$result .= "<tbody>";
+	foreach ($array as $key => $value) {
+		$result .= "<tr><th>".$key."</th><td>".$value."</td></tr>";
+	}
+	$result .= "</tbody></table>";
+	return $result;
+}
+
+/**
+ * Transforms an array into HTML <td> cells
+ * @param  array $array mono-dimensional array to put in cells
+ * @return string       HTML <td>s
+ */
+function arrayToCells($array, $th = False) {
+	if (!empty($array)) {
+		($th) ? $tag = "th" : $tag = "td";
+		return "<".$tag.">".implode("</".$tag."><".$tag.">", $array)."</".$tag.">";
+	}
+	return "";
+}
+
+
+
+/**
+ * Generates the HTML code to display the stats header
+ * @param array $finalStats Array containing the stats of a search
+ * @param int $nbWon      Number of won games
+ * @return string HTML code
+ */
+function HTMLstats($finalStats, $nbWon) {
+	if ($finalStats['nbGames'] != 0) {
+		$kdaRatio = ($finalStats['d'] != 0) ? round(($finalStats['k']+$finalStats['a'])/$finalStats['d'], 2) : $finalStats['k'] + $finalStats['a'];
+		$result  = "<table class=\"table table-condensed\" id=\"stats-table\">";
+		$result .= "<tr><td><i class='icon-thumbs-up icon-white'></i> Wins</td><td class='right'><span class='number'>".$nbWon['nb']."</span> / <span class='number'>".$finalStats['nbGames']."</span> games (<span class='number'>".round($nbWon['nb']/$finalStats['nbGames']*100, 2)."%</span>)</td>";
+		$result .= "<td class='left'><i class='icon-briefcase icon-white'></i> Average gold/min</td><td class='right'><span class='number'>".round(60*$finalStats['gold']/$finalStats['duration'], 0)."</span></td>";
+		$result .= "<td class='left'><i class='icon-certificate icon-white'></i> Dmg on champions/min</td><td class='right'><span class='number'>".number_format($finalStats['dmgToChamps']*60/$finalStats['duration'], 0, '', '\'')."</span></td></tr>";
+		$result .= "<tr><td><i class='icon-signal icon-white'></i> KDA</td><td class='right'><span class='number'>".round($finalStats['k'], 1)."</span> / <span class='number'>".round($finalStats['d'], 1)."</span> / <span class='number'>".round($finalStats['a'], 1)."</span></td>";
+		$result .= "<td class='left'><i class='icon-screenshot icon-white'></i> cs/min</td><td class='right'><span class='number'>".round(60*$finalStats['minions']/$finalStats['duration'], 2)."</span></td>";
+		$result .= "<td class='left'><i class='icon-eye-open icon-white'></i> ward/min</td><td class='right'><span class='number'>".round(60*$finalStats['wards']/$finalStats['duration'], 2)."</span></td></tr>";
+		$result .= "<tr><td><i class='icon-indent-left icon-white'></i> Ratio</td><td class='right'><span class='number'>".$kdaRatio."</span></td>";
+		$result .= "<td class='left'><i class='icon-time icon-white'></i> Average duration</td><td class='right'><span class='number'>".round($finalStats['duration']/60, 0)."</span> min.</td></tr>";
+		$result .= "</table>";
+	} else {
+		$result = "No game found.";
+	}
+	return $result;
+}
+
+/**
  * Generates the HTML code to display a Error well.
  * 
  * @param string $title		Title of the Error
  * @param string $content	Content of the Error
+ * @return string HTML code
  */
 function HTMLerror($title, $content) {
 	return "<div class='alert alert-error alert-block'><h4>".$title."</h4>".$content."</div>";
@@ -651,9 +883,36 @@ function HTMLerror($title, $content) {
  * 
  * @param string $title		Title of the Warning
  * @param string $content	Content of the Warning
+ * @return string HTML code
  */
 function HTMLwarning($title, $content) {
 	return "<div class='alert alert-warning alert-block'>
+		<button type='button' class='close' data-dismiss='alert'>&times;</button>
+		<h4>".$title."</h4>".$content."</div>";	
+}
+
+/**
+ * Generates the HTML code to display a Success well (with an close button).
+ * 
+ * @param string $title		Title of the Warning
+ * @param string $content	Content of the Warning
+ * @return string HTML code
+ */
+function HTMLsuccess($title, $content) {
+	return "<div class='alert alert-success alert-block'>
+		<button type='button' class='close' data-dismiss='alert'>&times;</button>
+		<h4>".$title."</h4>".$content."</div>";	
+}
+
+/**
+ * Generates the HTML code to display a Info well (with an close button).
+ * 
+ * @param string $title		Title of the Warning
+ * @param string $content	Content of the Warning
+ * @return string HTML code
+ */
+function HTMLinfo($title, $content) {
+	return "<div class='alert alert-info alert-block'>
 		<button type='button' class='close' data-dismiss='alert'>&times;</button>
 		<h4>".$title."</h4>".$content."</div>";	
 }
@@ -735,6 +994,9 @@ function HTMLparticipants($region, $team1, $team2) {
 function HTMLitem($itemId) {
 	if ($itemId != 0) {
 		global $itemsImages;
+		if (!isset($itemsImages)) {
+			$itemsImages = cachedItemsImages();
+		}
 		$actualItem = $itemsImages['data'][$itemId];
 		$href = STATIC_RESOURCES.STATIC_RESOURCES_VERSION."/img/sprite/".$actualItem['image']['sprite'];
 		$x = $actualItem['image']['x']*2/3;
@@ -756,13 +1018,13 @@ function HTMLitem($itemId) {
  */
 function HTMLinventory($itemsId) {
 	array_pad($itemsId, 7, ""); // Completes array with empty Strings
-	$result = "<tr><td class=\"singleitemcell\">".HTMLitem($itemsId[0])."<td>".
+	$result = "<table><tr><td class=\"singleitemcell\">".HTMLitem($itemsId[0])."<td>".
 	"<td class=\"singleitemcell\">".HTMLitem($itemsId[1])."<td>".
 	"<td class=\"singleitemcell\">".HTMLitem($itemsId[2])."<td>".
 	"<td class=\"singleitemcell\" rowspan=\"2\">".HTMLitem($itemsId[6])."<td></tr>".
 	"<tr><td class=\"singleitemcell\">".HTMLitem($itemsId[3])."<td>".
 	"<td class=\"singleitemcell\">".HTMLitem($itemsId[4])."<td>".
-	"<td class=\"singleitemcell\">".HTMLitem($itemsId[5])."<td></tr>";
+	"<td class=\"singleitemcell\">".HTMLitem($itemsId[5])."<td></tr></table>";
 	return $result;
 }
 
@@ -817,20 +1079,74 @@ function HTMLkda($k, $d, $a, $minions, $gold) {
  * @return string HTML code
  */
 function HTMLgeneralStats($type, $text, $duration, $date) {
-	$result = $type."<br><span class=\"resultText\">".$text."</span><br>~".round($duration/60)." min.<br>".$date;
+	$result = $type."<br><span class=\"resultText\">".$text."</span><br>~".round($duration/60)." min.<br>".printableSQLDate($date);
 	return $result;
+}
+
+/**
+ * Generates the HTML code to display data of a game.
+ * 
+ * @param array $row All data about a game
+ * @return  string HTML code
+ */
+function HTMLdata($row) {
+	$hasData = isset($row['spell1']);
+	if ($hasData) {
+		$inventory = array($row['item0'], $row['item1'], $row['item2'], 
+						$row['item3'], $row['item4'], $row['item5'], $row['item6']);
+		$result =	"<div class=\"matchcell kdacell\">".HTMLkda($row['championsKilled'], $row['numDeaths'],
+							$row['assists'], $row['minionsKilled']+$row['neutralMinionsKilled'], $row['goldEarned'])."</div>".
+					"<div class=\"matchcell sscell\">".HTMLsummonerSpells($row['spell1'], $row['spell2'])."</div>".
+					"<div class=\"matchcell itemscell\">".HTMLinventory($inventory)."</div>";
+	} else {
+		$result = "<div class=\"matchcell nodatacell\">No data.</div>";
+	}
+	return $result;
+}
+
+/**
+ * Generates the HTML code for the dominion part of a game (replaceing the usual kda+minions)
+ * @param [type] $row All data about a game
+ */
+function HTMLdominion($row) {
+	$result = "<div class=\"kdaNumber\">".$k."<img class=\"icon\" src=\"".PATH."img/kill.png\" alt=\"kills\"></div>".
+	"<div class=\"kdaNumber\">".$d."<img class=\"icon\" src=\"".PATH."img/death.png\" alt=\"deaths\"></div>".
+	"<div class=\"kdaNumber\">".$a."<img class=\"icon\" src=\"".PATH."img/assist.png\" alt=\"assists\"></div>".
+	
+	"<br><div class=\"minion\">".$minions."<img class=\"icon\" src=\"".PATH."img/minion.png\" alt=\"minions\"></div>".
+	"<br><div class=\"gold\">".$gold."<img class=\"icon\" src=\"".PATH."img/gold.png\" alt=\"gold\"></div>";
+	return $result; // TODO : Change it from kda to dominion
 }
 
 /**
  * Generates the HTML code to display a player's game small view
  *
- * @param 
- * @param
+ * @param array $row All data about a game
  * @return string HTML code
  */
+function HTMLplayerGame($row, $win, $duration, $lTeam, $rTeam) {
+	global $modes;
+	if ($win == 1) {
+		$class = "winmatch";
+		$text = "Win";
+	} else {
+		$class = "lossmatch";
+		$text = "Loss";
+	}
 
-function HTMLplayerGame() {
-	return ;
+	$result =
+		"<div class=\"row\">".
+		"	<div class=\"span12\">".
+		"		<div class=\"well ".$class." match\" id=\"".$row['gameId'][0]."\">".
+		"			<div class=\"matchcell championcell\">".HTMLchampionImg($row['championId'], 'big')."</div>".
+		"			<div class=\"matchcell headcell\">".HTMLgeneralStats($modes[$row['subType']], $text, $duration, $row['createDate'])."</div>".
+		HTMLdata($row).
+		"			<div class=\"matchcell playerscell\">".HTMLparticipants($row['region'][0], $lTeam, $rTeam)."</div>".
+		"		</div>".
+		"	</div>".
+		"</div>";
+
+	return $result;
 }
 
 /*

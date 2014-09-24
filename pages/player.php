@@ -21,8 +21,6 @@
     Contact : kewin.d@websud.ch
     Project's repository : https://github.com/Protectator/LoLarchive
 */
-	
-	$champsFolder = PATH."img/champions/";
 
 	// Check which of the important parameters are set
 
@@ -135,7 +133,6 @@
 						echo HTMLerror("Bad search", "Summoner id must not exceed ".SUMMONER_ID_MAX_LENGTH." digits.");
 					}
 
-
 				} else {
 					echoHeader("Summoner not found");
 					echo HTMLerror("Bad search", "Please provide an id containing only digits.");
@@ -143,7 +140,6 @@
 
 			} else {
 				echoHeader("Summoner not found");
-				echo "<div class='alert alert-error alert-block'><h4>Bad search</h4>";
 				echo HTMLerror("Bad search", "Please provide either a summoner name or id.");
 			}
 
@@ -230,7 +226,8 @@
 				// This SQL calculated the stats that are going to be displayed just below summoner's informations. They are statistics
 				// about all the asked games
 				$statsString = "SELECT count(*) AS nbGames, avg(data.championsKilled) AS k, avg(data.numDeaths) AS d, avg(data.assists) AS a,
-				avg(data.minionsKilled+data.neutralMinionsKilled) AS minions, avg(data.goldEarned) AS gold, avg(data.timePlayed) AS duration".$conditions;
+				avg(data.minionsKilled+data.neutralMinionsKilled) AS minions, avg(data.goldEarned) AS gold, avg(data.timePlayed) AS duration,
+				avg(data.totalDamageDealtToChampions) as dmgToChamps, avg(data.wardPlaced) as wards".$conditions;
 				
 				// This SQL counts the number of won games in the search.
 				$wonGamesString = "SELECT count(*) AS nb".$conditions." AND (data.win = (1) OR (games.estimatedWinningTeam = players.teamId));";
@@ -300,11 +297,6 @@
 					}
 				}
 
-				// Requests informations about all champions.
-				$requestString[2] = "SELECT * FROM champions ORDER BY name ASC;";
-				$championsRequest = $pdo->prepare($requestString[2]);
-				$championsRequest->execute();
-
 				$nbWon = $wonGames->fetch();
 
 				//// Write summoner HTML ////
@@ -319,13 +311,13 @@
 						<div class="span12">
 							<div class="well">
 								<h2><?php echo htmlentities(utf8_decode($summonerName));?>
-								<?php if (LINKTO_LOLKING) { ?><a href="http://www.lolking.net/summoner/<? echo $Iregion."/".$summonerId; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a><? } ?></h2>
+								<?php if (LINKTO_LOLKING) { ?><a href="http://www.lolking.net/summoner/<?php echo $Iregion."/".$summonerId; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a><?php } ?></h2>
 								<?php echo htmlentities($summonerRegion);?>
 								<br><?php echo htmlentities($summonerId);?>
 							</div>
 						</div>
 					</div>
-					<?
+					<?php
 
 
 				} else {
@@ -336,13 +328,13 @@
 						<div class="span12">
 							<div class="well">
 								<h2>? 
-								<?php if (LINKTO_LOLKING) { ?><a href="http://www.lolking.net/summoner/<? echo $Iregion."/".$summonerId; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a><? } ?></h2>
+								<?php if (LINKTO_LOLKING) { ?><a href="http://www.lolking.net/summoner/<?php echo $Iregion."/".$summonerId; ?>"><img src="<?php echo PATH;?>img/lolking.png" alt="lolking"></a><?php } ?></h2>
 								<?php echo htmlentities($summonerRegion);?>
 								<br><?php echo htmlentities($summonerId);?>
 							</div>
 						</div>
 					</div>
-					<?
+					<?php
 				}
 				// Display statistics about the asked games
 				?>
@@ -351,101 +343,98 @@
 						<div class="well">
 							<legend>Statistics</legend>
 							<?php
-							if ($finalStats['nbGames'] != 0) {
-								$kdaRatio = ($finalStats['d'] != 0) ? round(($finalStats['k']+$finalStats['a'])/$finalStats['d'], 2) : $finalStats['k'] + $finalStats['a'];
-								echo $nbWon['nb']." wins / ".$finalStats['nbGames']." games (".round($nbWon['nb']/$finalStats['nbGames']*100, 2)."% win)";
-								echo "<br>Average KDA; ".round($finalStats['k'], 1)." / ".round($finalStats['d'], 1)." / ".round($finalStats['a'], 1);
-								echo "<br>Ratio; ".$kdaRatio;
-							} else {
-								echo "No game found.";
-							}
+								echo HTMLstats($finalStats, $nbWon);
 							?>
 						</div>
 					</div>
 				</div>
 
 				<div class="row">
-					<div class="span12">
-						<form class="form-horizontal well" action="index.php" method="get">
+					<div id="filterAccordion" class="span12 accordion">
+						<form class="form-horizontal well accordion-group" action="index.php" method="get">
 							<fieldset>
-								<legend>Filter games</legend>
-								<input type="hidden" name="page" value="player"/>
-								<input type="hidden" name="region" value="<?php echo $Iregion?>"/>
-								<?
-								if (isset($summonerName)) { ?>
-								<input type="hidden" name="name" value="<?php echo $summonerName?>"/>
-								<? } ?>
-								<input type="hidden" name="id" value="<?php echo $summonerId?>"/> 
-								<div class="control-group">
-									<label class="control-label">
-										<label class="checkbox inline"><input type="checkbox" id="champFilterBox" <?php echo (isset($filters['fChampion']) && $filters['fChampion'])?'checked="yes"':''?>> Champion</label>
-									</label>
-									<div class="controls">
-										<select id="champFilterChoice" name="fChampion" class="input-medium">
-											<?php
-											foreach (array_sort($champions, 'display') as $key => $value) {
+								<legend id="filter-legend" class="accordion-heading">
+									<a class="accordion-toggle" data-toggle="collapse" data-parent="#filterAccordion" href=".collapseFilters">Filter games</a>
+								</legend>
+								<div class="accordion-body collapse collapseFilters">
+									<input type="hidden" name="page" value="player"/>
+									<input type="hidden" name="region" value="<?php echo $Iregion?>"/>
+									<?php
+										if (isset($summonerName)) { ?>
+										<input type="hidden" name="name" value="<?php echo $summonerName?>"/>
+									<?php } ?>
+									<input type="hidden" name="id" value="<?php echo $summonerId?>"/> 
+									<div class="control-group">
+										<label class="control-label">
+											<label class="checkbox inline"><input type="checkbox" id="champFilterBox" <?php echo (isset($filters['fChampion']) && $filters['fChampion'])?'checked="yes"':''?>> Champion</label>
+										</label>
+										<div class="controls">
+											<select id="champFilterChoice" name="fChampion" class="input-medium">
+												<?php
+												if (!isset($champions)) {
+													$championsAnswer = cachedChampionsImages();
+													$champions = array();
+													foreach ($championsAnswer['data'] as $value) {
+														$champions[intval($value['id'])] = array("img" => $value['image']['full'], "name" => $value['key'], "display" => $value['name']);
+													}
+												}
+												foreach (array_sort($champions, 'display') as $key => $value) {
+													?>
+													<option value="<?php echo $key;?>" <?php echo (isset($filters['fChampion']) && $filters['fChampion'] == $key)?"selected":"";?>>
+													<?php echo $value['display'];?>
+													</option>
+													<?php
+												}
 												?>
-												<option value="<?php echo $key;?>" <?php echo (isset($filters['fChampion']) && $filters['fChampion'] == $key)?"selected":"";?>>
-												<?php echo $value['display'];?>
-												</option>
-												<?
-											}
-											?>
-										</select>
+											</select>
+										</div>
 									</div>
-								</div>
-								<div class="control-group">
-									<label class="control-label">
-										<label class="checkbox inline"><input type="checkbox" id="modeFilterBox" <?php echo ($filters['fMode'])?'checked="yes"':''?>> Game mode</label>
-									</label>
-									<div class="controls">
-										<select id="modeFilterChoice" name="fMode" class="input-medium">
-											<?
-											foreach ($modes as $key => $value) {
+									<div class="control-group">
+										<label class="control-label">
+											<label class="checkbox inline"><input type="checkbox" id="modeFilterBox" <?php echo ($filters['fMode'])?'checked="yes"':''?>> Game mode</label>
+										</label>
+										<div class="controls">
+											<select id="modeFilterChoice" name="fMode" class="input-medium">
+												<?php
+												foreach ($modes as $key => $value) {
+													?>
+													<option value="<?php echo $key;?>" <?php echo ($filters['fMode'] == $key)?"selected":"";?>>
+													<?php echo $value;?>
+													</option>
+													<?php
+												}
 												?>
-												<option value="<?php echo $key;?>" <?php echo ($filters['fMode'] == $key)?"selected":"";?>>
-												<? echo $value;?>
-												</option>
-												<?
-											}
-											?>
-										</select>
+											</select>
+										</div>
 									</div>
-								</div>
-								<div class="control-group">
-									<label class="control-label">
-										<label class="checkbox inline"><input type="checkbox" id="dateFilterBox" <?php echo ($filters['fStart'] OR $filters['fEnd'])?'checked="yes"':''?>> Date range</label>
-									</label>
-									<div class="controls">
-										<div class="input-daterange" id="datepicker">
-											<input type="text" class="input-small" name="fStart" id="date1" <?php echo (isset($nextStart))?'value="'.$nextStart.'"':'' ?> />
-											<span class="add-on">to</span>
-											<input type="text" class="input-small" name="fEnd" id="date2" value="<?php echo (isset($nextEnd))?$nextEnd:date('j-n-Y') ?>" />
+									<div class="control-group">
+										<label class="control-label">
+											<label class="checkbox inline"><input type="checkbox" id="dateFilterBox" <?php echo ($filters['fStart'] OR $filters['fEnd'])?'checked="yes"':''?>> Date range</label>
+										</label>
+										<div class="controls">
+											<div class="input-daterange" id="datepicker">
+												<input type="text" class="input-small" name="fStart" id="date1" <?php echo (isset($nextStart))?'value="'.$nextStart.'"':'' ?> />
+												<span class="add-on">to</span>
+												<input type="text" class="input-small" name="fEnd" id="date2" value="<?php echo (isset($nextEnd))?$nextEnd:date('j-n-Y') ?>" />
+											</div>
 										</div>
 									</div>
 								</div>
-								<div class="form-actions">
+								<div id="filter-button" class="accordion-body collapse collapseFilters form-actions">
 									<div class="controls">
-										<button type="submit" class="btn btn-primary">Filter</button>
+										<button type="submit" class="btn btn-primary"><i class="icon-filter icon-white"></i> Filter</button>
 									</div>
 								</div>
 							</fieldset>
 						</form>
 					</div>
 				</div>
-				<?
+				<?php
 				
 				while ($row = $summonerGames->fetch(PDO::FETCH_NAMED)) {
 
 					//// Each game ////
 					// This will treat each game and display it.
-
-					// Check if data are present for this game
-					$hasData = isset($row['spell1']);
-					
-					// Handles all bit(1) data
-					$win = ($hasData) ? ord($row['win']) : ($row['teamId'] == $row['estimatedWinningTeam']);
-					$invalid = ord($row['invalid']);
 					
 					// Request to find all summoners in the game
 					$requestString[3] = "
@@ -457,94 +446,35 @@
 					$playersRequest->execute(); // Execute the request
 					
 					// Put each player on the right team
-					$summonersTeam = $row['teamId'];
-					$teamL = array();
-					$teamR = array();
-
+					$leftTeam = array();
+					$rightTeam = array();
 					while ($player = $playersRequest->fetch()) {
-						if ($player['teamId'] == $summonersTeam) {
-							$teamL[] = $player;
+						if ($player['teamId'] == $row['teamId']) {
+							$leftTeam[] = $player;
 						} else {
-							$teamR[] = $player;
+							$rightTeam[] = $player;
 						}
 					}
 
-					$duration = ($hasData) ? $row['timePlayed'] : $row['estimatedDuration'];
-					
-					$time = printableSQLDate($row['createDate']);
-					
-					$inventory = array($row['item0'], $row['item1'], $row['item2'], 
-						$row['item3'], $row['item4'], $row['item5'], $row['item6']);
+					$hasData = isset($row['spell1']);
 
-					if ($row['timePlayed'] == 0 AND $row['estimatedDuration'] == 0) {
-						$duration = estimateDuration($pdo, $row['gameId'][0]);
-					}
+					// If a game has no estimated winning team, estimate it.
 					if ($row['estimatedWinningTeam'] == 0) {
 						$win = (estimateWinningTeam($pdo, $row['gameId'][0]) == $row['teamId']);
-					}
-
-					if ($win == 1) {
-						$class = " winmatch";
-						$classtext = " wintext";
-						$text = "Win";
 					} else {
-						$class = " lossmatch";
-						$classtext = " losstext";
-						$text = "Loss";
+						$win = ($hasData) ? ord($row['win']) : ($row['teamId'] == $row['estimatedWinningTeam']);
+					}
+					// Do the same for an estimation of the game's duration.
+					if ($row['timePlayed'] == 0 AND $row['estimatedDuration'] == 0) {
+						$duration = estimateDuration($pdo, $row['gameId'][0]);
+					} else {
+						$duration = ($hasData) ? $row['timePlayed'] : $row['estimatedDuration'];
 					}
 
-					?>
-					<div class="row">
-						<div class="span12">
-						
-							<div class="well<?php echo $class;?> match" id="<?php echo $row['gameId'][0];?>">
-						
-								<div class="matchcell championcell"><?php echo HTMLchampionImg($row['championId'], "big"); ?></div>
-								
-								<div class="matchcell headcell">							
-									<?php echo HTMLgeneralStats($modes[$row['subType']], $text, $duration, $time);?>
-								</div>
-								
-								<?php
-								if ($hasData)
-								{
-								?>
-									<div class="matchcell kdacell">
-										<?php
-										echo HTMLkda($row['championsKilled'], $row['numDeaths'],
-											$row['assists'], $row['minionsKilled']+$row['neutralMinionsKilled'], $row['goldEarned']) ?>
-									</div>
-									
-									<div class="matchcell sscell">
-										<?php echo HTMLsummonerSpells($row['spell1'], $row['spell2']) ?>
-									</div>
-									
-									<div class="matchcell itemscell">
-										<table>
-											<?php 
-											echo HTMLinventory($inventory); ?>
-										</table>
-									</div>
-								<?php
-								} else {
-								?>
-									<div class="matchcell nodatacell">
-										No data.
-									</div>
-								<?php
-								}
-								?>
-								<div class="matchcell playerscell">
-									<?php echo HTMLparticipants($row['region'][0], $teamL, $teamR); ?>
-								</div>
-							</div>
-						</div>
-					</div>
-					<?php
+					echo HTMLplayerGame($row, $win, $duration, $leftTeam, $rightTeam);
+
 				}
-
 			}
-
 		} else {
 			echoHeader("Summoner not found");
 			echo HTMLerror("Bad search", "Please provide a valid region.");
