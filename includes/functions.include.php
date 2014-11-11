@@ -75,12 +75,13 @@ $modes = array (
 		"ONEFORALL_5x5" => "One for all",
 		"FIRSTBLOOD_2x2" => "Snowdown 2v2",
 		"FIRSTBLOOD_1x1" => "Snowdown 1v1",
-		"SR_6x6" => "Hexakill",
+		"SR_6x6" => "Hexakill SR",
 		"URF" => "U.R.F.",
 		"CAP_5x5" => "Team Builder 5v5",
 		"URF_BOT" => "U.R.F. vs AI",
 		"NIGHTMARE_BOT" => "Doom Bots",
-		"ASCENSION" => "Ascension"
+		"ASCENSION" => "Ascension",
+		"HEXAKILL" => "Hexakill TT"
 );
 
 /*
@@ -1134,12 +1135,14 @@ function HTMLplayerGame($row, $win, $duration, $lTeam, $rTeam) {
 		$text = "Loss";
 	}
 
+	$modeToDisplay = array_key_exists($row['subType'], $modes) ? $modes[$row['subType']] : $row['subType'];
+
 	$result =
 		"<div class=\"row\">".
 		"	<div class=\"span12\">".
 		"		<div class=\"well ".$class." match\" id=\"".$row['gameId'][0]."\">".
 		"			<div class=\"matchcell championcell\">".HTMLchampionImg($row['championId'], 'big')."</div>".
-		"			<div class=\"matchcell headcell\">".HTMLgeneralStats($modes[$row['subType']], $text, $duration, $row['createDate'])."</div>".
+		"			<div class=\"matchcell headcell\">".HTMLgeneralStats($modeToDisplay, $text, $duration, $row['createDate'])."</div>".
 		HTMLdata($row).
 		"			<div class=\"matchcell playerscell\">".HTMLparticipants($row['region'][0], $lTeam, $rTeam)."</div>".
 		"		</div>".
