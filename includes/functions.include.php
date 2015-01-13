@@ -999,11 +999,18 @@ function HTMLitem($itemId) {
 		if (!isset($itemsImages)) {
 			$itemsImages = cachedItemsImages();
 		}
-		$actualItem = $itemsImages['data'][$itemId];
-		$href = STATIC_RESOURCES.STATIC_RESOURCES_VERSION."/img/sprite/".$actualItem['image']['sprite'];
-		$x = $actualItem['image']['x']*2/3;
-		$y = $actualItem['image']['y']*2/3;
-		$alttext = $actualItem['name'];
+		if (isset($itemsImages['data'][$itemId])) { // Handle if item sprite was deleted
+			$actualItem = $itemsImages['data'][$itemId];
+			$href = STATIC_RESOURCES.STATIC_RESOURCES_VERSION."/img/sprite/".$actualItem['image']['sprite'];
+			$x = $actualItem['image']['x']*2/3;
+			$y = $actualItem['image']['y']*2/3;
+			$alttext = $actualItem['name'];
+		} else {
+			$href = "img/notfound.png";
+			$x = 0;
+			$y = 0;
+			$alttext = "This item has been removed since this game";
+		}
 		return '<div class= "img-rounded imgitem32" style="background: url(\''.$href.'\') -'.$x.'px -'.$y.'px no-repeat; background-size: 320px;" title="'.$alttext.'"></div>';
 	} else {
 		return '<div class= "img-rounded imgitem32"></div>';
