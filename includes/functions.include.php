@@ -81,7 +81,8 @@ $modes = array (
 		"URF_BOT" => "U.R.F. vs AI",
 		"NIGHTMARE_BOT" => "Doom Bots",
 		"ASCENSION" => "Ascension",
-		"HEXAKILL" => "Hexakill TT"
+		"HEXAKILL" => "Hexakill TT",
+		"KING_PORO" => "Poro King"
 );
 
 /*
