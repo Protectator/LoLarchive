@@ -1,7 +1,7 @@
 What is LoLarchive
 ==================
 
-LoLarchive is a website that keeps track of each game of League of Legends of you and your friends (or every person you want !). Its main goal is to have a trace of your performances and 
+LoLarchive is a website that keeps track of each game of League of Legends of you and your friends (or every person you want !). Its main goal is to have a trace of your performances and display stats related to them in a nice way.
 
 How it works
 ============
